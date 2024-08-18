@@ -3,6 +3,111 @@ import { Reader, Writer, SERVER_BOUND, CLIENT_BOUND, ENTITY_FLAGS, ENTITY_MODIFI
 import { StarfishData } from "./renders.js";
 import * as util from "./util.js";
 
+function getBrowserInfo() {
+    const userAgent = navigator.userAgent;
+    let browserName = "unknown";
+    let browserVersion = "unknown";
+
+    if (userAgent.includes("Firefox")) {
+        browserName = "Firefox";
+        browserVersion = parseInt(userAgent.match(/Firefox\/([\d]+)/)?.[1]);
+    } else if (userAgent.includes("Edg")) {
+        browserName = "Edge";
+        browserVersion = parseInt(userAgent.match(/Edg\/([\d]+)/)?.[1]);
+    } else if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
+        browserName = "Chrome";
+        browserVersion = parseInt(userAgent.match(/Chrome\/([\d]+)/)?.[1]);
+    } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+        browserName = "Safari";
+        browserVersion = parseInt(userAgent.match(/Version\/([\d]+)/)?.[1]);
+    } else if (userAgent.includes("OPR")) {
+        browserName = "Opera";
+        browserVersion = parseInt(userAgent.match(/OPR\/([\d]+)/)?.[1]);
+    }
+
+    return { name: browserName, version: browserVersion };
+}
+
+function extractImportantGPUInfo(gpuName) {
+    // NVIDIA GeForce Pattern
+    const nvidiaPattern = /NVIDIA\s+(GeForce|Quadro|RTX|GTX)\s+([A-Za-z0-9\s]+)/i;
+    const amdPattern = /AMD\s+(Radeon|RX)\s+([A-Za-z0-9\s]+)/i;
+    const intelPattern = /Intel\s+(Iris|UHD|Xe)\s+([A-Za-z0-9\s]+)/i;
+
+    if (nvidiaPattern.test(gpuName)) {
+        const [, series, model] = gpuName.match(nvidiaPattern);
+        return `NVIDIA ${series} ${model.trim()}`;
+    } else if (amdPattern.test(gpuName)) {
+        const [, series, model] = gpuName.match(amdPattern);
+        return `AMD ${series} ${model.trim()}`;
+    } else if (intelPattern.test(gpuName)) {
+        const [, series, model] = gpuName.match(intelPattern);
+        return `Intel ${series} ${model.trim()}`;
+    }
+
+    return "Other";
+}
+
+async function benchmarkTest() {
+    return new Promise((resolve) => {
+        const workerCode = `
+            onmessage = function() {
+                let startTime = performance.now();
+                for (let i = 0; i < 1e7; i++) {}
+                let endTime = performance.now();
+                postMessage(endTime - startTime);
+            };
+        `;
+
+        const blob = new Blob([workerCode], { type: "application/javascript" });
+        const worker = new Worker(URL.createObjectURL(blob));
+
+        worker.onmessage = (e) => {
+            resolve(e.data);
+            worker.terminate();
+        };
+
+        worker.postMessage(null);
+    });
+}
+
+async function getAnalyticsData() {
+    const gl = document.createElement("canvas").getContext("webgl") || document.createElement("canvas").getContext("experimental-webgl");
+    const debugInfo = gl?.getExtension("WEBGL_debug_renderer_info");
+    const rawGpuName = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "unknown";
+    const gpu = extractImportantGPUInfo(rawGpuName);
+    const browserInfo = getBrowserInfo();
+
+    const output = {
+        screen: {
+            resolution: `${screen.width}x${screen.height}`
+        },
+        hardware: {
+            glSupported: !!window.WebGLRenderingContext,
+            gl2Supported: !!window.WebGL2RenderingContext,
+            minimumCores: navigator.hardwareConcurrency,
+            gpu,
+            minimumMemory: navigator.deviceMemory ?? "unknown",
+            os: navigator.platform ?? "unknown",
+            benchmarkTime: await benchmarkTest()
+        },
+        browser: {
+            name: browserInfo.name,
+            version: browserInfo.version
+        },
+        locale: navigator.language,
+        timezoneOffset: -(new Date().getTimezoneOffset() / 60),
+        isDST: new Date().getTimezoneOffset() < Math.max(
+            new Date(new Date().getFullYear(), 0, 1).getTimezoneOffset(), 
+            new Date(new Date().getFullYear(), 6, 1).getTimezoneOffset()
+        ),
+        userAgent: navigator.userAgent
+    };
+
+    return output;
+}
+
+
 export async function loadUUID() {
     const storageID = localStorage.getItem("uuid");
     let existing = false;
