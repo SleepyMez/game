@@ -13,7 +13,7 @@ const ignoreFiles = [
 
 const config = {
     optimization: {
-        minimize: false,
+        minimize: true,
         minimizer: [
             new Terser({
                 parallel: true,

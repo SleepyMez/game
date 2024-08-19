@@ -3,6 +3,7 @@
 - Added an option to enable/disable hitboxes
 - Rewrote the routing server using Bun's APIs and runtimes
 - Segmented mobs can now coil upon themselves
+- Started experimenting with running the Bun router on an ExtraVM server (WARNING: This will invalidate any node/bun game instance)
 
 # Update (08/09/2024):
 - Added a HIGHLY experimental new gamemode with terrain rather than just a plain map

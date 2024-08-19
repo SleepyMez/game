@@ -28,8 +28,67 @@ function getBrowserInfo() {
     return { name: browserName, version: browserVersion };
 }
 
+function getOSInfo() {
+    const agent = navigator.userAgent;
+    const data = navigator.userAgentData;
+    const platform = navigator.platform;
+
+    const platformRegex = {
+        "Windows": /Win/i,
+        "Mac OS": /Mac/i,
+        "iOS": /iPhone|iPad|iPod/i,
+        "Android": /Android/i,
+        "Linux": /Linux/i,
+        "Unix": /X11/i
+    };
+
+    const agentRegex = {
+        "Windows": /Windows/i,
+        "Mac OS": /Mac OS/i,
+        "iOS": /like Mac OS/i,
+        "Android": /Android/i,
+        "Linux": /Linux/i,
+        "Unix": /Unix/i
+    };
+
+    const userAgentDataRegex = {
+        "Windows": /Windows/i,
+        "Mac OS": /Mac OS/i,
+        "iOS": /like Mac OS/i,
+        "Android": /Android/i,
+        "Linux": /Linux/i,
+        "Unix": /Unix/i
+    };
+
+    let os = "Unknown";
+
+    for (const [name, regex] of Object.entries(platformRegex)) {
+        if (regex.test(platform)) {
+            os = name;
+            break;
+        }
+    }
+
+    for (const [name, regex] of Object.entries(agentRegex)) {
+        if (regex.test(agent)) {
+            os = name;
+            break;
+        }
+    }
+
+    if (data) {
+        for (const [name, regex] of Object.entries(userAgentDataRegex)) {
+            if (regex.test(data.platform)) {
+                os = name;
+                break;
+            }
+        }
+    }
+
+    return os;
+}
+
 function extractImportantGPUInfo(gpuName) {
-    // NVIDIA GeForce Pattern
     const nvidiaPattern = /NVIDIA\s+(GeForce|Quadro|RTX|GTX)\s+([A-Za-z0-9\s]+)/i;
     const amdPattern = /AMD\s+(Radeon|RX)\s+([A-Za-z0-9\s]+)/i;
     const intelPattern = /Intel\s+(Iris|UHD|Xe)\s+([A-Za-z0-9\s]+)/i;
@@ -74,42 +133,33 @@ async function benchmarkTest() {
 async function getAnalyticsData() {
     const gl = document.createElement("canvas").getContext("webgl") || document.createElement("canvas").getContext("experimental-webgl");
     const debugInfo = gl?.getExtension("WEBGL_debug_renderer_info");
-    const rawGpuName = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "unknown";
-    const gpu = extractImportantGPUInfo(rawGpuName);
     const browserInfo = getBrowserInfo();
 
     const output = {
         screen: `${screen.width}x${screen.height}`,
         hardware: {
-            glSupported: !!window.WebGLRenderingContext,
-            gl2Supported: !!window.WebGL2RenderingContext,
-            minimumCores: navigator.hardwareConcurrency,
-            gpu,
-            minimumMemory: navigator.deviceMemory ?? "unknown",
-            os: navigator.platform ?? "unknown",
-            benchmarkTime: await benchmarkTest()
+            gl: +!!window.WebGLRenderingContext,
+            gl2: +!!window.WebGL2RenderingContext,
+            minCores: navigator.hardwareConcurrency,
+            minMem: navigator.deviceMemory ?? 0,
+            gpu: extractImportantGPUInfo(debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "unknown"),
+            os: getOSInfo(),
+            bench: await benchmarkTest()
         },
         browser: {
             name: browserInfo.name,
             version: browserInfo.version
         },
         locale: navigator.language,
-        timezoneOffset: -(new Date().getTimezoneOffset() / 60),
-        isDST: new Date().getTimezoneOffset() < Math.max(
-            new Date(new Date().getFullYear(), 0, 1).getTimezoneOffset(), 
-            new Date(new Date().getFullYear(), 6, 1).getTimezoneOffset()
-        ),
-        userAgent: navigator.userAgent,
-        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|android|mobi/i.test(navigator.userAgent)
+        tzOff: -(new Date().getTimezoneOffset() / 60),
+        dst: +(new Date().getTimezoneOffset() < Math.max(new Date(new Date().getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date().getFullYear(), 6, 1).getTimezoneOffset())),
+        isMobile: +(/Android|webOS|iPhone|iPad|iPod|BlackBerry|android|mobi/i.test(navigator.userAgent))
     };
 
     const userAgentData = navigator.userAgentData;
 
     if (userAgentData) {
-        output.hardware.os = userAgentData.platform;
-
         if (userAgentData.brands.length > 0) {
-            console.log(userAgentData.brands)
             const brand = userAgentData.brands.find(b => b.version == output.browser.version)?.brand;
 
             if (brand) {
@@ -117,14 +167,19 @@ async function getAnalyticsData() {
             }
         }
 
-        output.isMobile = userAgentData.mobile;
+        output.isMobile = +userAgentData.mobile;
     }
 
     return output;
 }
 
-const analytics = await getAnalyticsData();
-console.log("Analytics data", analytics);
+async function encodeAnalytics() {
+    const data = await getAnalyticsData();
+    return btoa(JSON.stringify(data));
+}
+
+const analyticalData = encodeURIComponent(await encodeAnalytics());
+console.log(JSON.parse(atob(decodeURIComponent(analyticalData))));
 
 export async function loadUUID() {
     const storageID = localStorage.getItem("uuid");
@@ -456,7 +511,7 @@ export function createServer(name, gamemode, modded, isPrivate, biome) {
             error: "Timeout error"
         }), 5000);
 
-        const socket = new WebSocket(`${util.SERVER_URL.replace("http", "ws")}/ws/lobby?gameName=${name}&isModded=${modded ? "yes" : "no"}&isPrivate=${isPrivate ? "yes" : "no"}&gamemode=${gamemode}&biome=${biomeInt}`);
+        const socket = new WebSocket(`${util.SERVER_URL.replace("http", "ws")}/ws/lobby?gameName=${name}&isModded=${modded ? "yes" : "no"}&isPrivate=${isPrivate ? "yes" : "no"}&gamemode=${gamemode}&biome=${biomeInt}&analytics=${analyticalData}`);
         socket.binaryType = "arraybuffer";
 
         socket.onopen = () => {
@@ -1378,7 +1433,7 @@ export async function beginState(lobbyID, username) {
         }
 
         location.hash = lobbyID;
-        state.socket = new ClientSocket(`${util.SERVER_URL.replace("http", "ws")}/ws/client?partyURL=${lobbyID}&clientKey=${localStorage.getItem("token") ?? ""}&uuid=${UUID}`, username);
+        state.socket = new ClientSocket(`${util.SERVER_URL.replace("http", "ws")}/ws/client?partyURL=${lobbyID}&clientKey=${localStorage.getItem("token") ?? ""}&uuid=${UUID}&analytics=${analyticalData}`, username);
         state.socket.lobbyID = lobbyID;
     } catch (error) {
         console.error(error);
