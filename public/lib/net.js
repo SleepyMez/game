@@ -79,9 +79,7 @@ async function getAnalyticsData() {
     const browserInfo = getBrowserInfo();
 
     const output = {
-        screen: {
-            resolution: `${screen.width}x${screen.height}`
-        },
+        screen: `${screen.width}x${screen.height}`,
         hardware: {
             glSupported: !!window.WebGLRenderingContext,
             gl2Supported: !!window.WebGL2RenderingContext,
@@ -101,12 +99,32 @@ async function getAnalyticsData() {
             new Date(new Date().getFullYear(), 0, 1).getTimezoneOffset(), 
             new Date(new Date().getFullYear(), 6, 1).getTimezoneOffset()
         ),
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
+        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|android|mobi/i.test(navigator.userAgent)
     };
+
+    const userAgentData = navigator.userAgentData;
+
+    if (userAgentData) {
+        output.hardware.os = userAgentData.platform;
+
+        if (userAgentData.brands.length > 0) {
+            console.log(userAgentData.brands)
+            const brand = userAgentData.brands.find(b => b.version == output.browser.version)?.brand;
+
+            if (brand) {
+                output.browser.name = brand;
+            }
+        }
+
+        output.isMobile = userAgentData.mobile;
+    }
 
     return output;
 }
 
+const analytics = await getAnalyticsData();
+console.log("Analytics data", analytics);
 
 export async function loadUUID() {
     const storageID = localStorage.getItem("uuid");
