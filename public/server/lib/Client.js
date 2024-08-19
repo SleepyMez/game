@@ -710,7 +710,7 @@ export default class Client {
         this.verified = false;
         this.username = "unknown";
         this.uuid = uuid;
-        this.nameColor = ["#FFFFFF", "#5555C8"][masterPermissions];
+        this.nameColor = ["#FFFFFF", "#D85555"][masterPermissions];
         this.masterPermissions = masterPermissions;
 
         this.camera = new Camera();
@@ -1111,7 +1111,7 @@ export default class Client {
                         this.talk(CLIENT_BOUND.JSON_MESSAGE, {
                             ok: true,
                             entitiesSize: state.entities.size,
-                            clisnts: Array.from(state.clients.values()).map(client => ({
+                            clients: Array.from(state.clients.values()).map(client => ({
                                 id: client.id,
                                 username: client.username,
                                 verified: client.verified,

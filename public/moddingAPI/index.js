@@ -40,39 +40,69 @@ apply("getPlayersResponse", "json", `{
     "ok": true,
     "message": "Players fetched successfully",
     "data": [{
+        "uuid": "3f4f317f-9896-44bd-8156-ccb6be8c0b93",
         "clientID": 1,
-        "username": "z46",
-        "body": {
-            "id": 2,
-            "slots": [{
+        "username": "guest",
+        "slots": {
+            "primary": [{
                 "index": 0,
                 "rarity": 2,
                 "indexName": "Basic",
                 "rarityName": "Rare"
             }, {
-                "index": 1,
-                "rarity": 1,
-                "indexName": "Light",
-                "rarityName": "Uncommon"
+                "index": 0,
+                "rarity": 2,
+                "indexName": "Basic",
+                "rarityName": "Rare"
             }, {
-                "index": 2,
-                "rarity": 1,
-                "indexName": "Faster",
-                "rarityName": "Uncommon"
+                "index": 0,
+                "rarity": 2,
+                "indexName": "Basic",
+                "rarityName": "Rare"
             }, {
-                "index": 3,
-                "rarity": 1,
-                "indexName": "Heavy",
-                "rarityName": "Uncommon"
+                "index": 0,
+                "rarity": 2,
+                "indexName": "Basic",
+                "rarityName": "Rare"
             }, {
-                "index": 4,
+                "index": 0,
+                "rarity": 2,
+                "indexName": "Basic",
+                "rarityName": "Rare"
+            }],
+            "secondary": [{
+                "index": 10,
+                "rarity": 0,
+                "indexName": "Bone",
+                "rarityName": "Common"
+            }, null, {
+                "index": 7,
+                "rarity": 0,
+                "indexName": "Cactus",
+                "rarityName": "Common"
+            }, {
+                "index": 20,
+                "rarity": 0,
+                "indexName": "Pollen",
+                "rarityName": "Common"
+            }, {
+                "index": 20,
                 "rarity": 1,
-                "indexName": "Stinger",
+                "indexName": "Pollen",
                 "rarityName": "Uncommon"
             }],
+            "highestRarity": 2
+        },
+        "level": {
+            "xp": 8,
+            "level": 3,
+            "progress": 0.1709
+        },
+        "body": {
+            "id": 21,
             "position": {
-                "x": -275.346575794038,
-                "y": -105.3564285786419
+                "x": 175.93368503038386,
+                "y": -351.6682874515918
             }
         }
     }]

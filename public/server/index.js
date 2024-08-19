@@ -3,7 +3,7 @@ import { BIOME_TYPES, CLIENT_BOUND, Drawing, encodeEverything, ENTITY_TYPES, GAM
 import { DEFAULT_PETAL_COUNT, mobConfigs, PetalConfig, petalConfigs, tiers } from "./lib/config.js";
 import { AIPlayer, Mob, Player } from "./lib/Entity.js";
 import Router from "./lib/Router.js";
-import { stringToU8 } from "../lib/lobbyProtocol.js";
+import { stringToU8, u8ToString, u8ToU16 } from "../lib/lobbyProtocol.js";
 
 function createWave(n) {
     const output = [];
@@ -227,13 +227,13 @@ switch (globalThis.environmentName) {
         self.onmessage = async ({ data }) => {
             switch (data[0]) {
                 case 0x00:
-                    state.router.addClient(Router.u8ToU16(data, 1), Router.getText(data, 4, data.length - 4), data[3]);
+                    state.router.addClient(u8ToU16(data, 1), u8ToString(data, 4), data[3]);
                     break;
                 case 0x01:
-                    state.router.pipeMessage(Router.u8ToU16(data, 1), new DataView(data.buffer, data.byteOffset + 3, data.byteLength - 3));
+                    state.router.pipeMessage(u8ToU16(data, 1), new DataView(data.buffer, data.byteOffset + 3, data.byteLength - 3));
                     break;
                 case 0x02:
-                    state.router.removeClient(Router.u8ToU16(data, 1));
+                    state.router.removeClient(u8ToU16(data, 1));
                     break;
                 case "start":
                     state.router.begin(data);
@@ -519,14 +519,28 @@ class ModdingAPI {
                     players.push({
                         clientID: client.id,
                         username: client.username,
-                        body: client.body ? {
-                            id: client.body.id,
-                            slots: client.slots.map(slot => ({
+                        slots: {
+                            primary: client.slots.map(slot => ({
                                 index: slot.id,
                                 rarity: slot.rarity,
                                 indexName: petalConfigs[slot.id].name,
                                 rarityName: tiers[slot.rarity].name
                             })),
+                            secondary: client.secondarySlots.map(slot => slot ? ({
+                                index: slot.id,
+                                rarity: slot.rarity,
+                                indexName: petalConfigs[slot.id].name,
+                                rarityName: tiers[slot.rarity].name
+                            }) : null),
+                            highestRarity: client.highestRarity
+                        },
+                        level: {
+                            xp: Math.round(client.xp),
+                            level: client.level,
+                            progress: +client.levelProgress.toFixed(4)
+                        },
+                        body: client.body ? {
+                            id: client.body.id,
                             position: {
                                 x: client.body.x,
                                 y: client.body.y
