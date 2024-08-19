@@ -1,4 +1,3 @@
-import Obfuscator from "webpack-obfuscator";
 import Terser from "terser-webpack-plugin";
 import path from "path";
 import URL from "url";
@@ -9,7 +8,7 @@ import js_beautify from "js-beautify";
 
 const ignoreFiles = [
     "moddingAPI/index.js",
-    "moddingAPI/prism.js"
+    "moddingAPI/highlight.mins.js"
 ];
 
 const config = {

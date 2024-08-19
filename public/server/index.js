@@ -237,6 +237,10 @@ switch (globalThis.environmentName) {
                     break;
                 case "start":
                     state.router.begin(data);
+
+                    if (data[2]) {
+                        new ModdingAPI();
+                    }
                     break;
             }
         }
@@ -247,97 +251,97 @@ switch (globalThis.environmentName) {
         throw new Error("Node environment not supported");
     case "bun": {
         let bunSocketID = 1;
-const bunSendMap = new Map();
-const server = Bun.serve({
-    fetch(req) {
-        const success = server.upgrade(req, {
-            data: {
-                socketID: bunSocketID++,
-                searchParams: new URLSearchParams(req.url.split("?").slice(1).join("?"))
+        const bunSendMap = new Map();
+        const server = Bun.serve({
+            fetch(req) {
+                const success = server.upgrade(req, {
+                    data: {
+                        socketID: bunSocketID++,
+                        searchParams: new URLSearchParams(req.url.split("?").slice(1).join("?"))
+                    }
+                });
+
+                if (success) {
+                    return undefined;
+                }
+
+                return new Response("Hello world");
+            },
+
+            websocket: {
+                open(socket) {
+                    socket.binaryType = "arraybuffer";
+                    state.router.addClient(socket.data.bunSocketID, socket.data.searchParams.get("uuid"), false);
+                    bunSendMap.set(socket.data.bunSocketID, socket);
+                },
+
+                close(socket) {
+                    state.router.removeClient(socket.data.bunSocketID);
+                    bunSendMap.delete(socket.data.bunSocketID);
+                },
+
+                message(socket, data) {
+                    if (typeof data === "string") {
+                        return;
+                    }
+
+                    state.router.pipeMessage(socket.data.bunSocketID, new DataView(data));
+                }
+            },
+
+            port: 8080
+        });
+
+        const options = {
+            host: "ws://localhost",
+            gameName: "bun",
+            modded: false,
+            gamemode: "waves",
+            secret: "staging_key",
+            biome: Math.random() * 7 | 0,
+            private: false
+        };
+
+        const socket = new WebSocket(`${options.host}/ws/lobby?gameName=${options.gameName}&isModded=${options.modded ? "yes" : "no"}&gamemode=${options.gamemode}&secret=${options.secret}&isPrivate=${options.private ? "yes" : "no"}&biome=${options.biome}&directConnect=unsecure`, {
+            origin: "https://floof.eparker.dev",
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
             }
         });
 
-        if (success) {
-            return undefined;
-        }
+        socket.binaryType = "arraybuffer";
 
-        return new Response("Hello world");
-    },
+        socket.onopen = () => {
+            console.log("Connected to server");
 
-    websocket: {
-        open(socket) {
-            socket.binaryType = "arraybuffer";
-            state.router.addClient(socket.data.bunSocketID, socket.data.searchParams.get("uuid"), false);
-            bunSendMap.set(socket.data.bunSocketID, socket);
-        },
+            state.router.begin(["start", options.gamemode, options.modded, crypto.randomUUID(), options.biome]);
 
-        close(socket) {
-            state.router.removeClient(socket.data.bunSocketID);
-            bunSendMap.delete(socket.data.bunSocketID);
-        },
+            socket.onmessage = event => {
+                const data = new Uint8Array(event.data);
 
-        message(socket, data) {
-            if (typeof data === "string") {
-                return;
+                if (data[0] === 255) {
+                    const ok = data[1] === 1;
+
+                    if (!ok) {
+                        throw new Error("Request rejected by server");
+                    }
+
+                    console.log("Lobby Verified", new TextDecoder().decode(data.slice(2, -1)));
+                    return;
+                }
+
+                console.log("Received:", data);
             }
 
-            state.router.pipeMessage(socket.data.bunSocketID, new DataView(data));
-        }
-    },
-
-    port: 8080
-});
-
-const options = {
-    host: "ws://localhost",
-    gameName: "bun",
-    modded: false,
-    gamemode: "waves",
-    secret: "staging_key",
-    biome: Math.random() * 7 | 0,
-    private: false
-};
-
-const socket = new WebSocket(`${options.host}/ws/lobby?gameName=${options.gameName}&isModded=${options.modded ? "yes" : "no"}&gamemode=${options.gamemode}&secret=${options.secret}&isPrivate=${options.private ? "yes" : "no"}&biome=${options.biome}&directConnect=unsecure`, {
-    origin: "https://floof.eparker.dev",
-    headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
-    }
-});
-
-socket.binaryType = "arraybuffer";
-
-socket.onopen = () => {
-    console.log("Connected to server");
-
-    state.router.begin(["start", options.gamemode, options.modded, crypto.randomUUID(), options.biome]);
-
-    socket.onmessage = event => {
-        const data = new Uint8Array(event.data);
-
-        if (data[0] === 255) {
-            const ok = data[1] === 1;
-
-            if (!ok) {
-                throw new Error("Request rejected by server");
+            state.router.postMessage = u8 => {
+                console.log("Sending", u8);
+                socket.send(u8);
             }
 
-            console.log("Lobby Verified", new TextDecoder().decode(data.slice(2, -1)));
-            return;
+            socket.onclose = () => {
+                console.log("Disconnected from server");
+            }
         }
-
-        console.log("Received:", data);
-    }
-
-    state.router.postMessage = u8 => {
-        console.log("Sending", u8);
-        socket.send(u8);
-    }
-
-    socket.onclose = () => {
-        console.log("Disconnected from server");
-    }
-}
     } break;
     default:
         throw new Error("Invalid environment");

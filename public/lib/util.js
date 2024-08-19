@@ -152,5 +152,6 @@ export const options = {
     mouseMovement: false,
     hideEntityUI: false,
     useTileBackground: false,
-    fancyGraphics: false
+    fancyGraphics: false,
+    showHitboxes: true
 };

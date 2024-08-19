@@ -1,3 +1,9 @@
+# Update (08/18/2024):
+- Fixed a bug with Rice and 0 reload petals
+- Added an option to enable/disable hitboxes
+- Rewrote the routing server using Bun's APIs and runtimes
+- Segmented mobs can now coil upon themselves
+
 # Update (08/09/2024):
 - Added a HIGHLY experimental new gamemode with terrain rather than just a plain map
 - Nerfed Evil Players and changed their colors

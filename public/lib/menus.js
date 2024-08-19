@@ -86,6 +86,7 @@ function bindOptionToggle(option, elementID) {
         localStorage.setItem("options-" + option, element.checked);
     }
 
+    element.checked = options[option];
     if (localStorage.getItem("options-" + option) === "true") {
         element.checked = true;
         options[option] = true;
@@ -99,6 +100,7 @@ bindOptionToggle("mouseMovement", "mouse-movement");
 bindOptionToggle("hideEntityUI", "hide-entity-ui");
 bindOptionToggle("useTileBackground", "use-tile-background");
 bindOptionToggle("fancyGraphics", "extra-graphics");
+bindOptionToggle("showHitboxes", "show-hitboxes");
 
 export async function loadAndRenderChangelogs() {
     const changelogs = [];

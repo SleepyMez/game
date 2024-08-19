@@ -460,11 +460,13 @@ function draw() {
 
         const size = entity.size * scale;
 
-        ctx.beginPath();
-        ctx.arc(drawX, drawY, size, 0, Math.PI * 2);
-        ctx.lineWidth = 1.5 * scale;
-        ctx.strokeStyle = colors["???"];
-        ctx.stroke();
+        if (options.showHitboxes) {
+            ctx.beginPath();
+            ctx.arc(drawX, drawY, size, 0, Math.PI * 2);
+            ctx.lineWidth = 1.5 * scale;
+            ctx.strokeStyle = colors["???"];
+            ctx.stroke();
+        }
 
         ctx.save();
         ctx.translate(drawX, drawY);

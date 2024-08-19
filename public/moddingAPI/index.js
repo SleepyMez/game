@@ -2,35 +2,39 @@ function HTMLifyCode(code) {
     return code.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+const waits = [];
+
 function apply(id, language, code) {
     const element = document.getElementById(id);
     const codeElement = document.createElement("code");
     codeElement.innerHTML = HTMLifyCode(code);
     codeElement.classList.add("language-" + language);
     element.appendChild(codeElement);
+
+    waits.push(element);
 }
 
-apply("syncPetalIndex", "js", `floof.syncPetalIndex("Stinger"); // 4
+apply("syncPetalIndex", "javascript", `floof.syncPetalIndex("Stinger"); // 4
 floof.syncPetalIndex("something that doesn't exist"); // -1`);
 
-apply("syncMobIndex", "js", `floof.syncMobIndex("Bee"); // 2
+apply("syncMobIndex", "javascript", `floof.syncMobIndex("Bee"); // 2
 floof.syncMobIndex("something that doesn't exist"); // -1`);
 
-apply("syncRarityIndex", "js", `floof.syncRarityIndex("Epic"); // 3
+apply("syncRarityIndex", "javascript", `floof.syncRarityIndex("Epic"); // 3
 floof.syncRarityIndex("something that doesn't exist"); // -1`);
 
-apply("nextAvailableIndices", "js", `floof.syncNextAvailablePetalIndex(); // 42
+apply("nextAvailableIndices", "javascript", `floof.syncNextAvailablePetalIndex(); // 42
 floof.syncNextAvailableMobIndex(); // 17`);
 
-apply("help", "js", `floof.help();`);
+apply("help", "javascript", `floof.help();`);
 
 apply("asyncResponseTemplate", "json", `{
-    ok: true|false,
+    ok: Boolean,
     message: "did you do it right or why did you fail",
-    data: {}|[]|number|string
+    data: Object|Array|Number|String
 }`);
 
-apply("getPlayersRequest", "js", `const players = await floof.getPlayers();`);
+apply("getPlayersRequest", "javascript", `const players = await floof.getPlayers();`);
 
 apply("getPlayersResponse", "json", `{
     "ok": true,
@@ -74,7 +78,7 @@ apply("getPlayersResponse", "json", `{
     }]
 }`);
 
-apply("getMobsRequest", "js", `const mobs = await floof.getMobs();`);
+apply("getMobsRequest", "javascript", `const mobs = await floof.getMobs();`);
 
 apply("getMobsResponse", "json", `{
     "ok": true,
@@ -162,7 +166,7 @@ apply("getMobsResponse", "json", `{
     }]
 }`);
 
-apply("spawnMobRequest", "js", `const mob = await floof.spawnMob(6, 3); // With direct numbers
+apply("spawnMobRequest", "javascript", `const mob = await floof.spawnMob(6, 3); // With direct numbers
 const mob = await floof.spawnMob(floof.syncPetalIndex("Roach"), floof.syncRarityIndex("Epic")); // With petal and rarity names
 const mob = await floof.spawnMob("Roach", "Epic"); // With petal and rarity names`);
 
@@ -182,7 +186,7 @@ apply("spawnMobResponse", "json", `{
     }
 }`);
 
-apply("getRoomInfoRequest", "js", `const roomInfo = await floof.getRoomInfo();`);
+apply("getRoomInfoRequest", "javascript", `const roomInfo = await floof.getRoomInfo();`);
 
 apply("getRoomInfoResponse", "json", `{
     "ok": true,
@@ -195,7 +199,7 @@ apply("getRoomInfoResponse", "json", `{
     }
 }`);
 
-apply("setRoomInfoRequest", "js", `const roomInfo = await floof.setRoomInfo(true); // Make the map dynamically resize
+apply("setRoomInfoRequest", "javascript", `const roomInfo = await floof.setRoomInfo(true); // Make the map dynamically resize
 const roomInfo = await floof.setRoomInfo(false, 32 * 32, 32 * 128, 64); // Set the map size to a larger rectangle with 64 mobs`);
 
 apply("setRoomInfoResponse", "json", `{
@@ -209,7 +213,7 @@ apply("setRoomInfoResponse", "json", `{
     }
 }`);
 
-apply("getPetalInfoRequest", "js", `const petalInfo = await floof.getPetalInfo("Lightning");`);
+apply("getPetalInfoRequest", "javascript", `const petalInfo = await floof.getPetalInfo("Lightning");`);
 
 apply("getPetalInfoResponse", "json", `{
     "ok": true,
@@ -217,7 +221,7 @@ apply("getPetalInfoResponse", "json", `{
     "data": <PetalConfig:Lightning>
 }`);
 
-apply("addCustomPetalStructure", "js", `class PetalConfig {
+apply("addCustomPetalStructure", "javascript", `class PetalConfig {
     // (name: string, cooldown: int, health: float, damage: float)
     // Cooldown is in ticks, 22 ticks = 1 second
     constructor(name, cooldown, health, damage) {}
@@ -418,7 +422,7 @@ class Drawing {
     // noBlur
 }`);
 
-apply("addCustomPetalRequest", "js", `const cfg = new floof.PetalConfig("My 1st Custom", 23, 10, 10);
+apply("addCustomPetalRequest", "javascript", `const cfg = new floof.PetalConfig("My 1st Custom", 23, 10, 10);
 cfg.setSize(2);
 cfg.setMulti(4, true);
 cfg.setDrawing(new floof.Drawing().addAction("circle", 0, 0, 1).addAction("fill", "#55CACA"));
@@ -430,7 +434,7 @@ apply("addCustomPetalResponse", "json", `{
     "data": <PetalConfig:My 1st Custom>
 }`);
 
-apply("editCustomPetalRequest", "js", `const cfg = (await floof.getPetalInfo("Lightning")).data;
+apply("editCustomPetalRequest", "javascript", `const cfg = (await floof.getPetalInfo("Lightning")).data;
 cfg.setDamage(1);
 cfg.setMulti(5, false);
 const petalRes = await floof.editCustomPetal(cfg);`);
@@ -441,9 +445,9 @@ apply("editCustomPetalResponse", "json", `{
     "data": <PetalConfig:Lightning>
 }`);
 
-apply("deletePetalRequest", "js", `const petalRes = await floof.deletePetal("My 1st Custom");`);
+apply("deletePetalRequest", "javascript", `const petalRes = await floof.deletePetal("My 1st Custom");`);
 
-apply("setSlotRequest", "js", `const slot = await floof.setSlot(1, 1, 3, 4); // Set the 2nd slot of the 1st player to a Legendary Heavy
+apply("setSlotRequest", "javascript", `const slot = await floof.setSlot(1, 1, 3, 4); // Set the 2nd slot of the 1st player to a Legendary Heavy
 const slot = await floof.setSlot(1, 1, "Heavy", "Legendary"); // With petal and rarity names`);
 
 apply("setSlotResponse", "json", `{
@@ -459,7 +463,7 @@ apply("setSlotResponse", "json", `{
     }
 }`);
 
-apply("setSlotAmountRequest", "js", `const player = await floof.setSlotAmount(1, 10); // Set the amount of slots of the 1st player to 10`);
+apply("setSlotAmountRequest", "javascript", `const player = await floof.setSlotAmount(1, 10); // Set the amount of slots of the 1st player to 10`);
 
 apply("setSlotAmountResponse", "json", `{
     "ok": true,
@@ -527,7 +531,7 @@ apply("setSlotAmountResponse", "json", `{
     }
 }`);
 
-apply("quicklySetSlots", "js", `// Traditional .then() promise method
+apply("quicklySetSlots", "javascript", `// Traditional .then() promise method
 floof.setSlotAmount(1, 10).then(res => {
     if (!res.ok) {
         console.log(res.message);
@@ -549,3 +553,9 @@ if (!res.ok) {
 for (let i = 0; i < 10; i ++) {
     floof.setSlot(1, i, i, i);
 }`);
+
+document.addEventListener("DOMContentLoaded", () => {
+    waits.forEach(element => {
+        hljs.highlightElement(element);
+    });
+});

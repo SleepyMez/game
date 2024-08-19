@@ -100,7 +100,7 @@ export class PetalSlot {
             return this.petals.reduce((acc, petal) => acc + petal.health.ratio, 0) / this.amount;
         }
 
-        return Math.max(...this.cooldowns) / this.config.cooldown;
+        return Math.max(...this.cooldowns) / Math.max(1, this.config.cooldown);
     }
 
     /** @param {PetalConfig} configType */
@@ -632,7 +632,7 @@ export class Entity {
         const collisions = state.spatialHash.retrieve(this);
 
         collisions.forEach(/** @param {Entity} other */ other => {
-            if (this.collisionIDs.has(other.id) || other.collisionIDs.has(this.id) || (this.parent.id === other.parent.id && this.type !== other.type)) {
+            if (this.collisionIDs.has(other.id) || other.collisionIDs.has(this.id) || this.id === other.id || (this.parent.id === other.parent.id && this.type !== other.type)) {
                 return;
             }
 
@@ -641,6 +641,12 @@ export class Entity {
 
             if (this.parent.team === other.parent.team && (this.type === ENTITY_TYPES.PETAL || other.type === ENTITY_TYPES.PETAL)) {
                 return;
+            }
+
+            if (this.type === ENTITY_TYPES.MOB && other.type === ENTITY_TYPES.MOB && this.team === other.team && this.segmentID > -1 && other.segmentID > -1) {
+                if (this.segmentID === other.segmentID) {
+                    return;
+                }
             }
 
             const dx = this.x - other.x;
@@ -1480,6 +1486,8 @@ export class AIPlayer extends Player {
 }
 
 export class Mob extends Entity {
+    static segmentedLength = 0;
+
     static TEMPORARY_RANDOM_RARITY() {
         const rnd = Math.random();
 
@@ -1548,6 +1556,8 @@ export class Mob extends Entity {
         this.spins = false;
         this.fleeAtLowHealth = false;
         this.healing = 0;
+
+        this.segmentID = -1;
 
         this.ropeBodies = null;
 
@@ -1687,22 +1697,33 @@ export class Mob extends Entity {
         }
 
         if (config.segment) {
-            const count = 4 + this.rarity + (Math.random() * 12 | 0);
+            const segmentID = Mob.segmentedLength ++;
+            const count = 4 + this.rarity / 1.5 | 0;
             let last = this;
+
+            this.segmentID = segmentID;
 
             for (let i = 0; i < count; i++) {
                 const segment = new Mob(this);
                 segment.head = last;
                 segment.define(mobConfigs[config.segment], this.rarity);
                 segment.countsTowardsMobCount = false;
+                segment.segmentID = segmentID;
+
+                segment.x = last.x - Math.cos(this.facing) * (this.size + segment.size + 1);
+                segment.y = last.y - Math.sin(this.facing) * (this.size + segment.size + 1);
+                segment.facing = this.facing;
 
                 last = segment;
             }
         }
 
         if (config.name === "Leech" && !this.head) {
-            const count = 4 + this.rarity / 2 | 0;
+            const count = 4 + Math.random() * 5 | 0;
             let last = this;
+
+            const segmentID = Mob.segmentedLength ++;
+            this.segmentID = segmentID;
 
             this.ropeBodies = [];
 
@@ -1715,6 +1736,12 @@ export class Mob extends Entity {
                 segment.health = this.health;
                 segment.canBeViewed = false;
                 segment.countsTowardsMobCount = false;
+                segment.segmentID = segmentID;
+
+                segment.x = last.x - Math.cos(this.facing) * (this.size + segment.size + 1);
+                segment.y = last.y - Math.sin(this.facing) * (this.size + segment.size + 1);
+                segment.facing = this.facing;
+
                 this.ropeBodies.push(segment);
 
                 last = segment;
@@ -1913,7 +1940,7 @@ export class Mob extends Entity {
                 }
             } else if (this.movesInBursts) {
                 this.movementStrength *= .7;
-            } else { 
+            } else {
                 if (this.parent.type === ENTITY_TYPES.PLAYER) {
                     this.movementAngle = Math.atan2(this.parent.y - this.y, this.parent.x - this.x);
                     this.movementStrength = quickDiff(this, this.parent) < this.size + this.parent.size * 2 ? 0 : this.speed;
