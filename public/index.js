@@ -414,7 +414,8 @@ setInterval(() => {
 }, 1E3);
 
 let cuteLittleAnimations = {
-    nameText: 200
+    nameText: 200,
+    chatBGSize: 0
 };
 
 function draw() {
@@ -923,13 +924,20 @@ function draw() {
             const msgSize = 18;
 
             for (let i = 0; i < messages.length; i ++) {
-                heights.push(drawWrappedText(messages[i].completeMessage, -2048, -2048, msgSize, maxWidth - 5));
+                heights.push(drawWrappedText(messages[i].completeMessage, -2048, -2048, msgSize, maxWidth));
             }
 
-            let y = 0;
-
             ctx.textAlign = "left";
-            ctx.textBaseline = "top";
+            ctx.textBaseline = "middle";
+            let y = -10;
+
+            const maxY = heights.reduce((a, b) => a + b, 0) + 10 * messages.length + (net.ChatMessage.showInput ? 45 : 30);
+            cuteLittleAnimations.chatBGSize = lerp(cuteLittleAnimations.chatBGSize, maxY, .1);
+
+            ctx.fillStyle = "rgba(0, 0, 0, .5)";
+            ctx.beginPath();
+            ctx.roundRect(-12, -cuteLittleAnimations.chatBGSize - 10, maxWidth + 22, cuteLittleAnimations.chatBGSize + 22, 5);
+            ctx.fill();
 
             if (net.ChatMessage.showInput) {
                 const element = net.ChatMessage.element;
@@ -945,11 +953,12 @@ function draw() {
                 y -= 45;
             } else {
                 net.ChatMessage.element.style.display = "none";
-                text("(Press Esc to open chat)", 0, y - msgSize, msgSize);
+                text("(Press Esc to open chat)", 0, y, msgSize);
 
                 y -= 30;
             }
 
+            ctx.textBaseline = "top";
             y -= heights[heights.length - 1];
 
             for (let i =  messages.length - 1; i >= 0; i --) {

@@ -732,6 +732,8 @@ export default class Client {
         this.level = 1;
         this.xp = 1;
         this.levelProgress = 0;
+
+        this.lastChat = 0;
     }
 
     addXP(x) {
@@ -1133,9 +1135,16 @@ export default class Client {
 
                 const message = reader.getStringUTF8();
                 if (!/^[\w\s,.!?'"@#%^&*()_\-+=:;<>\/\\|[\]{}~`\u00A0-\uFFFF]{1,128}$/.test(message)) {
+                    this.systemMessage("That message is too long or contains invalid characters", "#CACA22");
                     return;
                 }
 
+                if (performance.now() - this.lastChat < 1000) {
+                    this.systemMessage("You're chatting too fast!", "#22CACA");
+                    return;
+                }
+
+                this.lastChat = performance.now();
                 state.clients.forEach(c => c.chatMessage(this.username, message, this.nameColor));
             } break;
         }
