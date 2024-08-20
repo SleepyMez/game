@@ -293,6 +293,27 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
 
     let line = "";
     for (let i = 0; i < words.length; i++) {
+        if (_ctx.measureText(words[i]).width > maxWidth) {
+            const newWords = [];
+
+            const oldWord = words[i];
+            let word = "";
+
+            for (let j = 0; j < oldWord.length; j++) {
+                if (_ctx.measureText(word + oldWord[j]).width > maxWidth) {
+                    newWords.push(word);
+                    word = "";
+                }
+
+                word += oldWord[j];
+            }
+
+            newWords.push(word);
+            words.splice(i, 1, ...newWords);
+            i--;
+            continue;
+        }
+
         const testLine = line + words[i] + " ";
         const testWidth = _ctx.measureText(testLine).width;
 

@@ -5,6 +5,7 @@
 - Changed the facial expression slightly
 - Fixed a bug where mobs spawned from Queen Ants would mess up some stuff
 - Termite Overmind now spawns Soldier Termites when attacking
+- Added a better major slur filter. But please, just be civil.
 
 # Update (08/18/2024):
 - Fixed a bug with Rice and 0 reload petals

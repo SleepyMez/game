@@ -526,6 +526,7 @@ function drawEgg(rarity, ctx = _ctx, hit = false) {
 }
 
 export function drawAntennae(ctx = _ctx) {
+    ctx.save();
     setStyle(ctx, colors.lighterBlack, .1);
     ctx.scale(1.5, 1.5);
     ctx.beginPath();
@@ -538,7 +539,7 @@ export function drawAntennae(ctx = _ctx) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ctx.scale(.6666666666666666, .6666666666666666);
+    ctx.restore();
 }
 
 function drawPeas(ctx = _ctx, hit = false) {
@@ -763,6 +764,7 @@ const magnetPath = new Path2D("M-.03 0-.36-0Q-.4-.21-.2-.4-.01-.56.45-.43A.04.04
 const magnet2Path = new Path2D("M-.03 0-.36 0Q-.4.21-.2.4-.01.56.45.43A.04.04 90 00.33.11Q.18.17.05.15-.05.13-.03 0Z");
 
 function drawMagnet(ctx = _ctx, hit = false) {
+    ctx.save();
     ctx.scale(2, 2);
     setStyle(ctx, mixColors("#4343A4", "#FF0000", hit * .5), .15);
     ctx.fill(magnetPath);
@@ -770,7 +772,7 @@ function drawMagnet(ctx = _ctx, hit = false) {
     setStyle(ctx, mixColors("#A44343", "#FF0000", hit * .5), .15);
     ctx.fill(magnet2Path);
     ctx.stroke(magnet2Path);
-    ctx.scale(.5, .5);
+    ctx.restore();
 }
 
 export function drawAmulet(ctx = _ctx, hit = false) {
@@ -2074,6 +2076,7 @@ function drawMantis(id, attack = false, hit = false, ctx = _ctx) {
 
 const pupaPath = new Path2D("M.96-.33C.72-.6-.91-.83-.84-.33Q-1.04 0-.84.33C-.91.83.72.6.96.33L.8.27A.03.03 90 11.8-.27Z");
 function drawPupa(hit = false, ctx = _ctx) {
+    ctx.save();
     ctx.scale(1.334, 1.334);
     setStyle(ctx, mixColors(colors.peaGreen, "#FF0000", hit * .5), .1);
     ctx.beginPath();
@@ -2110,7 +2113,7 @@ function drawPupa(hit = false, ctx = _ctx) {
     ctx.bezierCurveTo(-.2, -.1, -.4, .1, -.6, 0);
     ctx.stroke();
     ctx.closePath();
-    ctx.scale(1 / 1.334, 1 / 1.334);
+    ctx.restore();
 }
 
 function drawSandstorm(id, color, attack = false, hit = false, ctx = _ctx) {
@@ -2688,6 +2691,7 @@ const spongeColors = [
 const spongePtSize = TAU / 30;
 
 function drawSponge(id, hit = false, ctx = _ctx) {
+    ctx.save();
     setStyle(ctx, mixColors(spongeColors[id % 4], "#FF0000", hit * .5), .1);
 
     ctx.scale(1.1, 1.1);
@@ -2725,7 +2729,7 @@ function drawSponge(id, hit = false, ctx = _ctx) {
         ctx.closePath();
         ctx.fill();
     }
-    ctx.scale(1 / 1.1, 1 / 1.1);
+    ctx.restore();
 }
 
 function drawBubbleMob(hit = false, ctx = _ctx) {

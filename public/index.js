@@ -945,7 +945,7 @@ function draw() {
                 element.style.display = "block";
                 element.style.left = `${10 * uScale}px`;
                 element.style.bottom = `${10 * uScale}px`;
-                element.style.width = `${maxWidth * uScale}px`;
+                element.style.width = `${+getComputedStyle(canvas).width.replace("px", "") * .2 - 10 * uScale}px`;
                 element.style.height = `${20 * uScale}px`;
                 element.style.fontSize = `${msgSize * uScale}px`;
                 element.style.padding = `${5 * uScale}px`;

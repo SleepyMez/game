@@ -763,8 +763,6 @@ export class ChatMessage {
                 break;
         }
 
-        console.log(this);
-
         this.y = 300;
         this.ticker = 0;
 
