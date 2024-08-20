@@ -27,7 +27,7 @@ if (location.hash) {
 
                 const lobby = JSON.parse(text);
 
-                net.beginState(location.hash.slice(1), u, lobby.directConnect ? location.protocol.replace("http", "ws") + "//" + lobby.directConnect.address : util.SERVER_URL.replace("http", "ws"));
+                net.beginState(location.hash.slice(1), u, lobby.directConnect ? location.protocol.replace("http", "ws") + "//" + lobby.directConnect.address : SERVER_URL.replace("http", "ws"));
             });
         }
     }).catch(() => {
@@ -59,7 +59,7 @@ function refreshLobbies() {
 
             element.onclick = () => {
                 getUsername().then(username => {
-                    net.beginState(lobby.partyCode, username, lobby.directConnect ? location.protocol.replace("http", "ws") + "//" + lobby.directConnect.address : util.SERVER_URL.replace("http", "ws"));
+                    net.beginState(lobby.partyCode, username, lobby.directConnect ? location.protocol.replace("http", "ws") + "//" + lobby.directConnect.address : SERVER_URL.replace("http", "ws"));
                 });
             };
 
