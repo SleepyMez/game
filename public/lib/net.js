@@ -1416,13 +1416,9 @@ export async function loadAssets(lobbyID) {
 }
 
 let clientSocketDone = false;
-export async function beginState(lobbyID, username, serverURL) {
+export async function beginState(lobbyID, username, serverURL = util.SERVER_URL.replace("http", "ws")) {
     if (clientSocketDone) {
         return;
-    }
-
-    if (serverURL == undefined || serverURL == "") {
-        serverURL = util.SERVER_URL.replace("http", "ws");
     }
 
     clientSocketDone = true;
