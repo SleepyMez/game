@@ -652,7 +652,10 @@ export const mobConfigs = [
             range: 65
         })
         .addDrop(petalIDOf("Missile"))
-        .addDrop(petalIDOf("Antennae"), .5)
+        .addDrop(petalIDOf("Antennae"), .5),
+    new MobConfig("Termite Overmind Egg", 16, 1, 17, 0)
+        .addDrop(petalIDOf("Ant Egg"), .4)
+        .addDrop(petalIDOf("Amulet"), .4)
 ];
 
 // Flu: Wing, Faster, Third Eye
@@ -774,6 +777,16 @@ mobConfigs[mobIDOf("Termite Egg")].setHatchables([{
     index: mobIDOf("Soldier Termite"),
     time: 22.5 * 35
 }]);
+
+mobConfigs[mobIDOf("Termite Overmind Egg")].setHatchables({
+    index: mobIDOf("Soldier Termite"),
+    time: 22.5 * .75
+});
+
+mobConfigs[mobIDOf("Termite Overmind")].setPoopable({
+    index: mobIDOf("Termite Overmind Egg"),
+    interval: 22.5 * 3.5
+});
 
 /**
  * 

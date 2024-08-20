@@ -4,6 +4,7 @@ import { DEFAULT_PETAL_COUNT, mobConfigs, PetalConfig, petalConfigs, tiers } fro
 import { AIPlayer, Mob, Player } from "./lib/Entity.js";
 import Router from "./lib/Router.js";
 import { stringToU8, u8ToString, u8ToU16 } from "../lib/lobbyProtocol.js";
+import { applyArticle } from "../lib/util.js";
 
 function createWave(n) {
     const output = [];
@@ -181,6 +182,10 @@ setInterval(() => {
             const info = state.spawnNearPlayer(cfg);
             const mob = new Mob(info.position);
             mob.define(cfg, info.rarity);
+
+            if (info.rarity >= state.announceRarity && state.announceRarity > -1) {
+                state.clients.forEach(c => c.systemMessage(applyArticle(tiers[info.rarity].name, true) + " " + cfg.name + " has spawned!", tiers[info.rarity].color));
+            }
         } else if (state.isLineMap) {
             const cfg = mobConfigs[getMobIndex()];
             const info = state.lineMapMobSpawn(cfg);

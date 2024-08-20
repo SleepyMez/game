@@ -717,7 +717,8 @@ export const CLIENT_BOUND = {
     UPDATE_ASSETS: 0x06,
     JSON_MESSAGE: 0x07,
     PONG: 0x08,
-    TERRAIN: 0x09
+    TERRAIN: 0x09,
+    CHAT_MESSAGE: 0x0A
 };
 
 export const SERVER_BOUND = {
@@ -726,7 +727,8 @@ export const SERVER_BOUND = {
     INPUTS: 0x02,
     CHANGE_LOADOUT: 0x03,
     DEV_CHEAT: 0x04,
-    PING: 0x05
+    PING: 0x05,
+    CHAT_MESSAGE: 0x06
 };
 
 export const DEV_CHEAT_IDS = {

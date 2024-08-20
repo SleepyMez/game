@@ -205,7 +205,8 @@ const TAU = Math.PI * 2;
 const PI10 = -Math.PI / 10;
 const PI10_2 = PI10 + Math.PI / 2;
 const diam = .334 - .15;
-export function drawNormalEye(x, y, lookAngle, mood, expression) {
+export function drawNormalEye(x, y, lookAngle, mood, expression, isLeft = true) {
+    ctx.save();
     ctx.translate(x, y);
     ctx.beginPath();
 
@@ -214,7 +215,11 @@ export function drawNormalEye(x, y, lookAngle, mood, expression) {
             ctx.ellipse(0, 0, .334, .667, 0, 0, TAU);
             break;
         case 2:
-            ctx.ellipse(0, 0, .334, .667, 0, PI10, PI10 - (PI10_2) * (mood / 2));
+            if (isLeft) {
+                ctx.ellipse(0, 0, .334, .667, 0, PI10, PI10 - (PI10_2) * (mood / 2));
+            } else {
+                ctx.ellipse(0, 0, .334, .667, 0, PI10 - (PI10_2) * (mood / 2), Math.PI - PI10);
+            }
             break;
         case 3:
             ctx.ellipse(0, 0, .334, .667, 0, 0, TAU);
@@ -227,36 +232,56 @@ export function drawNormalEye(x, y, lookAngle, mood, expression) {
     ctx.lineWidth = .075;
     ctx.stroke();
     ctx.fill();
+    ctx.clip();
 
     ctx.beginPath();
-    ctx.arc(Math.cos(lookAngle) * diam, Math.sin(lookAngle) * diam * 2, .3, 0, TAU);
+    ctx.arc(Math.cos(lookAngle) * diam, Math.sin(lookAngle) * diam * 2.15, .3, 0, TAU);
     ctx.fillStyle = "#FFFFFF";
     ctx.fill();
     ctx.closePath();
 
-    ctx.translate(-x, -y);
+    ctx.restore();
+}
+
+export function drawDeadEye(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.beginPath();
+    ctx.moveTo(-.4, -.4);
+    ctx.lineTo(.4, .4);
+    ctx.moveTo(.4, -.4);
+    ctx.lineTo(-.4, .4);
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = .2;
+    ctx.stroke();
+    ctx.restore();
 }
 
 export function drawNormalMouth(mouthDip) {
     ctx.beginPath();
-    ctx.moveTo(-.75, 1.15);
-    ctx.quadraticCurveTo(0, mouthDip, .75, 1.15);
+    ctx.moveTo(-.75, 1.16);
+    ctx.quadraticCurveTo(0, mouthDip, .75, 1.16);
     ctx.strokeStyle = "#04190E";
-    ctx.lineWidth = .15;
+    ctx.lineWidth = .2;
     ctx.lineCap = "round";
     ctx.stroke();
     ctx.closePath();
 }
 
-export function drawFace(size, lookAngle, mood, mouthDip, expression) {
+export function drawFace(size, lookAngle, mood, mouthDip, expression, dead = false) {
     ctx.scale(size, size);
-    drawNormalEye(-.75, -.5, lookAngle, mood, expression);
-    drawNormalEye(.75, -.5, lookAngle, mood, expression);
+    if (dead) {
+        drawDeadEye(-.75, -.5);
+        drawDeadEye(.75, -.5);
+    } else {
+        drawNormalEye(-.75, -.5, lookAngle, mood, expression);
+        drawNormalEye(.75, -.5, lookAngle, mood, expression, false);
+    }
     drawNormalMouth(mouthDip);
     ctx.scale(1 / size, 1 / size);
 }
 
-export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _ctx = ctx) {
+export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _ctx = ctx, wrapTo = x) {
     _ctx.font = `bold ${size}px sans-serif`;
 
     _ctx.strokeStyle = mixColors(fill, "#000000", .3);
@@ -282,8 +307,8 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
     lines.push(line);
 
     for (let i = 0; i < lines.length; i++) {
-        _ctx.strokeText(lines[i], x, y + size * i);
-        _ctx.fillText(lines[i], x, y + size * i);
+        _ctx.strokeText(lines[i], i > 0 ? wrapTo : x, y + size * i);
+        _ctx.fillText(lines[i], i > 0 ? wrapTo : x, y + size * i);
     }
 
     return _ctx.measureText("M").width * lines.length;

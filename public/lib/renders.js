@@ -3519,6 +3519,9 @@ export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = fal
         case 60:
             drawHellYellowjacket(id, hit, ctx, attack);
             break;
+        case 61: // Termite Ant Egg Poop
+            basicPetal(ctx, hit, mixColors(colors.peach, colors.termite, .5));
+            break;
     }
 }
 

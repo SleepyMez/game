@@ -1877,6 +1877,10 @@ export class Mob extends Entity {
                         poop.define(mobConfigs[this.poopable.index], this.rarity);
                         poop.team = this.team;
                         poop.parent = this;
+
+                        if (state.isWaves) {
+                            state.maxMobs++;
+                        }
                     }
                 }
 

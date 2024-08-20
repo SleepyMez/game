@@ -710,8 +710,8 @@ export default class Client {
         this.verified = false;
         this.username = "unknown";
         this.uuid = uuid;
-        this.nameColor = ["#FFFFFF", "#D85555"][masterPermissions];
-        this.masterPermissions = masterPermissions;
+        this.nameColor = ["#FFFFFF", "#D85555"][+masterPermissions];
+        this.masterPermissions = +masterPermissions;
 
         this.camera = new Camera();
 
@@ -1125,7 +1125,41 @@ export default class Client {
                     } break;
                 }
             } break;
+            case SERVER_BOUND.CHAT_MESSAGE: {
+                if (!this.verified) {
+                    this.kick("Not verified");
+                    return;
+                }
+
+                const message = reader.getStringUTF8();
+                if (message.length > 64) {
+                    return;
+                }
+
+                if (!/^[\w\s,.!?'"@#%^&*()_\-+=:;<>\/\\|[\]{}~`\u00A0-\uFFFF]{1,128}$/.test(message)) {
+                    return;
+                }
+
+                state.clients.forEach(c => c.chatMessage(this.username, message, this.nameColor));
+            } break;
         }
+    }
+
+    chatMessage(username, message, color) {
+        this.talk(CLIENT_BOUND.CHAT_MESSAGE, {
+            type: 0,
+            username: username,
+            message: message,
+            color: color
+        });
+    }
+
+    systemMessage(message, color) {
+        this.talk(CLIENT_BOUND.CHAT_MESSAGE, {
+            type: 1,
+            message: message,
+            color: color
+        });
     }
 
     talk(type, data) {
@@ -1147,6 +1181,16 @@ export default class Client {
                 break;
             case CLIENT_BOUND.JSON_MESSAGE: // JSON message packet
                 writer.setStringUTF8(JSON.stringify(data));
+                break;
+            case CLIENT_BOUND.CHAT_MESSAGE: // Chat message packet
+                writer.setUint8(data.type);
+                
+                if (data.type === 0) {
+                    writer.setStringUTF8(data.username);
+                }
+
+                writer.setStringUTF8(data.message);
+                writer.setStringUTF8(data.color);
                 break;
         }
 

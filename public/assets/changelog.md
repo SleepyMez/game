@@ -1,3 +1,11 @@
+# Update (08/20/2024):
+- Added chat, use it wisely...
+- Small balance changes
+- Redid the Level GUI to make it more familiar to florr players, will change soon
+- Changed the facial expression slightly
+- Fixed a bug where mobs spawned from Queen Ants would mess up some stuff
+- Termite Overmind now spawns Soldier Termites when attacking
+
 # Update (08/18/2024):
 - Fixed a bug with Rice and 0 reload petals
 - Added an option to enable/disable hitboxes

@@ -612,10 +612,24 @@ export class ClientPlayer extends ClientEntity {
         this.wearing = 0;
 
         this.team = 0;
+
+        this.lastHealthLoweredAt = 0;
+        this.secondaryHealthBar = 0;
     }
 
     interpolate() {
         super.interpolate();
+
+        if (Math.abs(this.realHealthRatio - this.healthRatio) > .01 && this.healthRatio > this.realHealthRatio) {
+            this.lastHealthLoweredAt = performance.now();
+        }
+
+        this.secondaryHealthBar = Math.max(this.healthRatio, this.secondaryHealthBar);
+
+        if (performance.now() - this.lastHealthLoweredAt > 256) {
+            this.secondaryHealthBar = util.lerp(this.secondaryHealthBar, this.healthRatio, state.interpolationFactor * .75);
+        }
+
         this.healthRatio = util.lerp(this.healthRatio, this.realHealthRatio, state.interpolationFactor);
         this.shieldRatio = util.lerp(this.shieldRatio, this.realShieldRatio, state.interpolationFactor);
     }
@@ -641,10 +655,24 @@ export class ClientMob extends ClientEntity {
 
         /** @type {StarfishData|undefined} */
         this.extraData = undefined;
+
+        this.lastHealthLoweredAt = 0;
+        this.secondaryHealthBar = 0;
     }
 
     interpolate() {
         super.interpolate();
+
+        if (Math.abs(this.realHealthRatio - this.healthRatio) > .01 && this.healthRatio > this.realHealthRatio) {
+            this.lastHealthLoweredAt = performance.now();
+        }
+
+        this.secondaryHealthBar = Math.max(this.healthRatio, this.secondaryHealthBar);
+
+        if (performance.now() - this.lastHealthLoweredAt > 256) {
+            this.secondaryHealthBar = util.lerp(this.secondaryHealthBar, this.healthRatio, state.interpolationFactor * .75);
+        }
+
         this.healthRatio = util.lerp(this.healthRatio, this.realHealthRatio, state.interpolationFactor);
 
         if (this.extraData instanceof StarfishData) {
@@ -715,6 +743,55 @@ export class ClientLightning {
         return n - this.tick > ClientLightning.TIME_ALIVE ? 0 : 1 - (n - this.tick) / ClientLightning.TIME_ALIVE;
     }
 }
+
+export class ChatMessage {
+    constructor(type, ...args) {
+        this.type = type;
+
+        switch (type) {
+            case 0: // Chat
+                this.username = args[0];
+                this.message = args[1];
+                this.color = args[2];
+
+                this.completeMessage = this.username + ": " + this.message;
+                break;
+            case 1: // System
+                this.message = args[0];
+                this.color = args[1];
+                this.completeMessage = this.message;
+                break;
+        }
+
+        console.log(this);
+
+        this.y = 300;
+        this.ticker = 0;
+
+        ChatMessage.messages.push(this);
+    }
+
+    /**
+     * @type {ChatMessage[]}
+     */
+    static messages = [];
+
+    static showInput = false;
+    static element = document.getElementById("chatInput");
+
+    static send() {
+        const message = ChatMessage.element.value.trim();
+
+        if (message.length > 0) {
+            state.socket?.talk(SERVER_BOUND.CHAT_MESSAGE, message);
+            ChatMessage.element.value = "";
+        }
+
+        ChatMessage.showInput = false;
+    }
+}
+
+new ChatMessage(1, "Welcome to the game!", "#FFFFFF");
 
 export class ClientSocket extends WebSocket {
     constructor(url, username) {
@@ -1167,6 +1244,18 @@ export class ClientSocket extends WebSocket {
                 state.terrainImg = renderTerrain(state.room.width * .5, state.room.height * .5, state.terrain.width, state.terrain.blocks);
                 state.minimapImg = renderTerrainForMap(state.terrain.width, state.terrain.blocks);
                 break;
+            case CLIENT_BOUND.CHAT_MESSAGE: {
+                const type = reader.getUint8();
+
+                switch (type) {
+                    case 0: // Chat Message
+                        new ChatMessage(0, reader.getStringUTF8(), reader.getStringUTF8(), reader.getStringUTF8());
+                        break;
+                    case 1: // System Message
+                        new ChatMessage(1, reader.getStringUTF8(), reader.getStringUTF8());
+                        break;
+                }
+            } break;
         }
     }
 
@@ -1273,6 +1362,9 @@ export class ClientSocket extends WebSocket {
                         break;
                 }
             } break;
+            case SERVER_BOUND.CHAT_MESSAGE:
+                writer.setStringUTF8(data);
+                break;
         }
 
         this.send(writer.build());
@@ -1297,6 +1389,7 @@ export class IconItem {
 
 export const state = {
     interpolationFactor: .2,
+    username: "",
 
     camera: {
         x: 0,
@@ -1422,6 +1515,8 @@ export async function beginState(lobbyID, username, serverURL = util.SERVER_URL.
     }
 
     clientSocketDone = true;
+
+    state.username = username;
 
     // Load resources
     try {

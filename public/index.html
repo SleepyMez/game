@@ -314,6 +314,20 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        #chatInput {
+            display: none;
+            position: absolute;
+            border-radius: .5vmin;
+            border: none;
+            background-color: rgba(0, 0, 0, .5);
+            padding: .5vmin;
+            color: white;
+        }
+
+        #chatInput:focus {
+            outline: none;
+        }
     </style>
 
     <script src="./index.js" type="module" defer></script>
@@ -429,6 +443,8 @@
         <input type="text" placeholder="Username" id="usernameInputInput" />
         <button id="usernameButton" tabindex="-1">Enter</button>
     </div>
+
+    <input type="text" maxlength="128" id="chatInput" placeholder="Enter to chat; Esc to close"/>
 </body>
 
 </html>

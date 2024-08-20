@@ -155,3 +155,11 @@ export const options = {
     fancyGraphics: false,
     showHitboxes: true
 };
+
+export function applyArticle(word, capitalize = false) {
+    if (/^[aeiou]/i.test(word)) {
+        return (capitalize ? "An" : "an") + " " + word;
+    } else {
+        return (capitalize ? "A" : "a") + " " + word;
+    }
+}

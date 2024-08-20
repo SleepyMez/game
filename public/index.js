@@ -1,4 +1,4 @@
-import { canvas, ctx, drawBackground, drawBackgroundOverlay, drawBar, drawFace, gameScale, mixColors, setStyle, text, uiScale } from "./lib/canvas.js";
+import { canvas, ctx, drawBackground, drawBackgroundOverlay, drawBar, drawFace, drawWrappedText, gameScale, mixColors, setStyle, text, uiScale } from "./lib/canvas.js";
 import * as net from "./lib/net.js";
 import { mouse, keyMap } from "./lib/net.js";
 import { colors, lerp, options, SERVER_URL, shakeElement } from "./lib/util.js";
@@ -193,12 +193,30 @@ function processInputs() {
             mouseY = mouse.y;
         }
 
-        net.state.socket.talk(SERVER_BOUND.INPUTS, newFlags);
+        net.state.socket?.talk(SERVER_BOUND.INPUTS, newFlags);
         lastFlag = newFlags;
     }
 }
 
 window.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+        net.ChatMessage.showInput = !net.ChatMessage.showInput;
+
+        setTimeout(() => {
+            if (net.ChatMessage.showInput) {
+                net.ChatMessage.element.focus();
+            }
+        }, 250);
+    }
+
+    if (net.ChatMessage.showInput && net.ChatMessage.element === document.activeElement) {
+        if (e.key === "Enter") {
+            net.ChatMessage.send();
+        }
+
+        return;
+    }
+
     if (e.keyCode === 13 && net.state.isDead && net.state.socket?.readyState === WebSocket.OPEN) {
         net.state.socket.spawn();
         net.state.isDead = false;
@@ -395,6 +413,10 @@ setInterval(() => {
     net.state.updatesCounter = 0;
 }, 1E3);
 
+let cuteLittleAnimations = {
+    nameText: 200
+};
+
 function draw() {
     net.state.interpolationFactor = options.rigidInterpolation ? .4 : .2;
     requestAnimationFrame(draw);
@@ -499,6 +521,7 @@ function draw() {
             const barthicc = (6 + entity.rarity) * scale;
 
             drawBar(drawX - barSize, drawX + barSize, drawY + barSize + 13 * scale, barthicc, colors["???"]);
+            drawBar(drawX - barSize, drawX - barSize + barSize * 2 * entity.secondaryHealthBar, drawY + barSize + 13 * scale, .667 * barthicc, colors.legendary);
             drawBar(drawX - barSize, drawX - barSize + barSize * 2 * entity.healthRatio, drawY + barSize + 13 * scale, .667 * barthicc, entity.poisoned ? mixColors(colors.common, colors.irisPurple, .5 + Math.sin(performance.now() / 333 + entity.id * 3) * .5) : colors.common);
 
             ctx.textAlign = "left";
@@ -552,7 +575,7 @@ function draw() {
             drawY = halfHeight;
         }
 
-        setStyle(mixColors([colors.uncommon, colors.team1, colors.team2][entity.team] ?? colors.crafting, colors.legendary, entity.hit * .5), 5 * scale);
+        setStyle(mixColors([colors.playerYellow, colors.team1, colors.team2][entity.team] ?? colors.crafting, colors.legendary, entity.hit * .5), 5 * scale);
 
         const size = entity.size * scale;
 
@@ -604,6 +627,7 @@ function draw() {
         }
 
         drawBar(drawX - size, drawX + size, drawY + size + 16 * scale, 6 * scale, colors["???"]);
+        drawBar(drawX - size, drawX - size + size * 2 * entity.secondaryHealthBar, drawY + size + 16 * scale, 4 * scale, colors.legendary);
         drawBar(drawX - size, drawX - size + size * 2 * entity.healthRatio, drawY + size + 16 * scale, 4 * scale, entity.poisoned ? mixColors(colors.common, colors.irisPurple, .5 + Math.sin(performance.now() / 333 + entity.id * 3) * .5) : colors.common);
 
         if (entity.shieldRatio > 0) {
@@ -826,9 +850,34 @@ function draw() {
                 net.state.levelProgress = 0;
             }
 
-            drawBar(0, 250, height - 100, 50, colors["???"]);
-            drawBar(0, 250 * net.state.levelProgress, height - 100, 40, colors.uncommon);
-            text("Level " + net.state.level, 125, height - 100, 25);
+            const player = net.state.players.get(net.state.playerID);
+            drawBar(50, 275, 175, 37.5, colors["???"]);
+
+            ctx.save();
+            ctx.translate(50, 175);
+            ctx.beginPath();
+            ctx.arc(0, 0, 35, 0, Math.PI * 2);
+            setStyle(colors.playerYellow, 4);
+            ctx.fill();
+            ctx.stroke();
+
+            if (player) {
+                drawFace(35 * .425, player.facing, player.mood, player.mouthDip, player.attack ? 2 : player.defend ? 3 : 1);
+                drawBar(70, 70 + 155 * player.secondaryHealthBar, 0, 25, colors.legendary);
+                drawBar(70, 70 + 155 * player.healthRatio, 0, 27.5, player.poisoned ? mixColors(colors.common, colors.irisPurple, .5 + Math.sin(performance.now() / 333 + player.id * 3) * .5) : colors.common);
+                cuteLittleAnimations.nameText = lerp(cuteLittleAnimations.nameText, 197.5, .1);
+            } else {
+                drawFace(35 * .425, 0, 1, 1, 1, true);
+                cuteLittleAnimations.nameText = lerp(cuteLittleAnimations.nameText, 180, .1);
+            }
+
+            ctx.restore();
+
+            text(net.state.username, cuteLittleAnimations.nameText, 175, 20);
+
+            drawBar(175, 275, 210, 22.5, colors["???"]);
+            drawBar(175, 175 + 100 * net.state.levelProgress, 210, 15, colors.playerYellow);
+            text("Level " + net.state.level, 225, 210, 12);
         } { // Minimap
             const doTerrain = net.state.terrain?.blocks?.length > 0;
             const biggestSize = doTerrain ? 275 : Math.abs(1 - net.state.room.width / net.state.room.height) < .1 ? 150 : 200;
@@ -865,6 +914,71 @@ function draw() {
                 biggestSize * (doTerrain ? .0225 : .025), 0, Math.PI * 2
             );
             ctx.fill();
+        } { // Chat
+            ctx.save();
+            ctx.translate(10, height - 10);
+            const maxWidth = width * .2;
+            const heights = [];
+            const messages = net.ChatMessage.messages;
+            const msgSize = 18;
+
+            for (let i = 0; i < messages.length; i ++) {
+                heights.push(drawWrappedText(messages[i].completeMessage, -2048, -2048, msgSize, maxWidth - 5));
+            }
+
+            let y = 0;
+
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+
+            if (net.ChatMessage.showInput) {
+                const element = net.ChatMessage.element;
+
+                element.style.display = "block";
+                element.style.left = `${10 * uScale}px`;
+                element.style.top = `${height * uScale - 35 * uScale}px`;
+                element.style.width = `${maxWidth * uScale}px`;
+                element.style.height = `${20 * uScale}px`;
+                element.style.fontSize = `${msgSize * uScale}px`;
+
+                y -= 50;
+            } else {
+                net.ChatMessage.element.style.display = "none";
+                text("(Press Esc to open chat)", 0, y - msgSize, msgSize);
+
+                y -= 30;
+            }
+
+            y -= heights[heights.length - 1];
+
+            for (let i =  messages.length - 1; i >= 0; i --) {
+                const message = messages[i];
+
+                message.y = lerp(message.y, y, .2);
+                message.ticker ++;
+
+                if (message.ticker > (clientDebug.fps * 7.5) - messages.length * 2) {
+                    net.ChatMessage.messages.splice(i, 1);
+                    continue;
+                }
+
+                switch (message.type) {
+                    case 0: // Chat
+                        const nameWidth = text(message.username, 0, message.y, msgSize, message.color);
+                        drawWrappedText(": " + message.message, nameWidth, message.y, msgSize, maxWidth - 5, "#FFFFFF", ctx, 0);
+                        break;
+                    case 1: // System
+                        drawWrappedText(message.message, 0, message.y, msgSize, maxWidth - 5, message.color);
+                        break;
+                }
+
+                if (i > 0) {
+                    y -= heights[i - 1];
+                    y -= 10;
+                }
+            }
+
+            ctx.restore();
         }
     }
 
@@ -878,7 +992,7 @@ function draw() {
 
     if (net.state.petalHover !== null) { // Tooltip
         ctx.save();
-        ctx.translate(width - 360, 10);
+        ctx.translate(width - 360, 10 + (options.showDebug ? 40 : 0));
         const img = petalTooltip(...net.state.petalHover);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
@@ -897,11 +1011,11 @@ function draw() {
     }
 
     if (options.showDebug) {
-        ctx.textAlign = "left";
-        ctx.textBaseline = "bottom";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "top";
 
-        text(`C: ${clientDebug.fps} FPS | ${clientDebug.mspt.toFixed(2)} mspt`, 10, height - 10, 15);
-        text(`S: ${net.state.updateRate} UPS | ${+net.state.ping.toFixed(2)} ms ping`, 10, height - 25, 15);
+        text(`C: ${clientDebug.fps} FPS | ${clientDebug.mspt.toFixed(2)} mspt`, width - 10, 10, 15);
+        text(`S: ${net.state.updateRate} UPS | ${+net.state.ping.toFixed(2)} ms ping`, width - 10, 25, 15);
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
