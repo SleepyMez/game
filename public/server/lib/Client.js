@@ -1132,10 +1132,6 @@ export default class Client {
                 }
 
                 const message = reader.getStringUTF8();
-                if (message.length > 64) {
-                    return;
-                }
-
                 if (!/^[\w\s,.!?'"@#%^&*()_\-+=:;<>\/\\|[\]{}~`\u00A0-\uFFFF]{1,128}$/.test(message)) {
                     return;
                 }
