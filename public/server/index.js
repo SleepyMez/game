@@ -293,6 +293,8 @@ switch (globalThis.environmentName) {
             Bun.env.BIOME = Math.random() * 7 | 0;
         }
 
+        const keys = Bun.env.ADMIN_KEYS.split(",").filter(e => e.length > 3);
+
         let bunSocketID = 1;
         const bunSendMap = new Map();
         const server = Bun.serve({
@@ -314,7 +316,7 @@ switch (globalThis.environmentName) {
             websocket: {
                 open(socket) {
                     socket.binaryType = "arraybuffer";
-                    state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), Bun.env.ADMIN_KEYS.includes(socket.data.searchParams.get("clientKey")));
+                    state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), keys.includes(socket.data.searchParams.get("clientKey")));
                     bunSendMap.set(socket.data.socketID, socket);
                 },
 
