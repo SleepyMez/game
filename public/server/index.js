@@ -307,7 +307,8 @@ switch (globalThis.environmentName) {
                 const success = server.upgrade(req, {
                     data: {
                         socketID: bunSocketID++,
-                        searchParams: new URLSearchParams(req.url.split("?").slice(1).join("?"))
+                        searchParams: new URLSearchParams(req.url.split("?").slice(1).join("?")),
+                        begin: performance.now()
                     }
                 });
 
@@ -328,6 +329,10 @@ switch (globalThis.environmentName) {
                 close(socket) {
                     state.router.removeClient(socket.data.socketID);
                     bunSendMap.delete(socket.data.socketID);
+
+                    if (lobbySocket.readyState === WebSocket.OPEN && socket.data.searchParams.has("analytics")) {
+                        lobbySocket.send(new Uint8Array([ROUTER_PACKET_TYPES.ANALYTICS_DATA, ...stringToU8(socket.data.searchParams.get("analytics")), ...stringToU8((performance.now() - socket.data.begin).toFixed(2))]));
+                    }
                 },
 
                 message(socket, data) {
@@ -348,23 +353,23 @@ switch (globalThis.environmentName) {
 
         const timezone = -Math.floor(new Date().getTimezoneOffset() / 60);
 
-        const socket = new WebSocket(`${Bun.env.ROUTING_SERVER}/ws/lobby?gameName=${Bun.env.GAME_NAME}&isModded=${Bun.env.MODDED == "true" ? "yes" : "no"}&gamemode=${Bun.env.GAMEMODE}&secretKey=${Bun.env.SECRET}&isPrivate=no&biome=${Bun.env.BIOME}&directConnect=${Bun.env.HOST},${timezone}&analytics=${ANALYTICS_DATA}`, {
+        const lobbySocket = new WebSocket(`${Bun.env.ROUTING_SERVER}/ws/lobby?gameName=${Bun.env.GAME_NAME}&isModded=${Bun.env.MODDED == "true" ? "yes" : "no"}&gamemode=${Bun.env.GAMEMODE}&secretKey=${Bun.env.SECRET}&isPrivate=no&biome=${Bun.env.BIOME}&directConnect=${Bun.env.HOST},${timezone}&analytics=${ANALYTICS_DATA}`, {
             origin: "https://floof.eparker.dev",
             headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
             }
         });
 
-        socket.binaryType = "arraybuffer";
+        lobbySocket.binaryType = "arraybuffer";
 
         const wait = [];
 
-        socket.onopen = () => {
+        lobbySocket.onopen = () => {
             console.log("Connected to server");
 
             state.router.begin(["start", Bun.env.GAMEMODE, Bun.env.MODDED == "true", crypto.randomUUID(), +Bun.env.BIOME]);
 
-            socket.onmessage = event => {
+            lobbySocket.onmessage = event => {
                 const data = new Uint8Array(event.data);
 
                 if (data[0] === 255) {
@@ -379,11 +384,14 @@ switch (globalThis.environmentName) {
                 }
             }
 
-            socket.onclose = () => {
-                console.log("Disconnected from server");
-            }
-
             wait.forEach(fn => fn());
+        }
+
+        lobbySocket.onclose = () => {
+            console.log("Disconnected from server");
+
+            state.clients.forEach(c => c.kick("Connection to lobby server lost"));
+            setTimeout(() => process.exit(), 1000);
         }
 
         state.router.postMessage = u8 => {
@@ -399,10 +407,10 @@ switch (globalThis.environmentName) {
                     bunSendMap.get(u8ToU16(u8, 1))?.close();
                     break;
                 default:
-                    if (socket.readyState === WebSocket.OPEN) {
-                        socket.send(u8);
+                    if (lobbySocket.readyState === WebSocket.OPEN) {
+                        lobbySocket.send(u8);
                     } else {
-                        wait.push(() => socket.send(u8));
+                        wait.push(() => lobbySocket.send(u8));
                     }
                     break;
             }

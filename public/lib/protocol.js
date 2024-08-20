@@ -774,7 +774,8 @@ export const WEARABLES = {
 
 export const ROUTER_PACKET_TYPES = {
     CLOSE_CLIENT: 0x00,
-    PIPE_PACKET: 0x01
+    PIPE_PACKET: 0x01,
+    ANALYTICS_DATA: 0x03
 };
 
 export const ENTITY_TYPES = {
