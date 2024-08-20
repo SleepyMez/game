@@ -968,21 +968,21 @@ export class Writer {
     }
 
     setUint8(a) {
-        if (!Number.isInteger(a) || a < 0 || a > 255) throw new Error("Invalid setUint8 value " + a);
+        //if (!Number.isInteger(a) || a < 0 || a > 255) throw new Error("Invalid setUint8 value " + a);
 
         if (a >= 0 && a < 256) this._b.push(a);
         return this;
     }
 
     setInt8(a) {
-        if (!Number.isInteger(a) || a < -128 || a > 127) throw new Error("Invalid setInt8 value " + a);
+        //if (!Number.isInteger(a) || a < -128 || a > 127) throw new Error("Invalid setInt8 value " + a);
 
         if (a >= -128 && a < 128) this._b.push(a);
         return this;
     }
 
     setUint16(a) {
-        if (!Number.isInteger(a) || a < 0 || a > 65535) throw new Error("Invalid setUint16 value " + a);
+        //if (!Number.isInteger(a) || a < 0 || a > 65535) throw new Error("Invalid setUint16 value " + a);
 
         this.tmpBuf.setUint16(0, a, this._e);
         this._move(2);
@@ -990,7 +990,7 @@ export class Writer {
     }
 
     setInt16(a) {
-        if (!Number.isInteger(a) || a < -32768 || a > 32767) throw new Error("Invalid setInt16 value " + a);
+        //if (!Number.isInteger(a) || a < -32768 || a > 32767) throw new Error("Invalid setInt16 value " + a);
 
         this.tmpBuf.setInt16(0, a, this._e);
         this._move(2);
@@ -998,7 +998,7 @@ export class Writer {
     }
 
     setUint32(a) {
-        if (!Number.isInteger(a) || a < 0 || a > 4294967295) throw new Error("Invalid setUint32 value " + a);
+        //if (!Number.isInteger(a) || a < 0 || a > 4294967295) throw new Error("Invalid setUint32 value " + a);
 
         this.tmpBuf.setUint32(0, a, this._e);
         this._move(4);
@@ -1006,7 +1006,7 @@ export class Writer {
     }
 
     setInt32(a) {
-        if (!Number.isInteger(a) || a < -2147483648 || a > 2147483647) throw new Error("Invalid setInt32 value " + a);
+        //if (!Number.isInteger(a) || a < -2147483648 || a > 2147483647) throw new Error("Invalid setInt32 value " + a);
 
         this.tmpBuf.setInt32(0, a, this._e);
         this._move(4);
@@ -1014,7 +1014,7 @@ export class Writer {
     }
 
     setFloat32(a) {
-        if (!Number.isFinite(a)) throw new Error("Invalid setFloat32 value " + a);
+        //if (!Number.isFinite(a)) throw new Error("Invalid setFloat32 value " + a);
 
         this.tmpBuf.setFloat32(0, a, this._e);
         this._move(4);
@@ -1022,7 +1022,7 @@ export class Writer {
     }
 
     setFloat64(a) {
-        if (!Number.isFinite(a)) throw new Error("Invalid setFloat64 value " + a);
+        //if (!Number.isFinite(a)) throw new Error("Invalid setFloat64 value " + a);
 
         this.tmpBuf.setFloat64(0, a, this._e);
         this._move(8);
@@ -1035,10 +1035,9 @@ export class Writer {
 
     setStringUTF8(s) {
         const bytesStr = unescape(encodeURIComponent(s));
-        if (typeof bytesStr !== "string") throw new Error("Invalid setStringUTF8 value " + s);
+        //if (typeof bytesStr !== "string") throw new Error("Invalid setStringUTF8 value " + s);
         for (let i = 0, l = bytesStr.length; i < l; i++) {
-            if (bytesStr.charCodeAt(i) > 255) throw new Error("Invalid setStringUTF8 value " + s);
-
+            //if (bytesStr.charCodeAt(i) > 255) throw new Error("Invalid setStringUTF8 value " + s);
             this._b.push(bytesStr.charCodeAt(i));
         }
         this._b.push(0);

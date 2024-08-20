@@ -525,6 +525,11 @@ export class Entity {
         /** @type {Map<number,SpongeStack>} */
         this.absorbStacks = new Map();
 
+        this.lastGoodPosition = {
+            x: this.x,
+            y: this.y
+        };
+
         state.entities.set(this.id, this);
     }
 
@@ -807,11 +812,15 @@ export class Entity {
         });
 
         if (collisionResponses.length > 0) {
-            this.velocity.zero();
+            this.velocity.multiply(.5);
+        } else {
+            this.lastGoodPosition = {
+                x: this.x,
+                y: this.y
+            };
         }
 
         if (collisionResponses.length === 2) {
-            // Make sure it's not corner collision  
             const xDiff = Math.abs(collisionResponses[0].gridX - collisionResponses[1].gridX);
             const yDiff = Math.abs(collisionResponses[0].gridY - collisionResponses[1].gridY);
 
@@ -835,7 +844,6 @@ export class Entity {
             avg.y /= collisionResponses.length;
             avg.size /= collisionResponses.length;
 
-            // If the overlap is less than the size of the circle, ignore it
             const dx = this.x - avg.x;
             const dy = this.y - avg.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
@@ -845,16 +853,24 @@ export class Entity {
             }
 
             const angle = Math.atan2(this.y - avg.y, this.x - avg.x);
-
-            // snap angle to nearest cardinal direction
-            // const angleSnap = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
-
-            this.x = avg.x + Math.cos(angle) * (avg.size + this.size + 1);
-            this.y = avg.y + Math.sin(angle) * (avg.size + this.size + 1);
+            this.x = avg.x + Math.cos(angle) * (avg.size + this.size + 3);
+            this.y = avg.y + Math.sin(angle) * (avg.size + this.size + 3);
         }
 
-        if (collisionResponses.length > 0) {
-            this.velocity.zero();
+        let good = this.x > -state.width / 2 && this.x < state.width / 2 && this.y > -state.height / 2 && this.y < state.height / 2;
+
+        if (good) {
+            this._AABB = state.spatialHash.getAABB(this);
+            state.terrainSpatialHash.retrieve(this).forEach(/** @param {Terrain} terrain */ terrain => {
+                if (good && terrain.polygon.circleIntersects(this.x, this.y, this.size)) {
+                    good = false;
+                }
+            });
+        }
+
+        if (!good) {
+            this.x = this.lastGoodPosition.x;
+            this.y = this.lastGoodPosition.y;
         }
     }
 
@@ -1697,7 +1713,7 @@ export class Mob extends Entity {
         }
 
         if (config.segment) {
-            const segmentID = Mob.segmentedLength ++;
+            const segmentID = Mob.segmentedLength++;
             const count = 4 + this.rarity / 1.5 | 0;
             let last = this;
 
@@ -1722,7 +1738,7 @@ export class Mob extends Entity {
             const count = 4 + Math.random() * 5 | 0;
             let last = this;
 
-            const segmentID = Mob.segmentedLength ++;
+            const segmentID = Mob.segmentedLength++;
             this.segmentID = segmentID;
 
             this.ropeBodies = [];
@@ -2480,6 +2496,8 @@ class Polygon {
     }
 
     resolve(x, y, radius) {
+        radius += 3;
+
         let closestDistance = Infinity,
             closestPoint = null;
 

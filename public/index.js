@@ -14,7 +14,21 @@ if (location.hash) {
             location.hash = "";
             history.replaceState(null, null, location.pathname + location.search);
         } else {
-            getUsername().then(u => net.beginState(location.hash.slice(1), u));
+            getUsername().then(async u => {
+                const res = await fetch(SERVER_URL + "/lobby/get?partyURL=" + location.hash.slice(1));
+                const text = await res.text();
+
+                if (text == "null") {
+                    alert("Invalid party URL");
+                    location.hash = "";
+                    history.replaceState(null, null, location.pathname + location.search);
+                    return;
+                }
+
+                const lobby = JSON.parse(text);
+
+                net.beginState(location.hash.slice(1), u, location.protocol.replace("http", "ws") + "//" + (lobby.directConnect?.address || undefined));
+            });
         }
     }).catch(() => {
         console.warn("Invalid party URL");
@@ -30,8 +44,7 @@ function refreshLobbies() {
     lobbiesDisplay.innerHTML = "<span>Loading...</span>";
     net.findLobbies().then(lobbies => {
         lobbiesDisplay.innerHTML = "";
-        Object.keys(lobbies).forEach(lobbyID => {
-            const lobby = lobbies[lobbyID];
+        lobbies.forEach(lobby => {
             const element = document.createElement("div");
             element.textContent = lobby.name + " (" + BIOME_BACKGROUNDS[lobby.biome].name + " " + lobby.gamemode + ")";
 
@@ -46,7 +59,7 @@ function refreshLobbies() {
 
             element.onclick = () => {
                 getUsername().then(username => {
-                    net.beginState(lobbyID, username);
+                    net.beginState(lobby.partyCode, username, location.protocol.replace("http", "ws") + "//" + (lobby.directConnect?.address || undefined));
                 });
             };
 

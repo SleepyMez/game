@@ -1150,7 +1150,7 @@ export default class Client {
                 break;
         }
 
-        self.postMessage(writer.build());
+        state.router.postMessage(writer.build());
     }
 
     onClose() {
@@ -1166,7 +1166,7 @@ export default class Client {
     }
 
     terminate() {
-        self.postMessage(new Uint8Array([ROUTER_PACKET_TYPES.CLOSE_CLIENT, this.id]));
+        state.router.postMessage(new Uint8Array([ROUTER_PACKET_TYPES.CLOSE_CLIENT, this.id]));
     }
 
     kick(reason = "Unknown Reason") {
@@ -1235,7 +1235,7 @@ export default class Client {
         writer.setUint16(this.level);
         writer.setFloat32(this.levelProgress);
 
-        self.postMessage(writer.build());
+        state.router.postMessage(writer.build());
     }
 
     sendRoom() {

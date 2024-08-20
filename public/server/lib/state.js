@@ -328,7 +328,7 @@ const state = {
             writer.setUint8(terrain.type[1]);
         });
 
-        self.postMessage(writer.build());
+        state.router.postMessage(writer.build());
     },
 
     mobTable: null

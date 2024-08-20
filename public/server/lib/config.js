@@ -31,7 +31,7 @@ export const petalConfigs = [
         .setMulti([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 7, 7], 1)
         .setSize(.8)
         .setDescription("A fragile petal that deals lots of damage."),
-    new PetalConfig("Rice", 0, .1, 2)
+    new PetalConfig("Rice", 0, 1E-10, 4)
         .setSize(1.15)
         .setDescription("A bit weak, but recharges instantly."),
     new PetalConfig("Rock", 45, 75, 3)
@@ -210,7 +210,7 @@ export const petalConfigs = [
     new PetalConfig("Glass", 22.5 * 2, 1E-10, 2)
         .setPhases(1)
         .setDescription("A shard of glass that phases through enemies."),
-    new PetalConfig("Dandelion", 22, 14, 14)
+    new PetalConfig("Dandelion", 22, 8, 11)
         .setMulti(2, false)
         .setSize(1.4)
         .setLaunchable(.7, 35)
@@ -233,7 +233,7 @@ export const petalConfigs = [
         .setSize(1.5)
         .setShield(10)
         .setDescription("A shell that provides extra protection through a shield."),
-    new PetalConfig("Bubble", 15, 8, 8)
+    new PetalConfig("Bubble", 15, 1E-10, 1E-10)
         .setSize(1.3)
         .setBoost(
             [5, 7, 11, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(e => e * 2 | 0),

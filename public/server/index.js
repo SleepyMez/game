@@ -1,5 +1,5 @@
 import state from "./lib/state.js";
-import { BIOME_TYPES, CLIENT_BOUND, Drawing, encodeEverything, ENTITY_TYPES, GAMEMODES, PetalTier } from "../lib/protocol.js";
+import { BIOME_TYPES, CLIENT_BOUND, Drawing, encodeEverything, ENTITY_TYPES, GAMEMODES, PetalTier, ROUTER_PACKET_TYPES } from "../lib/protocol.js";
 import { DEFAULT_PETAL_COUNT, mobConfigs, PetalConfig, petalConfigs, tiers } from "./lib/config.js";
 import { AIPlayer, Mob, Player } from "./lib/Entity.js";
 import Router from "./lib/Router.js";
@@ -250,6 +250,49 @@ switch (globalThis.environmentName) {
     case "node":
         throw new Error("Node environment not supported");
     case "bun": {
+        if (Bun.env.ENV_DONE !== "true") {
+            await Bun.write("./.env", [
+                "ENV_DONE=false",
+                "ROUTING_SERVER=wss://e2.server.eparker.dev",
+                "GAME_NAME=dedicated lobby",
+                "MODDED=false",
+                "GAMEMODE=maze",
+                `SECRET=${Array.from(crypto.getRandomValues(new Uint8Array(24))).map(e => e.toString(16).padStart(2, "0")).join("")}`,
+                "ADMIN_KEYS=devkey,devkey2",
+                "BIOME=0",
+                "HOST=10.8.33.2:8001",
+                "PORT=8001",
+                "TLS_DIRECTORY=false"
+            ].join("\n"));
+            console.warn("Please fill out the .env file with the correct values. Set ENV_DONE to 'true' when done.");
+            process.exit();
+        }
+
+        if (Bun.env.MODDED !== "true" && Bun.env.MODDED !== "false") {
+            console.error("MODDED must be 'true' or 'false'");
+            process.exit();
+        }
+
+        if (!["ffa", "tdm", "waves", "line", "maze"].includes(Bun.env.GAMEMODE)) {
+            console.error("GAMEMODE must be 'ffa', 'tdm', 'waves', 'line', or 'maze'");
+            process.exit();
+        }
+
+        if (!/^[0-9a-f]{48}$/i.test(Bun.env.SECRET)) {
+            console.error("SECRET must be a 48 character hex string");
+            process.exit();
+        }
+
+        if (!Bun.env.ADMIN_KEYS.split(",").every(e => typeof e === "string")) {
+            console.error("ADMIN_KEYS must be a comma separated list of strings");
+            process.exit();
+        }
+
+        if (Bun.env.BIOME == -1) {
+            console.log("BIOME is set to -1, selecting random biome");
+            Bun.env.BIOME = Math.random() * 7 | 0;
+        }
+
         let bunSocketID = 1;
         const bunSendMap = new Map();
         const server = Bun.serve({
@@ -271,13 +314,13 @@ switch (globalThis.environmentName) {
             websocket: {
                 open(socket) {
                     socket.binaryType = "arraybuffer";
-                    state.router.addClient(socket.data.bunSocketID, socket.data.searchParams.get("uuid"), false);
-                    bunSendMap.set(socket.data.bunSocketID, socket);
+                    state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), Bun.env.ADMIN_KEYS.includes(socket.data.searchParams.get("clientKey")));
+                    bunSendMap.set(socket.data.socketID, socket);
                 },
 
                 close(socket) {
-                    state.router.removeClient(socket.data.bunSocketID);
-                    bunSendMap.delete(socket.data.bunSocketID);
+                    state.router.removeClient(socket.data.socketID);
+                    bunSendMap.delete(socket.data.socketID);
                 },
 
                 message(socket, data) {
@@ -285,24 +328,20 @@ switch (globalThis.environmentName) {
                         return;
                     }
 
-                    state.router.pipeMessage(socket.data.bunSocketID, new DataView(data));
+                    state.router.pipeMessage(socket.data.socketID, new DataView(data));
                 }
             },
 
-            port: 8080
+            port: +Bun.env.PORT,
+            tls: Bun.env.TLS_DIRECTORY !== "false" ? {
+                key: Bun.file(`${Bun.env.TLS_DIRECTORY}/privkey.pem`),
+                cert: Bun.file(`${Bun.env.TLS_DIRECTORY}/fullchain.pem`)
+            } : undefined
         });
 
-        const options = {
-            host: "ws://localhost",
-            gameName: "bun",
-            modded: false,
-            gamemode: "waves",
-            secret: "staging_key",
-            biome: Math.random() * 7 | 0,
-            private: false
-        };
+        const timezone = -Math.floor(new Date().getTimezoneOffset() / 60);
 
-        const socket = new WebSocket(`${options.host}/ws/lobby?gameName=${options.gameName}&isModded=${options.modded ? "yes" : "no"}&gamemode=${options.gamemode}&secret=${options.secret}&isPrivate=${options.private ? "yes" : "no"}&biome=${options.biome}&directConnect=unsecure`, {
+        const socket = new WebSocket(`${Bun.env.ROUTING_SERVER}/ws/lobby?gameName=${Bun.env.GAME_NAME}&isModded=${Bun.env.MODDED == "true" ? "yes" : "no"}&gamemode=${Bun.env.GAMEMODE}&secretKey=${Bun.env.SECRET}&isPrivate=no&biome=${Bun.env.BIOME}&directConnect=${Bun.env.HOST},${timezone}&analytics=${ANALYTICS_DATA}`, {
             origin: "https://floof.eparker.dev",
             headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
@@ -311,10 +350,12 @@ switch (globalThis.environmentName) {
 
         socket.binaryType = "arraybuffer";
 
+        const wait = [];
+
         socket.onopen = () => {
             console.log("Connected to server");
 
-            state.router.begin(["start", options.gamemode, options.modded, crypto.randomUUID(), options.biome]);
+            state.router.begin(["start", Bun.env.GAMEMODE, Bun.env.MODDED == "true", crypto.randomUUID(), +Bun.env.BIOME]);
 
             socket.onmessage = event => {
                 const data = new Uint8Array(event.data);
@@ -329,17 +370,34 @@ switch (globalThis.environmentName) {
                     console.log("Lobby Verified", new TextDecoder().decode(data.slice(2, -1)));
                     return;
                 }
-
-                console.log("Received:", data);
-            }
-
-            state.router.postMessage = u8 => {
-                console.log("Sending", u8);
-                socket.send(u8);
             }
 
             socket.onclose = () => {
                 console.log("Disconnected from server");
+            }
+
+            wait.forEach(fn => fn());
+        }
+
+        state.router.postMessage = u8 => {
+            switch (u8[0]) {
+                case ROUTER_PACKET_TYPES.PIPE_PACKET:
+                    const sock = bunSendMap.get(u8ToU16(u8, 1));
+
+                    if (sock.readyState === WebSocket.OPEN) {
+                        sock.send(u8.slice(3));
+                    }
+                    break;
+                case ROUTER_PACKET_TYPES.CLOSE_CLIENT:
+                    bunSendMap.get(u8ToU16(u8, 1))?.close();
+                    break;
+                default:
+                    if (socket.readyState === WebSocket.OPEN) {
+                        socket.send(u8);
+                    } else {
+                        wait.push(() => socket.send(u8));
+                    }
+                    break;
             }
         }
     } break;
@@ -349,7 +407,7 @@ switch (globalThis.environmentName) {
 
 let hasDoneItBefore = false;
 function sendMockups() {
-    self.postMessage(new Uint8Array([0x02, ...stringToU8(JSON.stringify(encodeEverything(tiers, petalConfigs, mobConfigs)))]));
+    state.router.postMessage(new Uint8Array([0x02, ...stringToU8(JSON.stringify(encodeEverything(tiers, petalConfigs, mobConfigs)))]));
 
     if (hasDoneItBefore) {
         setTimeout(() => state.clients.forEach(c => c.talk(CLIENT_BOUND.UPDATE_ASSETS)), 250);

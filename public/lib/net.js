@@ -179,7 +179,6 @@ async function encodeAnalytics() {
 }
 
 const analyticalData = encodeURIComponent(await encodeAnalytics());
-console.log(JSON.parse(atob(decodeURIComponent(analyticalData))));
 
 export async function loadUUID() {
     const storageID = localStorage.getItem("uuid");
@@ -1417,7 +1416,7 @@ export async function loadAssets(lobbyID) {
 }
 
 let clientSocketDone = false;
-export async function beginState(lobbyID, username) {
+export async function beginState(lobbyID, username, serverURL = util.SERVER_URL.replace("http", "ws")) {
     if (clientSocketDone) {
         return;
     }
@@ -1433,7 +1432,7 @@ export async function beginState(lobbyID, username) {
         }
 
         location.hash = lobbyID;
-        state.socket = new ClientSocket(`${util.SERVER_URL.replace("http", "ws")}/ws/client?partyURL=${lobbyID}&clientKey=${localStorage.getItem("token") ?? ""}&uuid=${UUID}&analytics=${analyticalData}`, username);
+        state.socket = new ClientSocket(`${serverURL}/ws/client?partyURL=${lobbyID}&clientKey=${localStorage.getItem("token") ?? ""}&uuid=${UUID}&analytics=${analyticalData}`, username);
         state.socket.lobbyID = lobbyID;
     } catch (error) {
         console.error(error);

@@ -141,7 +141,8 @@ const config = {
                 serverCode = js_beautify.js_beautify(uglify.minify(`/* Polyfills and supporting code for bun's runtime */
 globalThis.environmentName = "bun";
 const location = {
-    href: "https://floof.eparker.dev/server/bun.js"
+    href: "https://floof.eparker.dev/server/bun.js",
+    hostname: "floof.eparker.dev"
 };
 const _fetch = fetch;
 fetch = async (...args) => {
@@ -153,6 +154,94 @@ fetch = async (...args) => {
         json: async () => JSON.parse(text)
     };
 };
+
+const _setInterval = setInterval;
+setInterval = (fn, time, ...args) => {
+    let lastTime = performance.now();
+    return _setInterval(() => {
+        const now = performance.now();
+        const delta = now - lastTime;
+
+        if (delta >= time) {
+            fn();
+            lastTime = now;
+        }
+    }, time / 10, ...args);
+}
+
+async function generateAnalytics() {
+    const os = await import("os");
+
+    function getBrowserInfo() {
+        // Bun
+        if (typeof Bun !== "undefined") {
+            return {
+                name: "Bun",
+                version: Bun.version
+            };
+        }
+
+        // Deno
+        if (typeof Deno !== "undefined") {
+            return {
+                name: "Deno",
+                version: Deno.version.deno
+            };
+        }
+
+        // Node.js
+        if (typeof process !== "undefined") {
+            return {
+                name: "Node.js",
+                version: process.version
+            };
+        }
+
+        return {
+            name: "Unknown",
+            version: "0.0.0"
+        };
+    }
+
+    function getOSInfo() {
+        const platform = os.platform();
+        const platformsMap = {
+            "win32": "Windows",
+            "darwin": "Mac OS",
+            "linux": "Linux",
+            "android": "Android",
+            "freebsd": "FreeBSD",
+            "openbsd": "OpenBSD",
+            "sunos": "SunOS"
+        };
+
+        return platformsMap[platform] || "Unknown";
+    }
+
+    async function getAnalyticsData() {
+        return {
+            screen: "0x0",
+            hardware: {
+                gl: 0,
+                gl2: 0,
+                minCores: os.cpus().length,
+                minMem: Math.min(8, Math.round(os.totalmem() / 1024 / 1024 / 1024)),
+                gpu: "Unknown",
+                os: getOSInfo(),
+                bench: 0
+            },
+            browser: getBrowserInfo(),
+            locale: Intl.DateTimeFormat().resolvedOptions().locale,
+            tzOff: -(new Date().getTimezoneOffset() / 60),
+            dst: +(new Date().getTimezoneOffset() < Math.max(new Date(new Date().getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date().getFullYear(), 6, 1).getTimezoneOffset())),
+            isMobile: 0
+        };
+    }
+
+    return btoa(JSON.stringify(await getAnalyticsData()));
+}
+
+const ANALYTICS_DATA = await generateAnalytics();
 
 ${serverCode}`.trim(), {
     compress: true,

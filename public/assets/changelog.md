@@ -4,6 +4,8 @@
 - Rewrote the routing server using Bun's APIs and runtimes
 - Segmented mobs can now coil upon themselves
 - Started experimenting with running the Bun router on an ExtraVM server (WARNING: This will invalidate any node/bun game instance)
+- Fixed some small issues with health of certain petals
+- Doubled Rice's damage output while removing its health component, making it a one-hit stooge
 
 # Update (08/09/2024):
 - Added a HIGHLY experimental new gamemode with terrain rather than just a plain map
