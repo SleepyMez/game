@@ -1,3 +1,11 @@
+# Update (08/22/2024):
+- Expect progress on game to slow, I am going to college
+- Nerfed Soldier & Queen Fire ant speed slightly
+- Queen/Overmind spawned eggs now take longer to hatch, and spawn less often
+- Buffed all of Primrose's healing parameters
+- Testing enabling perMessageDeflate on websocket connections for both the router and bun server
+- Added another metric to the client debug data for bandwidth per second (measured in KB)
+
 # Update (08/20/2024):
 - Added chat, use it wisely...
 - Small balance changes

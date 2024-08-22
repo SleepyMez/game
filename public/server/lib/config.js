@@ -141,7 +141,7 @@ export const petalConfigs = [
         .setDescription("A very consistent trickle heal."),
     new PetalConfig("Primrose", 25, 12, 4)
         .setSize(1.3)
-        .setHealSpit(100, 100, 1)
+        .setHealSpit(77, 125, 3)
         .setDescription("Said to be from a mystical covenant of witches who specialized in healing nature."),
     new PetalConfig("Fire Spellbook", 35, 9, 8)
         .setSize(1.2)
@@ -453,13 +453,13 @@ export const mobConfigs = [
         .addDrop(petalIDOf("Light"), .4)
         .addDrop(petalIDOf("Yucca"), .4)
         .addDrop(petalIDOf("Corn"), .4),
-    new MobConfig("Soldier Fire Ant", 16, 4, 9, 4.25)
+    new MobConfig("Soldier Fire Ant", 16, 4, 9, 4)
         .setSize(10, 1.2)
         .setAggressive(1)
         .addDrop(petalIDOf("Faster"), .4)
         .addDrop(petalIDOf("Wing"), .2)
         .addDrop(petalIDOf("Yucca"), .1),
-    new MobConfig("Queen Fire Ant", 55, 4, 16, 4.25)
+    new MobConfig("Queen Fire Ant", 55, 4, 16, 4)
         .setAggressive(1)
         .addDrop(petalIDOf("Primrose"))
         .addDrop(petalIDOf("Dirt"), .5)
@@ -738,12 +738,12 @@ mobConfigs[mobIDOf("Ant Egg")].setHatchables([{
 
 mobConfigs[mobIDOf("Queen Ant Egg")].setHatchables({
     index: mobIDOf("Soldier Ant"),
-    time: 22.5 * .75
+    time: 22.5 * 1.5
 });
 
 mobConfigs[mobIDOf("Queen Ant")].setPoopable({
     index: mobIDOf("Queen Ant Egg"),
-    interval: 22.5 * 1.25
+    interval: 22.5 * 2
 });
 
 mobConfigs[mobIDOf("Fire Ant Egg")].setHatchables([{
@@ -759,12 +759,12 @@ mobConfigs[mobIDOf("Fire Ant Egg")].setHatchables([{
 
 mobConfigs[mobIDOf("Queen Fire Ant Egg")].setHatchables({
     index: mobIDOf("Soldier Fire Ant"),
-    time: 22.5 * .75
+    time: 22.5 * 1.5
 });
 
 mobConfigs[mobIDOf("Queen Fire Ant")].setPoopable({
     index: mobIDOf("Queen Fire Ant Egg"),
-    interval: 22.5 * 1.25
+    interval: 22.5 * 2
 });
 
 mobConfigs[mobIDOf("Termite Egg")].setHatchables([{
@@ -780,12 +780,12 @@ mobConfigs[mobIDOf("Termite Egg")].setHatchables([{
 
 mobConfigs[mobIDOf("Termite Overmind Egg")].setHatchables({
     index: mobIDOf("Soldier Termite"),
-    time: 22.5 * .75
+    time: 22.5 * 2
 });
 
 mobConfigs[mobIDOf("Termite Overmind")].setPoopable({
     index: mobIDOf("Termite Overmind Egg"),
-    interval: 22.5 * 3.5
+    interval: 22.5 * 4
 });
 
 /**

@@ -320,6 +320,8 @@ switch (globalThis.environmentName) {
             },
 
             websocket: {
+                perMessageDeflate: true,
+
                 open(socket) {
                     socket.binaryType = "arraybuffer";
                     state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), keys.includes(socket.data.searchParams.get("clientKey")));

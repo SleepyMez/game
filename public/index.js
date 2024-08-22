@@ -1027,6 +1027,12 @@ function draw() {
         text(`C: ${clientDebug.fps} FPS | ${clientDebug.mspt.toFixed(2)} mspt`, width - 10, 10, 15);
         text(`S: ${net.state.updateRate} UPS | ${+net.state.ping.toFixed(2)} ms ping`, width - 10, 25, 15);
 
+        if (net.state.socket) {
+            text(`B(I/O): ${net.state.socket.bandWidth.in}/${net.state.socket.bandWidth.out} KB/s`, width - 10, 40, 15);
+        } else {
+            text("Not connected", width - 10, 40, 15);
+        }
+
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
     }

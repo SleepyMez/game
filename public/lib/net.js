@@ -820,6 +820,21 @@ export class ClientSocket extends WebSocket {
                 }
             };
         }
+
+        this._dataIn = 0;
+        this._dataOut = 0;
+
+        this.bandWidth = {
+            in: 0,
+            out: 0
+        };
+
+        this.bandwidthTracker = setInterval(() => {
+            this.bandWidth.in = (this._dataIn / 1024).toFixed(2);
+            this.bandWidth.out = (this._dataOut / 1024).toFixed(2);
+            this._dataIn = 0;
+            this._dataOut = 0;
+        }, 1E3);
     }
 
     onOpen() {
@@ -835,6 +850,7 @@ export class ClientSocket extends WebSocket {
 
     onMessage(event) {
         const reader = new Reader(new DataView(new Uint8Array(event.data).buffer), 0, true);
+        this._dataIn += event.data.byteLength;
 
         switch (reader.getUint8()) {
             case CLIENT_BOUND.KICK:
@@ -1365,7 +1381,10 @@ export class ClientSocket extends WebSocket {
                 break;
         }
 
-        this.send(writer.build());
+        const output = writer.build();
+        this._dataOut += output.byteLength;
+
+        this.send(output);
     }
 }
 
