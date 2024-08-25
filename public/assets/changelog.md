@@ -1,3 +1,17 @@
+# Update (08/25/2024):
+- Fixed a few bugs with analytics
+- Because people can't let a nice thing be, I had to add the slur filter to the lobby creation...
+- Size increase no longer makes your petal orbit increase
+- Fixed Starfish not having a description
+- Buffed Starfish heal slightly
+- Buffed Yucca and Leaf
+- Removed pentagram spell from Deity petal
+- Nerfed Yggdrasil's reload to 45 seconds
+- Yggdrasil can no longer be destroyed when active
+- Cactus, Dirt, Rose, Egg, Stick, Dahlia, Primrose, Fire Spellbook, Powder, Ant Egg, Magnet, Yggdrasil, Sponge, Shell, and Lightbulb now huddle close to the player and are not affected by attacking
+- Nerfed Dust
+- Fixed an issue with private lobbies
+
 # Update (08/22/2024):
 - Expect progress on game to slow, I am going to college
 - Nerfed Soldier & Queen Fire ant speed slightly

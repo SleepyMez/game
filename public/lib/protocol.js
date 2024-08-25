@@ -159,12 +159,18 @@ export class PetalConfig {
         this.phases = false;
         this.canPlaceDown = false;
         this.healWhenUnder = 1;
+        this.huddles = false;
 
         this.description = "Not much is known about this mysterious petal.";
     }
 
     setName(name) {
         this.name = name;
+        return this;
+    }
+
+    setHuddles(huddles) {
+        this.huddles = Boolean(huddles);
         return this;
     }
 

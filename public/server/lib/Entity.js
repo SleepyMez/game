@@ -176,7 +176,7 @@ export class PetalSlot {
     }
 
     update(nSpots, i, orbitRatio) {
-        let orbit = this.player.size * 3 * (this.config.tiers[this.rarity].healing ? .75 : orbitRatio);
+        let orbit = this.player.size + 52.5 * (this.config.huddles ? .65 : orbitRatio);
 
         if (this.config.wingMovement === true && this.player.attack) {
             orbit += (1 + Math.sin(performance.now() / 125 + this.index)) * (this.player.size * (1 + this.rarity));

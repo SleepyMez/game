@@ -26,6 +26,7 @@ export const petalConfigs = [
         .setDescription("This one makes your petals spin faster."),
     new PetalConfig("Heavy", 30, 25, 8)
         .setSize(1.25)
+        .setDensity(3)
         .setDescription("A more chunky petal that hits harder but takes longer to recharge."),
     new PetalConfig("Stinger", 50, 1, 25)
         .setMulti([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 7, 7], 1)
@@ -40,10 +41,11 @@ export const petalConfigs = [
     new PetalConfig("Cactus", 45, 18, 6)
         .setSize(1.2)
         .setExtraHealth(20)
+        .setHuddles(1)
         .setDescription("A petal that gives you extra health. Pretty magical if you ask me."),
     new PetalConfig("Leaf", 10, 8, 6)
         .setSize(1.2)
-        .setConstantHeal(4)
+        .setConstantHeal(4.5)
         .setDescription("A petal that heals you over time by the power of photosynthesis."),
     new PetalConfig("Wing", 15, 10, 10)
         .setSize(1.3)
@@ -58,6 +60,7 @@ export const petalConfigs = [
         .setExtraHealth(30)
         .setSpeedMultiplier(.925)
         .setExtraSize(2.5)
+        .setHuddles(1)
         .setDescription("The extra soil gives your flower more mass, but it does slow you down a bit..."),
     new PetalConfig("Magnolia", 44, 8, 8)
         .setConstantHeal(2)
@@ -83,6 +86,7 @@ export const petalConfigs = [
         .setDescription("[object null object]"),
     new PetalConfig("Rose", 15, 4, 4)
         .setHealing(8)
+        .setHuddles(1)
         .setDescription("Not great at combat, but it's healing properties are amazing."),
     new PetalConfig("Yin Yang", 15, 9, 11)
         .setYinYang(1)
@@ -118,6 +122,7 @@ export const petalConfigs = [
         .setDescription("Poisonous, and it slows down your enemies. A perfect double whammy."),
     new PetalConfig("Egg", 48, 5, 2)
         .setSize(1.5)
+        .setHuddles(1)
         .setDescription("Something might pop out of this!"),
     new PetalConfig("Antennae", 0, 0, 0)
         .setExtraVision(50)
@@ -129,6 +134,7 @@ export const petalConfigs = [
         .setDescription("A pod of peas. They'll explode if you're not careful."),
     new PetalConfig("Stick", 55, 8, 3)
         .setSize(1.2)
+        .setHuddles(1)
         .setMulti(2, false)
         .setDescription("A bundle of sticks... I wonder what'll happen if you spin them around in the desert..."),
     new PetalConfig("scorpion.projectile", 1024, 4, 4)
@@ -137,10 +143,12 @@ export const petalConfigs = [
     new PetalConfig("Dahlia", 10, 5, 5)
         .setHealing(2)
         .setSize(.5)
+        .setHuddles(1)
         .setMulti(3, true)
         .setDescription("A very consistent trickle heal."),
     new PetalConfig("Primrose", 25, 12, 4)
         .setSize(1.3)
+        .setHuddles(1)
         .setHealSpit(77, 125, 3)
         .setDescription("Said to be from a mystical covenant of witches who specialized in healing nature."),
     new PetalConfig("Fire Spellbook", 35, 9, 8)
@@ -152,6 +160,7 @@ export const petalConfigs = [
             multiplier: .4,
             duration: 4
         })
+        .setHuddles(1)
         .setDescription("A tome of ancient spells. It's said to be able to focus the power of a fallen Demon."),
     new PetalConfig("Deity", 1, 50, 50)
         .setSize(1.15)
@@ -168,13 +177,6 @@ export const petalConfigs = [
         .setSpeedMultiplier(1.05)
         .setWingMovement(1)
         .setLightning([5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10], 32 * 16, 128)
-        .setPentagramAbility(1000, 5000, 5, {
-            damage: 5,
-            duration: 10
-        }, {
-            multiplier: .1,
-            duration: 10
-        })
         .setDescription("A petal that channels the power of all that came before."),
     new PetalConfig("Lightning", 45, 1E-10, 3)
         .setLightning([3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9], 32 * 8, 7)
@@ -182,19 +184,22 @@ export const petalConfigs = [
     new PetalConfig("Powder", 23, 3, 5)
         .setSize(1.65)
         .setSpeedMultiplier(1.0275)
+        .setHuddles(1)
         .setDescription("This special cocaine will make you go fast!"),
     new PetalConfig("Ant Egg", 30, 8, 4)
         .setSize(1.1)
         .setMulti(4, false)
+        .setHuddles(1)
         .setDescription("A petal that spawns ants. They'll help you out!"),
     new PetalConfig("Yucca", 10, 8, 6)
         .setSize(1.2)
-        .setConstantHeal(6, true)
+        .setConstantHeal(6.5, true)
         .setDescription("A strange leaf that heals you but only when you're in defensive mode."),
     new PetalConfig("Magnet", 45, 9, 6)
         .setSize(1.55)
         .setExtraPickupRange(125)
         .setAttractsLightning(1)
+        .setHuddles(1)
         .setDescription("This petal's magnetic field will attract nearby items. Does not stack."),
     new PetalConfig("Amulet", 0, 0, 0)
         .setMulti(0, false)
@@ -204,8 +209,10 @@ export const petalConfigs = [
     new PetalConfig("Jelly", 23, 9, 7)
         .setDensity(25)
         .setDescription("Super bouncy! Knocks all your enemies around. Very fun to use and cause problems with."),
-    new PetalConfig("Yggdrasil", 22.5 * 30, 25, 3)
+    new PetalConfig("Yggdrasil", 22.5 * 45, 1E-10, 0)
         .setDeathDefying(.15)
+        .setHuddles(1)
+        .setPhases(1)
         .setDescription("The tree of life. If you were to die with this petal alive, you'd be revived with a portion of your health."),
     new PetalConfig("Glass", 22.5 * 2, 1E-10, 2)
         .setPhases(1)
@@ -218,6 +225,7 @@ export const petalConfigs = [
         .setDescription("A paralyzing force."),
     new PetalConfig("Sponge", 22.5, 24, 0)
         .setSize(4 / 3)
+        .setHuddles(1)
         .setAbsorbsDamage(35, [
             3 * 22.5, 3 * 22.5, 3 * 22.5,
             4 * 22.5, 4 * 22.5, 4 * 22.5,
@@ -232,6 +240,7 @@ export const petalConfigs = [
     new PetalConfig("Shell", 36, 13, 6)
         .setSize(1.5)
         .setShield(10)
+        .setHuddles(1)
         .setDescription("A shell that provides extra protection through a shield."),
     new PetalConfig("Bubble", 15, 1E-10, 1E-10)
         .setSize(1.3)
@@ -247,7 +256,8 @@ export const petalConfigs = [
         .setDescription("Literally nothing at all, but it puffs you up."),
     new PetalConfig("Starfish", 30, 9, 11)
         .setSize(1.4)
-        .setConstantHeal(6, false, .7),
+        .setConstantHeal(8, false, .7)
+        .setDescription("A leg of a starfish. It will heal you quite effectively while you are under 70% health."),
     new PetalConfig("Fang", 28, 8, 10)
         .setSize(1.15)
         .setHealBack([.2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75])
@@ -266,13 +276,14 @@ export const petalConfigs = [
     new PetalConfig("Lightbulb", 33, 10, 10)
         .setSize(1.4)
         .setAttractsAggro(1)
+        .setHuddles(1)
         .setDescription("Mobs will be prioritize yourshiny bulbs when they aggro when in use. The priority increases with each rarity, and stacks with itself."),
     new PetalConfig("Battery", 55, 1E-10, 0)
         .setPhases(1)
         .setSize(1.34)
         .setLightning(4, 32 * 8, 5, [2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7], true)
         .setDescription("A battery that can release electric charges when hit."),
-    new PetalConfig("Dust", 16, 8, 8)
+    new PetalConfig("Dust", 16, 7, 6)
         .setMulti(3, true)
         .setLaunchable(.7, 55)
         .setDensity(5)
