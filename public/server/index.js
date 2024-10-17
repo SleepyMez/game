@@ -302,13 +302,21 @@ switch (globalThis.environmentName) {
 
         let bunSocketID = 1;
         const bunSendMap = new Map();
+        const ipCounts = new Map();
         const server = Bun.serve({
             fetch(req) {
+                const ip = server.requestIP(req);
+
+                if (!ip?.address) {
+                    return new Response(":(");
+                }
+
                 const success = server.upgrade(req, {
                     data: {
                         socketID: bunSocketID++,
                         searchParams: new URLSearchParams(req.url.split("?").slice(1).join("?")),
-                        begin: performance.now()
+                        begin: performance.now(),
+                        ip: ip.address
                     }
                 });
 
@@ -326,6 +334,15 @@ switch (globalThis.environmentName) {
                     socket.binaryType = "arraybuffer";
                     state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), keys.includes(socket.data.searchParams.get("clientKey")));
                     bunSendMap.set(socket.data.socketID, socket);
+                    
+                    let ct = (ipCounts.get(socket.data.ip) ?? 0) + 1;
+
+                    if (ct > 2) {
+                        socket.close();
+                        return;
+                    }
+
+                    ipCounts.set(socket.data.ip, ct);
                 },
 
                 close(socket) {
@@ -334,6 +351,14 @@ switch (globalThis.environmentName) {
 
                     if (lobbySocket.readyState === WebSocket.OPEN && socket.data.searchParams.has("analytics")) {
                         lobbySocket.send(new Uint8Array([ROUTER_PACKET_TYPES.ANALYTICS_DATA, ...stringToU8(socket.data.searchParams.get("analytics")), ...stringToU8((performance.now() - socket.data.begin).toFixed(2))]));
+                    }
+
+                    let ct = (ipCounts.get(socket.data.ip) ?? 0) - 1;
+
+                    if (ct <= 0) {
+                        ipCounts.delete(socket.data.ip);
+                    } else {
+                        ipCounts.set(socket.data.ip, ct);
                     }
                 },
 

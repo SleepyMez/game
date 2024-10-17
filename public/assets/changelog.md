@@ -1,3 +1,8 @@
+# Update (10/16/2024):
+- Did a thing
+- Did another thing
+- Slightly nerfed progression
+
 # Update (08/25/2024):
 - Fixed a few bugs with analytics
 - Because people can't let a nice thing be, I had to add the slur filter to the lobby creation...

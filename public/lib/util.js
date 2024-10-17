@@ -97,7 +97,7 @@ export function formatLargeNumber(number) {
     return (number / 1000000000).toFixed(1) + "b";
 }
 
-const threshold = .65;
+const threshold = .6375;
 
 export function getDropRarity(mobRarity, highestPlayerRarity) {
     const maxRarity = Math.min(9, Math.min(mobRarity, highestPlayerRarity + 1));
