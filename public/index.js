@@ -1,7 +1,7 @@
 import { canvas, ctx, drawBackground, drawBackgroundOverlay, drawBar, drawFace, drawWrappedText, gameScale, mixColors, setStyle, text, uiScale } from "./lib/canvas.js";
 import * as net from "./lib/net.js";
 import { mouse, keyMap } from "./lib/net.js";
-import { colors, lerp, options, SERVER_URL, shakeElement } from "./lib/util.js";
+import { colors, isHalloween, lerp, options, SERVER_URL, shakeElement } from "./lib/util.js";
 import { BIOME_BACKGROUNDS, BIOME_TYPES, DEV_CHEAT_IDS, SERVER_BOUND, terrains, WEARABLES } from "./lib/protocol.js";
 import { drawMob, drawPetal, getPetalIcon, drawUIPetal, petalTooltip, drawThirdEye, drawAntennae, pentagram, drawAmulet, drawPetalIconWithRatio } from "./lib/renders.js";
 import { beginDragDrop, DRAG_TYPE_DESTROY, DRAG_TYPE_MAINDOCKER, DRAG_TYPE_SECONDARYDOCKER, dragConfig, updateAndDrawDragDrop } from "./lib/dragAndDrop.js";
@@ -883,7 +883,9 @@ function draw() {
             drawBar(175, 275, 210, 22.5, colors["???"]);
             drawBar(175, 175 + 100 * net.state.levelProgress, 210, 15, colors.playerYellow);
             text("Level " + net.state.level, 225, 210, 12);
-        } { // Minimap
+        } 
+        
+        if (!isHalloween) { // Minimap
             const doTerrain = net.state.terrain?.blocks?.length > 0;
             const biggestSize = doTerrain ? 275 : Math.abs(1 - net.state.room.width / net.state.room.height) < .1 ? 150 : 200;
             const bigger = Math.max(net.state.room.width, net.state.room.height);
@@ -919,7 +921,9 @@ function draw() {
                 biggestSize * (doTerrain ? .0225 : .025), 0, Math.PI * 2
             );
             ctx.fill();
-        } { // Chat
+        }
+        
+        { // Chat
             ctx.save();
             ctx.translate(10, height - 10);
             const maxWidth = width * .2;

@@ -291,9 +291,15 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
     const lines = [];
     const words = text.split(" ");
 
+    if (words.length === 1) {
+        _ctx.strokeText(text, x, y);
+        _ctx.fillText(text, x, y);
+        return _ctx.measureText(text).width;
+    }
+
     let line = "";
     for (let i = 0; i < words.length; i++) {
-        if (_ctx.measureText(words[i]).width > maxWidth) {
+        if (x + _ctx.measureText(words[i]).width > maxWidth) {
             const newWords = [];
 
             const oldWord = words[i];
