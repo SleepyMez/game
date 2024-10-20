@@ -1,6 +1,9 @@
 import { BIOME_TYPES, ENTITY_TYPES, SIDE_FLAGS } from "../../lib/protocol.js";
 import { Terrain } from "./Entity.js";
 import state from "./state.js";
+import { isHalloween } from "../../lib/util.js";
+import MazeGenerator from "./MazeGenerator.js";
+import Pathfinder from "./Pathfinder.js";
 
 const MAP_TYPES = {
     standard: "/server/maps/standard.json",
@@ -16,35 +19,39 @@ let mapSrc = MAP_TYPES.standard,
     map = [];
 
 export default async function initTerrain(type) {
-    switch (type) {
-        case BIOME_TYPES.DEFAULT:
-        case BIOME_TYPES.GARDEN:
-            mapSrc = MAP_TYPES.standard;
-            break;
-        case BIOME_TYPES.DESERT:
-            mapSrc = MAP_TYPES.desert;
-            break;
-        case BIOME_TYPES.OCEAN:
-            mapSrc = MAP_TYPES.ocean;
-            break;
-        case BIOME_TYPES.ANT_HELL:
-            mapSrc = MAP_TYPES.antHell;
-            break;
-        case BIOME_TYPES.HELL:
-            mapSrc = MAP_TYPES.hell;
-            break;
-        case BIOME_TYPES.SEWERS:
-            mapSrc = MAP_TYPES.sewers;
-            break;
-        default:
-            throw new Error("Invalid biome type");
-    }
-
-    if (typeof mapSrc === "string") {
-        const response = await fetch(mapSrc);
-        map = await response.json();
+    if (isHalloween) {
+        map = generateRandomMap(56, 56, false);
     } else {
-        map = mapSrc;
+        switch (type) {
+            case BIOME_TYPES.DEFAULT:
+            case BIOME_TYPES.GARDEN:
+                mapSrc = MAP_TYPES.standard;
+                break;
+            case BIOME_TYPES.DESERT:
+                mapSrc = MAP_TYPES.desert;
+                break;
+            case BIOME_TYPES.OCEAN:
+                mapSrc = MAP_TYPES.ocean;
+                break;
+            case BIOME_TYPES.ANT_HELL:
+                mapSrc = MAP_TYPES.antHell;
+                break;
+            case BIOME_TYPES.HELL:
+                mapSrc = MAP_TYPES.hell;
+                break;
+            case BIOME_TYPES.SEWERS:
+                mapSrc = MAP_TYPES.sewers;
+                break;
+            default:
+                throw new Error("Invalid biome type");
+        }
+
+        if (typeof mapSrc === "string") {
+            const response = await fetch(mapSrc);
+            map = await response.json();
+        } else {
+            map = mapSrc;
+        }
     }
 
     const generator = {
@@ -62,20 +69,6 @@ export default async function initTerrain(type) {
         [ENTITY_TYPES.PLAYER]: [],
         [ENTITY_TYPES.MOB]: []
     };
-
-    let spawnX = 0,
-        spawnY = 0;
-
-    exit: for (let i = 0; i < generator.width; i++) {
-        for (let j = 0; j < generator.height; j++) {
-            if (generator.get(i, j) === 2) {
-                spawnX = i;
-                spawnY = j;
-
-                break exit;
-            }
-        }
-    }
 
     for (let i = 0; i < generator.width; i++) {
         for (let j = 0; j < generator.height; j++) {
@@ -127,4 +120,62 @@ export default async function initTerrain(type) {
     state.mapData = map;
 
     state.updateTerrain();
+}
+
+function generateRandomMap(width, height, enclose = false) {
+    const maze = new MazeGenerator(width, height);
+    maze.spacing = 4;
+    maze.gridChance = 1;
+    maze.toPlaceAmount = .425;
+    maze.maxNeighbors = 4;
+    maze.maxDiagonalNeighbors = 2;
+    maze.removeSingles = true;
+    maze.removeBlocks = false;
+
+    maze.generate();
+
+    if (enclose) {
+        for (let i = 0; i < width; i++) {
+            maze.set(i, 0, 1);
+            maze.set(i, height - 1, 1);
+        }
+
+        for (let i = 0; i < height; i++) {
+            maze.set(0, i, 1);
+            maze.set(width - 1, i, 1);
+        }
+    }
+
+    let spawnX = 0, spawnY = 0;
+
+    do {
+        spawnX = Math.floor(Math.random() * width);
+        spawnY = Math.floor(Math.random() * height);
+    } while (maze.get(spawnX, spawnY) !== 0);
+
+    maze.set(spawnX, spawnY, 2);
+
+    const finder = new Pathfinder(maze);
+    let maxLength = 0;
+
+    for (let x = 0; x < maze.width; x++) {
+        for (let y = 0; y < maze.height; y++) {
+            if (maze.get(x, y) === 0) {
+                const path = finder.findPath(spawnX, spawnY, x, y);
+
+                maze.set(x, y, path.length + 10);
+                maxLength = Math.max(maxLength, path.length);
+            }
+        }
+    }
+
+    for (let x = 0; x < maze.width; x++) {
+        for (let y = 0; y < maze.height; y++) {
+            if (maze.get(x, y) > 10) {
+                maze.set(x, y, Math.floor((maze.get(x, y) - 10) / maxLength * 9) + 3);
+            }
+        }
+    }
+
+    return maze.to2DArray();
 }

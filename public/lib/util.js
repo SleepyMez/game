@@ -163,3 +163,12 @@ export function applyArticle(word, capitalize = false) {
         return (capitalize ? "A" : "a") + " " + word;
     }
 }
+
+// Between Oct 25th and Nov 3rd
+export const isHalloween = (() => {
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+
+    return month === 10 && day >= 25 || month === 11 && day <= 3;
+})() || true;
