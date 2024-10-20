@@ -1249,7 +1249,9 @@ export default class Client {
         if (this.verified) {
             console.log(`Client ${this.id} (${this.username}) disconnected`);
 
-            new Disconnect(this);
+            if (this.body && !this.body.health.isDead) {
+                new Disconnect(this);
+            }
         } else {
             console.log(`Client ${this.id} disconnected`);
         }
@@ -1263,6 +1265,7 @@ export default class Client {
 
     kick(reason = "Unknown Reason") {
         this.talk(CLIENT_BOUND.KICK, reason);
+        this.body?.destroy();
         this.terminate();
     }
 

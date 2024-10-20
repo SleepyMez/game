@@ -351,12 +351,12 @@ switch (globalThis.environmentName) {
                             const data = await res.json();
 
                             if (!data.ok || !data.isValid) {
-                                socket.close();
+                                client.kick("Wrong IP");
                                 return;
                             }
                         } catch (e) {
                             console.error(e);
-                            socket.close();
+                            client.kick("Wrong IP");
                             return;
                         }
                     }
