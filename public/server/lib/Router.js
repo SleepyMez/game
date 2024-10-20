@@ -115,6 +115,13 @@ function applyBiome(int) {
             [mobIDOf("Hell Yellowjacket")]: 20,
             [mobIDOf("Demon")]: 2,
             [mobIDOf("Angelic Ladybug")]: 1
+        }),
+        [BIOME_TYPES.HALLOWEEN]: createTable({
+            [mobIDOf("Hell Beetle")]: 25,
+            [mobIDOf("Hell Spider")]: 25,
+            [mobIDOf("Hell Yellowjacket")]: 20,
+            [mobIDOf("Demon")]: 2,
+            [mobIDOf("Termite Mound")]: 1
         })
     }[int];
 

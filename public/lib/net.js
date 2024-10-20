@@ -1,4 +1,4 @@
-import { canvas, gameScale, renderTerrain, renderTerrainForMap } from "./canvas.js";
+import { canvas, gameScale, renderTerrain, renderTerrainForMap, SpookyOverlay } from "./canvas.js";
 import { Reader, Writer, SERVER_BOUND, CLIENT_BOUND, ENTITY_FLAGS, ENTITY_MODIFIER_FLAGS, decodeEverything, Drawing, DEV_CHEAT_IDS, PetalConfig, MobConfig, PetalTier, getTerrain, terrains, BIOME_TYPES, loadTerrains } from "./protocol.js";
 import { StarfishData } from "./renders.js";
 import * as util from "./util.js";
@@ -497,6 +497,11 @@ export function createServer(name, gamemode, modded, isPrivate, biome) {
         case "hell":
             biomeInt = BIOME_TYPES.HELL;
             break;
+        case "halloween":
+            if (util.isHalloween) {
+                biomeInt = BIOME_TYPES.HALLOWEEN;
+                break;
+            }
         default:
             return new Promise(resolve => resolve({
                 ok: false,
@@ -1252,11 +1257,13 @@ export class ClientSocket extends WebSocket {
                         }
 
                         return blocks;
-                    })()
+                    })(),
+                    overlay: null
                 };
 
                 state.terrainImg = renderTerrain(state.room.width * .5, state.room.height * .5, state.terrain.width, state.terrain.blocks);
                 state.minimapImg = renderTerrainForMap(state.terrain.width, state.terrain.blocks);
+                state.terrain.overlay = new SpookyOverlay(state.terrain.blocks, state.terrain.width, state.terrain.height);
                 break;
             case CLIENT_BOUND.CHAT_MESSAGE: {
                 const type = reader.getUint8();
@@ -1489,7 +1496,7 @@ export const state = {
     ping: 0,
     lastPingTime: 0,
 
-    /** @type {{width:number,height:number,blocks:{x:number,y:number,type:number}[]}|null} */
+    /** @type {{width:number,height:number,blocks:{x:number,y:number,type:number}[],overlay:SpookyOverlay}|null} */
     terrain: null,
     /** @type {OffscreenCanvas|null} */
     terrainImg: null,

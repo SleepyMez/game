@@ -291,9 +291,15 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
     const lines = [];
     const words = text.split(" ");
 
+    if (words.length === 1) {
+        _ctx.strokeText(text, x, y);
+        _ctx.fillText(text, x, y);
+        return _ctx.measureText(text).width;
+    }
+
     let line = "";
     for (let i = 0; i < words.length; i++) {
-        if (_ctx.measureText(words[i]).width > maxWidth) {
+        if (x + _ctx.measureText(words[i]).width > maxWidth) {
             const newWords = [];
 
             const oldWord = words[i];
@@ -335,8 +341,8 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
     return _ctx.measureText("M").width * lines.length;
 }
 
-const wallBrown = "#68472E";
-const wallDark = "#4F3422";
+const wallBrown = util.isHalloween ? "#353535" : "#68472E";
+const wallDark = util.isHalloween ? "#624211" : "#4F3422";
 const tileSize = 96;
 
 function createTile() {
@@ -466,4 +472,170 @@ export function renderTerrainForMap(gridWidth, blocks) {
     imgCtx.fill();
 
     return img;
+}
+
+// export function spookyOverlay(camX, camY, scale, mapWidth, mapHeight, terrainWidth) {
+
+// }
+
+export class SpookyOverlay {
+    constructor(blocks, gridWidth, gridHeight) {
+        this.grid = new Array(gridWidth).fill(0).map(() => new Array(gridHeight).fill(0));
+
+        for (let i = 0; i < blocks.length; i++) {
+            const b = blocks[i];
+
+            this.grid[b.x][b.y] = 1;
+        }
+
+        this.lifetimes = [];
+
+        this.canvas = new OffscreenCanvas(canvas.width, canvas.height);
+        this.ctx = this.canvas.getContext("2d");
+        this.ctx.imageSmoothingEnabled = true;
+
+        window.addEventListener("resize", () => {
+            this.canvas.width = window.innerWidth * window.devicePixelRatio;
+            this.canvas.height = window.innerHeight * window.devicePixelRatio;
+        });
+
+        this.cellsNeeded = [];
+        this.lastX = 0;
+        this.lastY = 0;
+    }
+
+    update() {
+        for (let i = 0; i < this.cellsNeeded.length; i++) {
+            if (this.cellsNeeded[i].active) {
+                this.cellsNeeded[i].life = Math.min(120, this.cellsNeeded[i].life + 1);
+            } else {
+                this.cellsNeeded[i].life--;
+
+                if (this.cellsNeeded[i].life <= 0) {
+                    this.cellsNeeded.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+    }
+
+    figureOutnextOnes() {
+        const newCells = new Set();
+
+        const maxDepth = 2;
+
+        const neighbors = (x, y, d = 0) => {
+            if (d > maxDepth) {
+                return;
+            }
+
+            newCells.add(`${x},${y}`);
+
+            if (this.grid[x][y] === 0) {
+                if (x > 0) {
+                    neighbors(x - 1, y, d + 1);
+                }
+
+                if (y > 0) {
+                    neighbors(x, y - 1, d + 1);
+                }
+
+                if (x < this.grid.length - 1) {
+                    neighbors(x + 1, y, d + 1);
+                }
+
+                if (y < this.grid[0].length - 1) {
+                    neighbors(x, y + 1, d + 1);
+                }
+            }
+        }
+
+        neighbors(this.lastX, this.lastY);
+
+        for (const cell of newCells) {
+            const [x, y] = cell.split(",").map(Number);
+
+            let i = this.cellsNeeded.findIndex(c => c.x === x && c.y === y);
+
+            if (i === -1) {
+                this.cellsNeeded.push({ x, y, life: 0, active: true });
+                continue;
+            }
+
+            this.cellsNeeded[i].active = true;
+        }
+
+        for (let i = 0; i < this.cellsNeeded.length; i++) {
+            const cell = this.cellsNeeded[i];
+
+            if (!newCells.has(`${cell.x},${cell.y}`)) {
+                cell.active = false;
+            }
+        }
+    }
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    render(ctx, cameraX, cameraY, mapWidth, mapHeight, scale, hw, hh) {
+        const blockX = (cameraX + mapWidth / 2) / mapWidth * this.grid.length | 0;
+        const blockY = (cameraY + mapHeight / 2) / mapHeight * this.grid.length | 0;
+
+        if (this.lastX !== blockX || this.lastY !== blockY) {
+            this.lastX = blockX;
+            this.lastY = blockY;
+
+            this.figureOutnextOnes();
+        }
+
+        this.update();
+
+        // Save the context state
+        this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.ctx.save();
+
+        // Fill the entire canvas with black
+        this.ctx.fillStyle = "#000000";
+        this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Cut out the path area (making it transparent)
+        this.ctx.globalCompositeOperation = "destination-out";
+        this.ctx.beginPath();
+        for (let i = 0; i < this.cellsNeeded.length; i++) {
+            const x = this.cellsNeeded[i].x;
+            const y = this.cellsNeeded[i].y;
+
+            let dx = x / this.grid.length * mapWidth - cameraX + hw - mapHeight / 2,
+                dy = y / this.grid.length * mapHeight - cameraY + hh - mapHeight / 2;
+
+            this.ctx.fillRect(dx - 1, dy - 1, 1 + mapWidth / this.grid.length, 1 + mapHeight / this.grid.length);
+        }
+
+        this.ctx.fill();
+        this.ctx.restore();
+
+        // Freaky
+        this.ctx.save();
+        this.ctx.fillStyle = "#000000";
+
+        for (let i = 0; i < this.cellsNeeded.length; i++) {
+            if (this.cellsNeeded[i].life <= 120) {
+                this.ctx.globalAlpha = 1 - this.cellsNeeded[i].life / 120;
+
+                const x = this.cellsNeeded[i].x;
+                const y = this.cellsNeeded[i].y;
+
+                let dx = x / this.grid.length * mapWidth - cameraX + hw - mapHeight / 2,
+                    dy = y / this.grid.length * mapHeight - cameraY + hh - mapHeight / 2;
+
+                this.ctx.fillRect(dx - 1, dy - 1, 1 + mapWidth / this.grid.length, 1 + mapHeight / this.grid.length);
+            }
+        }
+
+        // Restore the context state
+        this.ctx.restore();
+
+        // Draw the overlay on the main canvas
+        ctx.drawImage(this.canvas, 0, 0);
+    }
 }
