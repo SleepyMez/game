@@ -3,7 +3,7 @@ import * as net from "./lib/net.js";
 import { mouse, keyMap } from "./lib/net.js";
 import { colors, lerp, options, SERVER_URL, shakeElement } from "./lib/util.js";
 import { BIOME_BACKGROUNDS, BIOME_TYPES, DEV_CHEAT_IDS, SERVER_BOUND, terrains, WEARABLES } from "./lib/protocol.js";
-import { drawMob, drawPetal, getPetalIcon, drawUIPetal, petalTooltip, drawThirdEye, drawAntennae, pentagram, drawAmulet, drawPetalIconWithRatio } from "./lib/renders.js";
+import { drawMob, drawPetal, getPetalIcon, drawUIPetal, petalTooltip, drawThirdEye, drawAntennae, pentagram, drawAmulet, drawPetalIconWithRatio, drawArmor } from "./lib/renders.js";
 import { beginDragDrop, DRAG_TYPE_DESTROY, DRAG_TYPE_MAINDOCKER, DRAG_TYPE_SECONDARYDOCKER, dragConfig, updateAndDrawDragDrop } from "./lib/dragAndDrop.js";
 import { loadAndRenderChangelogs, showMenu, showMenus } from "./lib/menus.js";
 
@@ -476,6 +476,20 @@ function draw() {
         ctx.restore();
     });
 
+    net.state.petals.forEach(entity => {
+        entity.interpolate();
+
+        let drawX = entity.x * scale - cameraX + halfWidth,
+            drawY = entity.y * scale - cameraY + halfHeight;
+
+        ctx.save();
+        ctx.translate(drawX, drawY);
+        ctx.scale(entity.size * scale, entity.size * scale);
+        ctx.rotate(entity.facing);
+        drawPetal(entity.index, entity.hit, ctx, entity.id);
+        ctx.restore();
+    });
+
     net.state.drops.forEach(entity => {
         let drawX = entity.x * scale - cameraX + halfWidth,
             drawY = entity.y * scale - cameraY + halfHeight;
@@ -535,20 +549,6 @@ function draw() {
 
     ctx.textAlign = "center";
 
-    net.state.petals.forEach(entity => {
-        entity.interpolate();
-
-        let drawX = entity.x * scale - cameraX + halfWidth,
-            drawY = entity.y * scale - cameraY + halfHeight;
-
-        ctx.save();
-        ctx.translate(drawX, drawY);
-        ctx.scale(entity.size * scale, entity.size * scale);
-        ctx.rotate(entity.facing);
-        drawPetal(entity.index, entity.hit, ctx, entity.id);
-        ctx.restore();
-    });
-
     net.state.players.forEach(entity => {
         entity.interpolate();
 
@@ -599,6 +599,15 @@ function draw() {
             ctx.scale(size * .6, size * .6);
             ctx.rotate(performance.now() / 1000 + entity.id * 5);
             drawAmulet(ctx, false);
+            ctx.restore();
+        }
+
+        if (entity.wearing & WEARABLES.ARMOR) {
+            ctx.save();
+            ctx.translate(drawX, drawY);
+            ctx.rotate(performance.now() / 250 + entity.id * 5);
+            ctx.scale(size * 1.325, size * 1.325);
+            drawArmor(ctx);
             ctx.restore();
         }
 

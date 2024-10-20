@@ -775,7 +775,8 @@ export const WEARABLES = {
     THIRD_EYE: 0x02,
     CUTTER: 0x04,
     AMULET: 0x08,
-    AIR: 0x10
+    AIR: 0x10,
+    ARMOR: 0x20,
 };
 
 export const ROUTER_PACKET_TYPES = {
@@ -1064,7 +1065,7 @@ export function encodePetalConfig(config) {
 
     const flagsIndex = output.length - 1;
 
-    if (config.tiers[0].extraHealth > 0) {
+    if (config.tiers[0].extraHealth !== 0) {
         output[flagsIndex] |= 0x01;
     }
 
