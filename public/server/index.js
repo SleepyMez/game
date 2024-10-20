@@ -443,7 +443,7 @@ switch (globalThis.environmentName) {
                 case ROUTER_PACKET_TYPES.PIPE_PACKET:
                     const sock = bunSendMap.get(u8ToU16(u8, 1));
 
-                    if (sock.readyState === WebSocket.OPEN) {
+                    if (sock != null && sock.readyState === WebSocket.OPEN) {
                         sock.send(u8.slice(3));
                     }
                     break;
