@@ -330,19 +330,36 @@ switch (globalThis.environmentName) {
             websocket: {
                 perMessageDeflate: true,
 
-                open(socket) {
-                    socket.binaryType = "arraybuffer";
-                    state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), keys.includes(socket.data.searchParams.get("clientKey")));
-                    bunSendMap.set(socket.data.socketID, socket);
-                    
+                async open(socket) {
                     let ct = (ipCounts.get(socket.data.ip) ?? 0) + 1;
 
-                    if (ct > 2) {
+                    if (ct > 1) {
+                        
                         socket.close();
                         return;
                     }
 
                     ipCounts.set(socket.data.ip, ct);
+
+                    socket.binaryType = "arraybuffer";
+                    const client = state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), keys.includes(socket.data.searchParams.get("clientKey")));
+                    bunSendMap.set(socket.data.socketID, socket);
+
+                    if (client) {
+                        try {
+                            const res = await fetch(`${Bun.env.ROUTING_SERVER.replace("ws", "http")}/uuid/check?uuid=${client.uuid}&trustedKey=${Bun.env.SECRET}`);
+                            const data = await res.json();
+
+                            if (!data.ok || !data.isValid) {
+                                socket.close();
+                                return;
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            socket.close();
+                            return;
+                        }
+                    }
                 },
 
                 close(socket) {

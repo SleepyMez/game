@@ -146,11 +146,27 @@ export default class Router {
     static setText = t => Router.encoder.encode(t);
 
     addClient(numericID, uuid, isAdmin) {
+        let kick = false;
+        if (!isAdmin) {
+            for (const client of state.clients.values()) {
+                if (client.uuid === uuid) {
+                    kick = "Duplicate UUID";
+                    break;
+                }
+            }
+        }
+
         const client = new Client(numericID, uuid, isAdmin);
 
         if (state.clients.size > 35) {
             client.kick("Lobby is full, create another one");
+            return null;
+        } else if (kick !== false) {
+            client.kick(kick);
+            return null;
         }
+
+        return client;
     }
 
     pipeMessage(numericID, dataView) {

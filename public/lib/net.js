@@ -497,11 +497,6 @@ export function createServer(name, gamemode, modded, isPrivate, biome) {
         case "hell":
             biomeInt = BIOME_TYPES.HELL;
             break;
-        case "halloween":
-            if (util.isHalloween) {
-                biomeInt = BIOME_TYPES.HALLOWEEN;
-                break;
-            }
         default:
             return new Promise(resolve => resolve({
                 ok: false,
