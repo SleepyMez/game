@@ -112,7 +112,7 @@ export class PetalSlot {
         this.cooldowns = new Array(this.amount).fill(0);
         this.boundMobs = new Array(this.amount).fill(null).map(() => []);
 
-        this.player.health.set(this.player.health.maxHealth + this.config.tiers[rarityID].extraHealth);
+        this.player.health.set(Math.max(1e-10, this.player.health.maxHealth + this.config.tiers[rarityID].extraHealth));
         this.player.health.damageReduction += this.config.tiers[rarityID].damageReduction;
         this.player.size += this.config.tiers[rarityID].extraSize;
         this.player.speed *= this.config.tiers[rarityID].speedMultiplier;
@@ -229,7 +229,7 @@ export class PetalSlot {
                 if (this.config.shootsOut > -1) {
                     petal.range -= 3;
 
-                    if (petal.range <= 0 && this.player.attack) {
+                    if (petal.range <= 0 && (this.player.attack || this.player.defend)) {
                         const newPet = new Petal(this.player, -1, -1);
                         newPet.x = petal.x;
                         newPet.y = petal.y;
@@ -238,7 +238,7 @@ export class PetalSlot {
                         const conf = petalConfigs[this.config.shootsOut];
                         const tier = conf.tiers[this.rarity];
 
-                        newPet.size = conf.sizeRatio * this.player.size * Math.pow(1.1, this.rarity);
+                        newPet.size = conf.sizeRatio * Math.pow(1.2, this.rarity);
                         newPet.health.set(tier.health);
                         newPet.damage = tier.damage;
                         newPet.speed = 0;
@@ -259,8 +259,8 @@ export class PetalSlot {
 
                         // Add velocity so it shoots out
                         const ang = Math.atan2(petal.y - this.player.y, petal.x - this.player.x);
-                        newPet.velocity.x = Math.cos(ang) * 25;
-                        newPet.velocity.y = Math.sin(ang) * 25;
+                        newPet.velocity.x = Math.cos(ang) * (this.player.attack ? 25 : 2.5);
+                        newPet.velocity.y = Math.sin(ang) * (this.player.attack ? 25 : 2.5);
 
                         petal.health.health = 0;
                     }

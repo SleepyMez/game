@@ -802,6 +802,17 @@ export function drawAmulet(ctx = _ctx, hit = false) {
     ctx.fill();
 }
 
+export function drawArmor(ctx = _ctx, hit = false) {
+    setStyle(ctx, mixColors(colors.stingerBlack, "#FF0000", hit * .5), .15);
+
+    ctx.beginPath()
+    polygon(ctx, 6, 1, Math.PI/6)
+    ctx.arc(0, 0, 0.8, 0, TAU)
+    ctx.fill("evenodd")
+    ctx.stroke()
+    ctx.closePath()
+}
+
 function drawJelly(ctx = _ctx, hit = false) {
     setStyle(ctx, mixColors(colors.jelly, "#FF0000", hit * .5), .2);
 
@@ -1476,6 +1487,9 @@ export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
             polygon(ctx, 5, 1, performance.now() * .001 + id);
             ctx.fill();
             ctx.stroke();
+            break;
+        case 58:
+            drawArmor(ctx, hit)
             break;
         default:
             console.log("Unknown petal index: " + index);
@@ -3554,7 +3568,7 @@ function createPetalTooltip(index, rarityIndex) {
     height += 17.5 * (
         (tier.health > 0) +
         (tier.damage > 0) +
-        (tier.extraHealth > 0) +
+        (tier.extraHealth !== 0) +
         (tier.constantHeal > 0) +
         (tier.count > 1) +
         (tier.damageReduction > 0) +
@@ -3631,7 +3645,7 @@ function createPetalTooltip(index, rarityIndex) {
         newY += 17.5;
     }
 
-    if (tier.extraHealth > 0) {
+    if (tier.extraHealth !== 0) {
         text("Extra Health: " + formatLargeNumber(+tier.extraHealth.toFixed(2)), 10, newY, 15, mixColors(colors.epic, "#FFFFFF", .2), ctx);
         newY += 17.5;
     }

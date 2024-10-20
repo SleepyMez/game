@@ -104,7 +104,7 @@ export const petalConfigs = [
     new PetalConfig("Web", 24, 7, 7)
         .setDescription("Sticky!"),
     new PetalConfig("web.mob.launched", 1024, 1E5, 0)
-        .setSize(2)
+        .setSize(60)
         .setEnemySpeedMultiplier(.334, .05)
         .setDescription("[object null object]"),
     new PetalConfig("Third Eye", 0, 0, 0)
@@ -285,6 +285,12 @@ export const petalConfigs = [
         .setLaunchable(.7, 55)
         .setDensity(5)
         .setDescription("A cloud of dust that can be launched at enemies."),
+    new PetalConfig("Armor", 0, 0, 0)
+        .setMulti(0, false)
+        .setWearable(WEARABLES.ARMOR)
+        .setExtraHealth(-10)
+        .setDamageReduction(.25)
+        .setDescription("This petal greatly protects you, but at a cost..."),
 ];
 
 export const petalIDOf = name => petalConfigs.findIndex(p => p.name === name);
@@ -443,7 +449,7 @@ export const mobConfigs = [
         .addDrop(petalIDOf("Wing"), .2)
         .addDrop(petalIDOf("Glass"), .1),
     new MobConfig("Queen Ant", 100, 2, 18, 3.5)
-        .setNeutral(1)
+        .setAggressive(1)
         .addDrop(petalIDOf("Dahlia"))
         .addDrop(petalIDOf("Dirt"), .5)
         .addDrop(petalIDOf("Ant Egg"), .8),
@@ -457,7 +463,7 @@ export const mobConfigs = [
         .addDrop(petalIDOf("Yucca"), .4),
     new MobConfig("Worker Fire Ant", 12, 3, 8, 4)
         .setSize(9, 1.2)
-        .setAggressive(1)
+        .setNeutral(1)
         .addDrop(petalIDOf("Light"), .4)
         .addDrop(petalIDOf("Yucca"), .4)
         .addDrop(petalIDOf("Corn"), .4),
@@ -485,7 +491,7 @@ export const mobConfigs = [
         .addDrop(petalIDOf("Amulet"), .15),
     new MobConfig("Worker Termite", 12, 1, 8, 3)
         .setSize(9, 1.2)
-        .setAggressive(1)
+        .setNeutral(1)
         .setDamageReduction(.1)
         .setDamageReflection(.15)
         .addDrop(petalIDOf("Bone"), .5)
@@ -508,7 +514,7 @@ export const mobConfigs = [
         .setDamageReduction(.1)
         .setDamageReflection(.15)
         .addDrop(petalIDOf("Dirt"))
-        .addDrop(petalIDOf("Ant Egg"), .75)
+        .addDrop(petalIDOf("Armor"), .75)
         .addDrop(petalIDOf("Magnet"), .5),
     new MobConfig("Ant Egg", 25, 2, 14, 0)
         .addDrop(petalIDOf("Ant Egg"), .8)
@@ -526,7 +532,7 @@ export const mobConfigs = [
         .addDrop(petalIDOf("Ant Egg"), .8)
         .addDrop(petalIDOf("Bone"), .8),
     new MobConfig("Evil Ladybug", 28, 6, 21, 3)
-        .setNeutral(1)
+        .setAggressive(1)
         .setDamageReduction(.15)
         .addDrop(petalIDOf("Dahlia"))
         .addDrop(petalIDOf("Yin Yang"), .15),

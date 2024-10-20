@@ -1,3 +1,14 @@
+# Update (10/20/2024):
+- Queen Ant now has aggressive AI instead of neutral
+- Worker Fire Ant now has neutral AI instead of aggressive
+- Worker Termite now has neutral AI instead of aggressive
+- Petals that use "shootsOut" now shoot upon defending
+- Petals that use "shootsOut" don't go as far when shot while defending 
+- Petals that use "shootsOut" no longer scale with player size
+- Petals now render under entities and petal drops
+- Added a new petal: Armor! It makes you take a lot less damage, but make you lose max hp
+- Extra Health can now show negative stat values
+
 # Update (10/16/2024):
 - Did a thing
 - Did another thing
