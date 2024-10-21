@@ -1249,8 +1249,10 @@ export default class Client {
         if (this.verified) {
             console.log(`Client ${this.id} (${this.username}) disconnected`);
 
-            if (this.body && !this.body.health.isDead) {
+            if (this.body && !this.body.health.isDead && this.level >= 20) {
                 new Disconnect(this);
+            } else if (this.body) {
+                this.body.destroy();
             }
         } else {
             console.log(`Client ${this.id} disconnected`);

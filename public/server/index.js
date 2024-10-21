@@ -331,32 +331,32 @@ switch (globalThis.environmentName) {
                 perMessageDeflate: true,
 
                 async open(socket) {
-                    let ct = (ipCounts.get(socket.data.ip) ?? 0) + 1;
-
-                    if (ct > 1) {
-                        
-                        socket.close();
-                        return;
-                    }
-
-                    ipCounts.set(socket.data.ip, ct);
-
                     socket.binaryType = "arraybuffer";
                     const client = state.router.addClient(socket.data.socketID, socket.data.searchParams.get("uuid"), keys.includes(socket.data.searchParams.get("clientKey")));
-                    bunSendMap.set(socket.data.socketID, socket);
 
                     if (client) {
+                        bunSendMap.set(socket.data.socketID, socket);
+
+                        let ct = (ipCounts.get(socket.data.ip) ?? 0) + 1;
+
+                        if (ct > 1) {
+                            client.kick("Too many connections from this IP");
+                            return;
+                        }
+
+                        ipCounts.set(socket.data.ip, ct);
+
                         try {
                             const res = await fetch(`${Bun.env.ROUTING_SERVER.replace("ws", "http")}/uuid/check?uuid=${client.uuid}&trustedKey=${Bun.env.SECRET}`);
                             const data = await res.json();
 
                             if (!data.ok || !data.isValid) {
-                                client.kick("Wrong IP");
+                                client.kick("DAR-6");
                                 return;
                             }
                         } catch (e) {
                             console.error(e);
-                            client.kick("Wrong IP");
+                            client.kick("DAR-5");
                             return;
                         }
                     }

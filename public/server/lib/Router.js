@@ -150,7 +150,7 @@ export default class Router {
         if (!isAdmin) {
             for (const client of state.clients.values()) {
                 if (client.uuid === uuid) {
-                    kick = "Duplicate UUID";
+                    kick = "DAR-7";
                     break;
                 }
             }
