@@ -8,7 +8,7 @@ import js_beautify from "js-beautify";
 
 const ignoreFiles = [
     "moddingAPI/index.js",
-    "moddingAPI/highlight.mins.js"
+    "moddingAPI/highlight.min.js"
 ];
 
 const config = {
