@@ -1,3 +1,24 @@
+# Update (10/28/2024):
+- Added a scary familiar biome: Dark Forest!
+- Added some new mobs: Wasp, Shrub, Stickbug, and Hell Centipede!
+- Added some new petals: Shrub and Grapes
+- Added two mobs for Halloween: Spirit and the Wilt!
+- Added a new petal for Halloween: Lantern!
+- Moths will now run away upon being aggrod
+- Ant Hole, Fire Ant Hole, and Termite Mound now have pushabilities of 0
+- Cactus, Dandelion, and Termite Overmind now have pushabilities of 0.5
+- Hell Yellowjacket, Hell Spider, Hell Beetle, Demon, Queen Ant, and Queen Fire Ant, now have pushabilities of 0.8
+- Sandstorms now have random sizes
+- Shiny Ladybug now has neutral AI instead of aggressive
+- Despawned mobs will no longer drop xp and loot
+- Splits Petals are now 1.5x larger
+- Peas are now 1x as big instead of 1.3x
+- web.mob.launched (Web Projectile) now ignores walls
+- Players no longer collide with other summons
+- Summons have a 3x health buff
+- Pre-Game Menu Buttons are now a transparent black
+- The menu background will now reflect the biome that the user previously used for a lobby
+
 # Update (10/20/2024):
 - Queen Ant now has aggressive AI instead of neutral
 - Worker Fire Ant now has neutral AI instead of aggressive

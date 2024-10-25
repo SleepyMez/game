@@ -42,6 +42,9 @@ export default async function initTerrain(type) {
             case BIOME_TYPES.SEWERS:
                 mapSrc = MAP_TYPES.sewers;
                 break;
+            case BIOME_TYPES.DARK_FOREST:
+                mapSrc = MAP_TYPES.standard
+                break;
             default:
                 throw new Error("Invalid biome type");
         }

@@ -122,7 +122,22 @@ function applyBiome(int) {
             [mobIDOf("Hell Yellowjacket")]: 20,
             [mobIDOf("Demon")]: 2,
             [mobIDOf("Termite Mound")]: 1
-        })
+        }),
+        [BIOME_TYPES.DARK_FOREST]: createTable({
+            [mobIDOf("Evil Centipede")]: 2,
+            [mobIDOf("Evil Ladybug")]: 12.5,
+            [mobIDOf("Termite Mound")]: 2,
+            [mobIDOf("Soldier Termite")]: 16,
+            [mobIDOf("Worker Termite")]: 8,
+            [mobIDOf("Baby Termite")]: 8,
+            [mobIDOf("Termite Egg")]: 1,
+            [mobIDOf("Termite Overmind")]: 1,
+            [mobIDOf("Wasp")]: 32.5,
+            [mobIDOf("Spider")]: 25,
+            [mobIDOf("Fly")]: 12.5,
+            [mobIDOf("Stickbug")]: 8,
+            [mobIDOf("Shrub")]: 15
+        }),
     }[int];
 
     if (mobTable) {

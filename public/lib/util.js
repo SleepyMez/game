@@ -75,6 +75,7 @@ export const colors = {
     fireAnt: "#a82a01",
     termite: "#d3a35b",
     wasp: "#9f4627",
+    waspDark: "#34221c",
     jellyfish: "#EFEFEF",
     spider: "#4f412e",
     darkGreen: "#118240",
@@ -87,7 +88,8 @@ export const colors = {
     orange: "#F1BC48",
     starfish: "#AA403F",
     book: "#c28043",
-    bookSpine: "#c28043"
+    bookSpine: "#c28043",
+    shrubGreen: "#0b7240",
 };
 
 export function formatLargeNumber(number) {
@@ -170,5 +172,5 @@ export const isHalloween = (() => {
     const month = now.getMonth() + 1;
     const day = now.getDate();
 
-    return month === 10 && day >= 28 || month === 11 && day <= 8;
+    return month === 10 && day >= 3 || month === 11 && day <= 8;
 })();

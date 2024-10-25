@@ -160,6 +160,7 @@ export class PetalConfig {
         this.canPlaceDown = false;
         this.healWhenUnder = 1;
         this.huddles = false;
+        this.ignoreWalls = false;
 
         this.description = "Not much is known about this mysterious petal.";
     }
@@ -499,6 +500,11 @@ export class PetalConfig {
         this.attractsAggro = Boolean(attractsAggro);
         return this;
     }
+
+    setIgnoreWalls(ignoreWalls) {
+        this.ignoreWalls = Boolean(ignoreWalls);
+        return this;
+    }
 }
 
 export class MobDrop {
@@ -552,6 +558,13 @@ export class MobConfig {
 
         this.movesInBursts = false;
         this.moveInSines = false;
+
+        this.pushability = 1;
+
+        this.sizeRand = {
+            min: 0,
+            max: 0,
+        };
     }
 
     setSystem(isSystem) {
@@ -649,10 +662,14 @@ export class MobConfig {
         return this;
     }
 
-    setSize(baseSize, scalar = MobTier.SIZE_SCALE) {
+    setSize(baseSize, scalar = MobTier.SIZE_SCALE, minRand = 0, maxRand = 0) {
         this.size = baseSize;
         for (let i = 0; i < this.tiers.length; i++) {
             this.tiers[i].size = baseSize * Math.pow(scalar, i);
+        }
+        this.sizeRand = {
+            min: minRand,
+            max: maxRand
         }
 
         return this;
@@ -709,6 +726,39 @@ export class MobConfig {
 
     setMoveInSines(moveInSines) {
         this.moveInSines = Boolean(moveInSines);
+        return this;
+    }
+    
+    setSpins(spinRate, constant = false) {
+        this.spins = {
+            rate: spinRate,
+            constant: Boolean(constant),
+        };
+        return this;
+    }
+
+    setFleeAtLowHealth(healthRatio) {
+        this.fleeAtLowHealth = healthRatio;
+        return this;
+    }
+
+    setHealing(healPercent = 0) {
+        this.healing = healPercent;
+        return this;
+    }
+
+    setPushability(pushability) {
+        this.pushability = pushability;
+
+        return this;
+    }
+
+    branchWith(index, branches, branchLength) {
+        this.branch = {
+            index, 
+            branches,
+            branchLength, 
+        };
         return this;
     }
 }
@@ -801,7 +851,8 @@ export const BIOME_TYPES = {
     ANT_HELL: 4,
     HELL: 5,
     SEWERS: 6,
-    HALLOWEEN: 7
+    HALLOWEEN: 7,
+    DARK_FOREST: 8,
 };
 
 export const BIOME_BACKGROUNDS = {
@@ -846,6 +897,11 @@ export const BIOME_BACKGROUNDS = {
         name: "Halloween",
         color: "#CF5704",
         tile: "tiles/pumpkin.svg"
+    },
+    [BIOME_TYPES.DARK_FOREST]: {
+        name: "Dark Forest",
+        color: "#2C5037",
+        tile: "tiles/forest.svg"
     }
 };
 
