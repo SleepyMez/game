@@ -172,5 +172,5 @@ export const isHalloween = (() => {
     const month = now.getMonth() + 1;
     const day = now.getDate();
 
-    return month === 10 && day >= 3 || month === 11 && day <= 8;
+    return month === 10 && day >= 28 || month === 11 && day <= 8;
 })();
