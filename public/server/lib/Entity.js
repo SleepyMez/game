@@ -363,7 +363,7 @@ export class PetalSlot {
                         for (let i = 0; i < this.config.splits.count; i++) {
                             const newPet = new Petal(this.player, -1, -1);
                             newPet.index = this.config.splits.index;
-                            newPet.size = petal.size / this.config.splits.count * 2;
+                            newPet.size = petal.size / this.config.splits.count * 3;
                             newPet.health.set(petal.health.health / this.config.splits.count);
                             newPet.damage = petal.damage / this.config.splits.count;
                             newPet.speed = petal.speed * .8;
@@ -391,6 +391,8 @@ export class PetalSlot {
                         mob.parent = this.player;
                         mob.team = this.player.team;
                         mob.friendly = true;
+                        mob.health.maxHealth *= 3
+                        mob.health.health *= 3
                         state.livingMobCount--;
                         mob.define(mobConfigs[this.config.tiers[this.rarity].spawnable.index], this.config.tiers[this.rarity].spawnable.rarity);
 
@@ -644,7 +646,7 @@ export class Entity {
             this.collisionIDs.add(other.id);
             other.collisionIDs.add(this.id);
 
-            if (this.parent.team === other.parent.team && (this.type === ENTITY_TYPES.PETAL || other.type === ENTITY_TYPES.PETAL)) {
+            if (this.parent.team === other.parent.team && (this.type === ENTITY_TYPES.PETAL || other.type === ENTITY_TYPES.PETAL || (this.type === ENTITY_TYPES.PLAYER && other.type === ENTITY_TYPES.MOB) || (other.type === ENTITY_TYPES.PLAYER && this.type === ENTITY_TYPES.MOB))) {
                 return;
             }
 
@@ -944,6 +946,7 @@ export class Petal extends Entity {
 
         this.burst = false;
         this.faceInRelation = false;
+        this.ignoreWalls = false;
     }
 
     /** @param {PetalConfig} config @param {number} rarity */
@@ -1009,6 +1012,8 @@ export class Petal extends Entity {
         if (tier.healBack) {
             this.healBack = tier.healBack;
         }
+
+        this.ignoreWalls = config.ignoreWalls;
     }
 
     findTargetAngleWithinRadianArc(myAngle, arc) {
@@ -1091,7 +1096,7 @@ export class Petal extends Entity {
     }
 
     collide() {
-        if (this.launched) {
+        if (this.launched && this.ignoreWalls === false) {
             const terrains = state.terrainSpatialHash.retrieve(this);
 
             terrains.forEach(terrain => {
@@ -1142,6 +1147,8 @@ export class Player extends Entity {
 
         this.wearing = [];
         this.extraVision = 0;
+
+        this.lightVision = 2;
     }
 
     get level() {
@@ -1569,13 +1576,21 @@ export class Mob extends Entity {
 
         this.deathEvent = null;
         this.movesInBursts = false;
-        this.spins = false;
-        this.fleeAtLowHealth = false;
+        this.spins = {
+            rate: 0,
+            constant: false
+        }
+        this.fleeAtLowHealth = 0;
         this.healing = 0;
 
         this.segmentID = -1;
 
         this.ropeBodies = null;
+
+        this.sizeRand = {
+            min: 0,
+            max: 0,
+        }
 
         this._countsTowardsMobCount = true;
     }
@@ -1610,12 +1625,15 @@ export class Mob extends Entity {
 
         this.health.set(tier.health);
         this.damage = tier.damage;
-        this.size = tier.size * (.98 + Math.random() * .04);
+        this.size = tier.size * (.98 + Math.random() * .04) * ((1 - config.sizeRand.min) + Math.random() * config.sizeRand.max);
         this.speed = config.speed;
         this.index = config.id;
         this.rarity = rarity;
         this.aggressive = config.aggressive;
         this.neutral = config.neutral;
+        this.spins = config.spins
+        this.healing = config.healing
+        this.fleeAtLowHealth = config.fleeAtLowHealth
 
         this.health.damageReduction += tier.damageReduction;
 
@@ -1640,7 +1658,6 @@ export class Mob extends Entity {
         }
 
         if (tier.antHoleSpawns) {
-            this.pushability = 0;
             const spawns = structuredClone(tier.antHoleSpawns);
 
             const sp = s => {
@@ -1734,6 +1751,33 @@ export class Mob extends Entity {
             }
         }
 
+        if (config.branch) {
+            const segmentID = Mob.segmentedLength++;
+            for (let branchID = 0; branchID < config.branch.branches; branchID++) {
+                const count = config.branch.branchLength
+                let last = this;
+
+                this.segmentID = segmentID;
+
+                for (let i = 0; i < count; i++) {
+                    const segment = new Mob(this);
+                    segment.head = last;
+                    segment.define(mobConfigs[config.branch.index], this.rarity);
+                    segment.countsTowardsMobCount = false;
+                    segment.segmentID = segmentID;
+
+                    const ang = this.facing + branchID * (Math.PI * 2) / config.branch.branches
+
+                    segment.x = last.x - Math.cos(ang) * (this.size + segment.size + 1);
+                    segment.y = last.y - Math.sin(ang) * (this.size + segment.size + 1);
+                    this.facing = ang/3
+                    segment.facing = ang;
+
+                    last = segment;
+                }
+            }
+        }
+
         if (config.name === "Leech" && !this.head) {
             const count = 4 + Math.random() * 5 | 0;
             let last = this;
@@ -1814,11 +1858,17 @@ export class Mob extends Entity {
             state.entities.set(this.id, this);
         }
 
-        if (this.config.name === "Starfish") {
-            this.spins = true;
-            this.fleeAtLowHealth = true;
-            this.healing = .01;
+        if (this.config.name === "Spirit") {
+            this.deathEvent = () => {
+                const choices = mobConfigs.filter(config => {
+                    if (!config.isSystem) return true
+                });
+                const mob = new Mob(this);
+                mob.define(choices[Math.random() * choices.length | 0], this.rarity);
+            }
         }
+
+        this.pushability = config.pushability
     }
 
     update() {
@@ -1828,6 +1878,7 @@ export class Mob extends Entity {
         }
 
         if (state.mobsExpire && (this.head === null || this.head.health.isDead) && (this.lastSeen + (this.health.ratio <= .8 ? 120_000 : 30_000)) < performance.now()) {
+            this.damagedBy = []
             this.destroy();
             return;
         }
@@ -1953,7 +2004,7 @@ export class Mob extends Entity {
                         this.movementStrength = this.speed;
                     }
 
-                    if (this.fleeAtLowHealth && this.health.ratio < .35) {
+                    if (this.health.ratio < this.fleeAtLowHealth) {
                         this.movementAngle += Math.PI;
                         this.moveStrength *= .85;
                     }
@@ -1983,7 +2034,7 @@ export class Mob extends Entity {
             this.velocity.y += Math.sin(this.movementAngle) * this.movementStrength;
 
             if (this.spins) {
-                this.facing += this.velocity.magnitude / this.speed * .1;
+                this.facing += (this.spins.constant == false ? this.velocity.magnitude : 1) / this.speed * .1 * this.spins.rate;
             } else {
                 this.facing = this.movementAngle;
             }

@@ -75,6 +75,7 @@ export const colors = {
     fireAnt: "#a82a01",
     termite: "#d3a35b",
     wasp: "#9f4627",
+    waspDark: "#34221c",
     jellyfish: "#EFEFEF",
     spider: "#4f412e",
     darkGreen: "#118240",
@@ -87,7 +88,8 @@ export const colors = {
     orange: "#F1BC48",
     starfish: "#AA403F",
     book: "#c28043",
-    bookSpine: "#c28043"
+    bookSpine: "#c28043",
+    shrubGreen: "#0b7240",
 };
 
 export function formatLargeNumber(number) {

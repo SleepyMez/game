@@ -497,6 +497,9 @@ export function createServer(name, gamemode, modded, isPrivate, biome) {
         case "hell":
             biomeInt = BIOME_TYPES.HELL;
             break;
+        case "dark_forest":
+            biomeInt = BIOME_TYPES.DARK_FOREST
+            break;
         default:
             return new Promise(resolve => resolve({
                 ok: false,
@@ -1430,7 +1433,26 @@ export const state = {
         width: 100,
         height: 100,
         isRadial: false,
-        biome: 0
+        biome: (()=>{
+                switch (localStorage.biome) {
+                    case "default":
+                        return BIOME_TYPES.DEFAULT;
+                    case "garden":
+                        return  BIOME_TYPES.GARDEN;
+                    case "desert":
+                        return  BIOME_TYPES.DESERT;
+                    case "ocean":
+                        return  BIOME_TYPES.OCEAN;
+                    case "antHell":
+                        return  BIOME_TYPES.ANT_HELL;
+                    case "sewers":
+                        return  BIOME_TYPES.SEWERS;
+                    case "hell":
+                        return  BIOME_TYPES.HELL;
+                    case "dark_forest":
+                        return  BIOME_TYPES.DARK_FOREST
+                }
+        })()
     },
 
     playerID: 0,
