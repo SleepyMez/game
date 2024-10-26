@@ -104,12 +104,12 @@ export const petalConfigs = [
     new PetalConfig("Web", 24, 7, 7)
         .setDescription("Sticky!"),
     new PetalConfig("web.mob.launched", 1024, 1E5, 0)
-        .setSize(60)
+        .setSize(30)
         .setEnemySpeedMultiplier(.334, .05)
         .setIgnoreWalls(1)
         .setDescription("[object null object]"),
     new PetalConfig("Third Eye", 0, 0, 0)
-        .setExtraRange(1.1)
+        .setExtraRange(.5)
         .setMulti(0, false)
         .setWearable(WEARABLES.THIRD_EYE)
         .setDescription("Through the eye of the beholder comes extra range."),
@@ -333,6 +333,17 @@ export const mobConfigs = [
     new MobConfig("Spider", 12, 4, 12, 4)
         .setAggressive(1)
         .setPoison(1, 3)
+        .setProjectile({
+            petalIndex: petalIDOf("web.mob.launched"),
+            cooldown: 25,
+            health: Infinity,
+            damage: 0,
+            speed: 0,
+            range: 175,
+            size: 1,
+            runs: false,
+            nullCollision: true
+        })
         .addDrop(petalIDOf("Faster"))
         .addDrop(petalIDOf("Web"), .5)
         .addDrop(petalIDOf("Third Eye"), .025, 5),
@@ -732,7 +743,7 @@ export const mobConfigs = [
         .setPoison(2, 4)
         .addDrop(petalIDOf("Iris"), .75)
         .addDrop(petalIDOf("Powder")),
-    new MobConfig("Shrub", 14, 3, 16, 0)
+    new MobConfig("Shrub", 14, 3, 24, 0)
         .setPoison(3, 5)
         .setPushability(0.5)
         .addDrop(petalIDOf("Iris"), .75)

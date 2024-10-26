@@ -9,13 +9,17 @@
 - Cactus, Dandelion, and Termite Overmind now have pushabilities of 0.5
 - Hell Yellowjacket, Hell Spider, Hell Beetle, Demon, Queen Ant, and Queen Fire Ant, now have pushabilities of 0.8
 - Sandstorms now have random sizes
+- Spiders can now lay webs
 - Shiny Ladybug now has neutral AI instead of aggressive
 - Despawned mobs will no longer drop xp and loot
 - Splits Petals are now 1.5x larger
 - Peas are now 1x as big instead of 1.3x
 - web.mob.launched (Web Projectile) now ignores walls
+- Nerfed third eye range significantly to make it more useable
+- Nerfed the size of web.mob.launched (Web Projectile) by around 50%
 - Players no longer collide with other summons
 - Summons have a 3x health buff
+- Ancient+ mobs now have kill messages
 - Pre-Game Menu Buttons are now a transparent black
 - The menu background will now reflect the biome that the user previously used for a lobby
 
