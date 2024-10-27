@@ -1,7 +1,7 @@
 # Update (10/28/2024):
 - Added a scary familiar biome: Dark Forest!
 - Added some new mobs: Wasp, Shrub, Stickbug, and Hell Centipede!
-- Added some new petals: Shrub and Grapes
+- Added some new petals: Shrub, Branch, and Grapes
 - Added two mobs for Halloween: Spirit and the Wilt!
 - Added a new petal for Halloween: Lantern!
 - Moths will now run away upon being aggrod
@@ -9,9 +9,10 @@
 - Cactus, Dandelion, and Termite Overmind now have pushabilities of 0.5
 - Hell Yellowjacket, Hell Spider, Hell Beetle, Demon, Queen Ant, and Queen Fire Ant, now have pushabilities of 0.8
 - Sandstorms now have random sizes
-- Spiders can now lay webs
+- Spiders and Hell Spiders can now lay webs
 - Shiny Ladybug now has neutral AI instead of aggressive
 - Despawned mobs will no longer drop xp and loot
+- Ancient+ mobs now have kill messages
 - Splits Petals are now 1.5x larger
 - Peas are now 1x as big instead of 1.3x
 - web.mob.launched (Web Projectile) now ignores walls
@@ -19,7 +20,8 @@
 - Nerfed the size of web.mob.launched (Web Projectile) by around 50%
 - Players no longer collide with other summons
 - Summons have a 3x health buff
-- Ancient+ mobs now have kill messages
+- Player webs (changed to web.player.launched from web.mob.launched) are now yellow
+- Fixed a bug that caused Yggdrasil to not trigger upon dying to anything other than normal damage
 - Pre-Game Menu Buttons are now a transparent black
 - The menu background will now reflect the biome that the user previously used for a lobby
 

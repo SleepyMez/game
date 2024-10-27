@@ -593,6 +593,11 @@ export class Entity {
     }
 
     update() {
+        if (this.health.isDead) {
+            this.destroy();
+            return;
+        }
+        
         if (this.poison.timer > 0) {
             this.health.damage(this.poison.damage);
             this.poison.timer--;
@@ -606,11 +611,6 @@ export class Entity {
             });
 
             this.health.damage(damage);
-        }
-
-        if (this.health.isDead) {
-            this.destroy();
-            return;
         }
 
         if (this.speedDebuff.timer > 0) {
@@ -2002,6 +2002,8 @@ export class Mob extends Entity {
                             } else {
                                 this.movementStrength = this.speed;
                             }
+                        } else {
+                            this.movementStrength = this.speed;
                         }
                     } else {
                         this.movementStrength = this.speed;

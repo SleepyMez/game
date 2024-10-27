@@ -449,18 +449,52 @@ function drawWebPetal(ctx = _ctx, hit = false) {
 //     ctx.closePath();
 // }
 
-const drawWebMob = (() => {
+const drawWebMob = ((color) => {
     const canv = new OffscreenCanvas(512, 512);
     const ctx = canv.getContext("2d");
 
     ctx.scale(256, 256);
     ctx.translate(1, 1);
-    ctx.scale(.95, .95);
+    ctx.scale(.875, .875);
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
     setStyle(ctx, colors.white, .1);
+    dipPolygon(ctx, 13, 1, 5);
+    ctx.stroke();
+    dipPolygon(ctx, 13, .8, 5);
+    ctx.stroke();
+    dipPolygon(ctx, 13, .6, 5);
+    ctx.stroke();
+    dipPolygon(ctx, 13, .4, 5);
+    ctx.stroke();
+
+    ctx.beginPath();
+    for (let i = 0; i < 13; i++) {
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(TAU / 13 * i) * 1.1, Math.sin(TAU / 13 * i) * 1.1);
+    }
+    ctx.stroke();
+    ctx.closePath();
+
+    return ctx => {
+        ctx.drawImage(canv, -1, -1, 2, 2);
+    }
+})();
+
+const drawYellowWebMob = (() => {
+    const canv = new OffscreenCanvas(512, 512);
+    const ctx = canv.getContext("2d");
+
+    ctx.scale(256, 256);
+    ctx.translate(1, 1);
+    ctx.scale(.875, .875);
+
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    setStyle(ctx, mixColors(colors.playerYellow, "#ffffff", .25), .1);
     dipPolygon(ctx, 13, 1, 5);
     ctx.stroke();
     dipPolygon(ctx, 13, .8, 5);
@@ -554,8 +588,8 @@ function drawPeas(ctx = _ctx, hit = false, color) {
     }
 }
 
-function drawStick(ctx = _ctx, hit = false) {
-    setStyle(ctx, mixColors(colors.spider, "#FF0000", hit * .5), .4);
+function drawStick(color, ctx = _ctx, hit = false) {
+    setStyle(ctx, mixColors(color, "#FF0000", hit * .5), .4);
 
     ctx.beginPath();
     ctx.moveTo(-1, 0);
@@ -1488,7 +1522,7 @@ export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
             drawPeas(ctx, hit, colors.peaGreen);
             break;
         case 30:
-            drawStick(ctx, hit);
+            drawStick(colors.spider, ctx, hit);
             break;
         case 31:
             drawScorpionProjectile(ctx, hit);
@@ -1590,6 +1624,12 @@ export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
             break;
         case 63:
             drawLantern(colors.rockGray, colors.orange, ctx, hit)
+            break;
+        case 64:
+            drawYellowWebMob(ctx, false);
+            break;
+        case 65:
+            drawStick(colors.rockGray, ctx, hit);
             break;
         default:
             console.log("Unknown petal index: " + index);

@@ -308,12 +308,22 @@ export const petalConfigs = [
     new PetalConfig("Lantern", 112.5, 1, 5)
         .setHuddles(1)
         .setDescription("This fragine lantern shines so bright..."),
+    new PetalConfig("web.player.launched", 1024, 1E5, 0)
+        .setSize(30)
+        .setEnemySpeedMultiplier(.334, .05)
+        .setIgnoreWalls(1)
+        .setDescription("[object null object]"),
+    new PetalConfig("Branch", 22.5 * 3.5, 8, 3)
+        .setSize(1.5)
+        .setHuddles(1)
+        .setMulti(2, false)
+        .setDescription("A fragile branch from the Wilt."),
 ];
 
 export const petalIDOf = name => petalConfigs.findIndex(p => p.name === name);
 
 // After references are set
-petalConfigs[petalIDOf("Web")].setShootOut(petalIDOf("web.mob.launched"));
+petalConfigs[petalIDOf("Web")].setShootOut(petalIDOf("web.player.launched"));
 petalConfigs[petalIDOf("Peas")].setSplits(petalIDOf("projectile.pea"), 4);
 petalConfigs[petalIDOf("Grapes")].setSplits(petalIDOf("projectile.grape"), 4);
 
@@ -341,7 +351,7 @@ export const mobConfigs = [
             speed: 0,
             range: 175,
             size: 1,
-            runs: false,
+            runs: true,
             nullCollision: true
         })
         .addDrop(petalIDOf("Faster"))
@@ -700,7 +710,18 @@ export const mobConfigs = [
         .setPushability(0.8)
         .addDrop(petalIDOf("Faster"))
         .addDrop(petalIDOf("Web"), .5)
-        .addDrop(petalIDOf("Dahlia"), .5),
+        .addDrop(petalIDOf("Dahlia"), .5)
+        .setProjectile({
+            petalIndex: petalIDOf("web.mob.launched"),
+            cooldown: 25,
+            health: Infinity,
+            damage: 0,
+            speed: 0,
+            range: 175,
+            size: 1,
+            runs: true,
+            nullCollision: true
+        }),
     new MobConfig("Hell Yellowjacket", 65, 5, 25, 4)
         .setAggressive(1)
         .setProjectile({
@@ -762,13 +783,13 @@ export const mobConfigs = [
         .addDrop(petalIDOf("Dust"), .5),
     new MobConfig("Wilt", 16, 3, 20, 0)
         .setPushability(0)
-        //.addDrop(petalIDOf("Branch"))
+        .addDrop(petalIDOf("Branch"))
         .addDrop(petalIDOf("Leaf"), .6),
     new MobConfig("Wilt", 16, 3, 10, 2.5)
         .setSystem(1)
         .setAggressive(1)
         .setSize(10, MobTier.SIZE_SCALE, .25, .75)
-        //.addDrop(petalIDOf("Branch"))
+        .addDrop(petalIDOf("Branch"))
         .addDrop(petalIDOf("Leaf"), .6),
 ];
 
@@ -779,6 +800,7 @@ export const mobIDOf = name => mobConfigs.findIndex(m => m.name === name);
 petalConfigs[petalIDOf("Egg")].setSpawnable(mobIDOf("Beetle"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 4);
 petalConfigs[petalIDOf("Stick")].setSpawnable(mobIDOf("Sandstorm"), [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 5);
 petalConfigs[petalIDOf("Ant Egg")].setSpawnable(mobIDOf("Soldier Ant"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 6);
+petalConfigs[petalIDOf("Branch")].setSpawnable(mobIDOf("Wilt") + 1, [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5);
 
 mobConfigs[mobIDOf("Angelic Ladybug")].setPoopable({
     index: mobIDOf("Evil Ladybug"),
