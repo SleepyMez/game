@@ -497,6 +497,16 @@ export function createServer(name, gamemode, modded, isPrivate, biome) {
         case "hell":
             biomeInt = BIOME_TYPES.HELL;
             break;
+        case "halloween":
+            if (util.isHalloween) {
+                biomeInt = BIOME_TYPES.HALLOWEEN;
+                break;
+            } else {
+                return new Promise(resolve => resolve({
+                    ok: false,
+                    error: "Halloween biome is not available"
+                }));
+            }
         case "dark_forest":
             biomeInt = BIOME_TYPES.DARK_FOREST
             break;
@@ -1433,25 +1443,31 @@ export const state = {
         width: 100,
         height: 100,
         isRadial: false,
-        biome: (()=>{
-                switch (localStorage.biome) {
-                    case "default":
+        biome: (() => {
+            switch (localStorage.biome) {
+                case "default":
+                    return BIOME_TYPES.DEFAULT;
+                case "garden":
+                    return BIOME_TYPES.GARDEN;
+                case "desert":
+                    return BIOME_TYPES.DESERT;
+                case "ocean":
+                    return BIOME_TYPES.OCEAN;
+                case "antHell":
+                    return BIOME_TYPES.ANT_HELL;
+                case "sewers":
+                    return BIOME_TYPES.SEWERS;
+                case "hell":
+                    return BIOME_TYPES.HELL;
+                case "halloween":
+                    if (util.isHalloween) {
+                        return BIOME_TYPES.HALLOWEEN;
+                    } else {
                         return BIOME_TYPES.DEFAULT;
-                    case "garden":
-                        return  BIOME_TYPES.GARDEN;
-                    case "desert":
-                        return  BIOME_TYPES.DESERT;
-                    case "ocean":
-                        return  BIOME_TYPES.OCEAN;
-                    case "antHell":
-                        return  BIOME_TYPES.ANT_HELL;
-                    case "sewers":
-                        return  BIOME_TYPES.SEWERS;
-                    case "hell":
-                        return  BIOME_TYPES.HELL;
-                    case "dark_forest":
-                        return  BIOME_TYPES.DARK_FOREST
-                }
+                    }
+                case "dark_forest":
+                    return BIOME_TYPES.DARK_FOREST
+            }
         })()
     },
 
