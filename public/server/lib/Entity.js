@@ -1,5 +1,5 @@
-import { CLIENT_BOUND, ENTITY_TYPES, getTerrain, PetalTier, WEARABLES } from "../../lib/protocol.js";
-import { angleDiff, getDropRarity, lerpAngle, quickDiff, xpForLevel } from "../../lib/util.js";
+import { CLIENT_BOUND, ENTITY_TYPES, getTerrain, PetalTier, tiers, WEARABLES } from "../../lib/protocol.js";
+import { angleDiff, applyArticle, getDropRarity, lerpAngle, quickDiff, xpForLevel } from "../../lib/util.js";
 import { MobConfig, mobConfigs, PetalConfig, petalConfigs, petalIDOf, randomPossiblePetal } from "./config.js";
 import state from "./state.js";
 import Vector2D from "./Vector2D.js";
@@ -246,6 +246,7 @@ export class PetalSlot {
                         newPet.launched = true;
                         newPet.range = 100;
                         newPet.nullCollision = true;
+                        newPet.ignoreWalls = conf.ignoreWalls
 
                         if (tier.poison) {
                             newPet.poison.toApply.damage = tier.poison.damage;
@@ -592,6 +593,11 @@ export class Entity {
     }
 
     update() {
+        if (this.health.isDead) {
+            this.destroy();
+            return;
+        }
+        
         if (this.poison.timer > 0) {
             this.health.damage(this.poison.damage);
             this.poison.timer--;
@@ -605,11 +611,6 @@ export class Entity {
             });
 
             this.health.damage(damage);
-        }
-
-        if (this.health.isDead) {
-            this.destroy();
-            return;
         }
 
         if (this.speedDebuff.timer > 0) {
@@ -1770,7 +1771,7 @@ export class Mob extends Entity {
 
                     segment.x = last.x - Math.cos(ang) * (this.size + segment.size + 1);
                     segment.y = last.y - Math.sin(ang) * (this.size + segment.size + 1);
-                    this.facing = ang/3
+                    this.facing = ang / 3;
                     segment.facing = ang;
 
                     last = segment;
@@ -1993,10 +1994,14 @@ export class Mob extends Entity {
                             this.movementStrength = this.speed;
                         }
                     } else if (this.projectile) {
-                        const diff = quickDiff(this, this.target);
+                        if (this.projectile.runs === false) {
+                            const diff = quickDiff(this, this.target);
 
-                        if (diff < Math.pow(this.projectile.range * this.projectile.speed, 2) * .85) {
-                            this.movementStrength = 0;
+                            if (diff < Math.pow(this.projectile.range * this.projectile.speed, 2) * .85) {
+                                this.movementStrength = 0;
+                            } else {
+                                this.movementStrength = this.speed;
+                            }
                         } else {
                             this.movementStrength = this.speed;
                         }
@@ -2063,6 +2068,7 @@ export class Mob extends Entity {
                             petal.launched = true;
                             petal.range = this.projectile.range;
                             petal.spinSpeed = 0;
+                            petal.nullCollision = this.projectile.nullCollision;
 
                             let ang = Math.atan2(this.target.y - this.y, this.target.x - this.x);
 
@@ -2085,6 +2091,7 @@ export class Mob extends Entity {
                     petal.launched = true;
                     petal.range = this.projectile.range;
                     petal.spinSpeed = 0;
+                    petal.nullCollision = this.projectile.nullCollision;
                     petal.facing = petal.moveAngle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
                 }
             }
@@ -2137,6 +2144,7 @@ export class Mob extends Entity {
         }
 
         const topDamagers = this.getTopDamagers(3, ENTITY_TYPES.PLAYER);
+        let killText = '';
         topDamagers.forEach(damager => {
             if (damager.clientID > 0) {
                 const client = state.clients.get(damager.clientID);
@@ -2163,8 +2171,39 @@ export class Mob extends Entity {
                         output[i].y += Math.sin(i / output.length * Math.PI * 2) * 30;
                     }
                 }
+
             }
         });
+
+        if (
+            this.config.isSystem === false &&
+            !this.friendly &&
+            !["Queen Ant Egg", "Termite Overmind Egg", "Queen Fire Ant Egg"].includes(this.config.name) &&
+            this.rarity >= state.announceRarity
+        ) {
+            if (topDamagers.length > 0) {
+                killText = applyArticle(tiers[this.rarity].name, true) + " " + this.config.name + " was killed by ";
+                for (let index = 0, max = topDamagers.length; index < max; index++) {
+                    const name = state.clients.get(topDamagers[index].clientID).username;
+                    if (index === max - 1) {
+                        if (max === 1) {
+                            killText += name;
+                        } else if (max === 2) {
+                            killText += " and " + name;
+                        } else {
+                            killText += ", and " + name;
+                        };
+                    } else if (index === 0) {
+                        killText += name;
+                    } else {
+                        killText += ", " + name;
+                    };
+                }
+            } else {
+                killText = applyArticle(tiers[this.rarity].name, true) + " " + this.config.name + " despawned";
+            }
+            state.clients.forEach(c => c.systemMessage(killText, tiers[this.rarity].color));
+        }
     }
 }
 

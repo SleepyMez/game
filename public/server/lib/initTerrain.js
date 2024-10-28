@@ -12,7 +12,8 @@ const MAP_TYPES = {
     pvp: "/server/maps/pvp.json",
     ocean: "/server/maps/ocean.json",
     hell: "/server/maps/hell.json",
-    sewers: "/server/maps/sewers.json"
+    sewers: "/server/maps/sewers.json",
+    darkForest: "/server/maps/darkForest.json"
 };
 
 let mapSrc = MAP_TYPES.standard,
@@ -43,7 +44,7 @@ export default async function initTerrain(type) {
                 mapSrc = MAP_TYPES.sewers;
                 break;
             case BIOME_TYPES.DARK_FOREST:
-                mapSrc = MAP_TYPES.standard
+                mapSrc = MAP_TYPES.darkForest;
                 break;
             default:
                 throw new Error("Invalid biome type");

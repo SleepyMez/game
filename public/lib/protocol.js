@@ -606,7 +606,7 @@ export class MobConfig {
         return this;
     }
 
-    /** @param {{petalIndex: number, cooldown: number, health: number, damage: number, speed: number, range: number, size: number, multiShot: {count:number,delay:number,spread:number}|null}} projectile */
+    /** @param {{petalIndex: number, cooldown: number, health: number, damage: number, speed: number, range: number, size: number, multiShot: {count:number,delay:number,spread:number}|null, runs: boolean, nullCollision: boolean}} projectile */
     setProjectile(projectile = {}) {
         for (let i = 0; i < this.tiers.length; i++) {
             this.tiers[i].projectile = {
@@ -617,7 +617,9 @@ export class MobConfig {
                 speed: projectile.speed ?? 5,
                 range: (projectile.range ?? 50) * Math.pow(MobTier.SIZE_SCALE * .8, i),
                 size: projectile.size ?? .35,
-                multiShot: projectile.multiShot ?? null
+                multiShot: projectile.multiShot ?? null,
+                runs: projectile.runs ?? false,
+                nullCollision: projectile.nullCollision ?? false
             };
         }
 
@@ -728,7 +730,7 @@ export class MobConfig {
         this.moveInSines = Boolean(moveInSines);
         return this;
     }
-    
+
     setSpins(spinRate, constant = false) {
         this.spins = {
             rate: spinRate,
@@ -755,9 +757,9 @@ export class MobConfig {
 
     branchWith(index, branches, branchLength) {
         this.branch = {
-            index, 
+            index,
             branches,
-            branchLength, 
+            branchLength,
         };
         return this;
     }
