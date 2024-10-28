@@ -712,19 +712,19 @@ export const mobConfigs = [
         .setAggressive(1)
         .setProjectile({
             petalIndex: petalIDOf("wasp.projectile"),
-            cooldown: 65,
-            health: 4,
-            damage: 0.5,
-            speed: 5,
-            range: 65,
+            cooldown: 95,
+            health: 13,
+            damage: 1.25,
+            speed: 1.5,
+            range: 185,
             multiShot: {
                 count: 3,
-                delay: 128,
+                delay: 256,
                 spread: .2
             }
         })
         .addDrop(petalIDOf("Missile"))
-        .setPushability(0.8)
+        .setPushability(.8)
         .addDrop(petalIDOf("Antennae"), .7)
         .addDrop(petalIDOf("Pollen"), .4),
     new MobConfig("Stickbug", 10, 6, 8, 7)
@@ -732,7 +732,7 @@ export const mobConfigs = [
         .setPoison(2, 4)
         .addDrop(petalIDOf("Iris"), .75)
         .addDrop(petalIDOf("Powder")),
-    new MobConfig("Shrub", 14, 3, 16, 0)
+    new MobConfig("Shrub", 14, 3, 18, 0)
         .setPoison(3, 5)
         .setPushability(0.5)
         .addDrop(petalIDOf("Iris"), .75)

@@ -317,6 +317,17 @@ function drawMissile(ctx = _ctx, hit = false) {
     ctx.stroke();
 }
 
+function drawWaspMissile(ctx = _ctx, hit = false) {
+    setStyle(ctx, mixColors(colors.lighterBlack, "#FF0000", hit * .5), .2);
+
+    ctx.beginPath();
+    ctx.moveTo(1, 0);
+    ctx.lineTo(-.9, -.775);
+    ctx.lineTo(-.9, .775);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+}
 
 function drawYinYang(ctx = _ctx, hit = false) {
     const YINYANG_W = mixColors("#FFFFFF", "#FF0000", hit * .5);
@@ -1577,7 +1588,7 @@ export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
             drawArmor(ctx, hit)
             break;
         case 59:
-            drawMissile(ctx, hit);
+            drawWaspMissile(ctx, hit);
             break;
         case 60:
             drawShrubPetal(colors.shrubGreen, ctx, hit)

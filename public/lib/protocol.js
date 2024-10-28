@@ -852,7 +852,7 @@ export const BIOME_TYPES = {
     HELL: 5,
     SEWERS: 6,
     HALLOWEEN: 7,
-    DARK_FOREST: 8,
+    DARK_FOREST: 8
 };
 
 export const BIOME_BACKGROUNDS = {
