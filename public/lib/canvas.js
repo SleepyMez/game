@@ -284,13 +284,14 @@ export function drawFace(size, lookAngle, mood, mouthDip, expression, dead = fal
 export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _ctx = ctx, wrapTo = x) {
     _ctx.font = `bold ${size}px sans-serif`;
 
-    _ctx.strokeStyle = mixColors(fill, "#000000", .3);
-    _ctx.lineWidth = size * .2;
+    _ctx.strokeStyle = mixColors(fill, "#000000", 0.3);
+    _ctx.lineWidth = size * 0.2;
     _ctx.fillStyle = fill;
 
     const lines = [];
     const words = text.split(" ");
 
+    // Handle single-word case early
     if (words.length === 1) {
         _ctx.strokeText(text, x, y);
         _ctx.fillText(text, x, y);
@@ -299,45 +300,53 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
 
     let line = "";
     for (let i = 0; i < words.length; i++) {
-        if (x + _ctx.measureText(words[i]).width > maxWidth) {
-            const newWords = [];
-
+        // Handle words that are too long to fit in maxWidth by splitting them
+        while (_ctx.measureText(words[i]).width > maxWidth) {
             const oldWord = words[i];
-            let word = "";
+            const newWords = [];
+            let wordSegment = "";
 
             for (let j = 0; j < oldWord.length; j++) {
-                if (_ctx.measureText(word + oldWord[j]).width > maxWidth) {
-                    newWords.push(word);
-                    word = "";
+                const testSegment = wordSegment + oldWord[j];
+                if (_ctx.measureText(testSegment).width > maxWidth) {
+                    newWords.push(wordSegment);
+                    wordSegment = "";
                 }
-
-                word += oldWord[j];
+                wordSegment += oldWord[j];
             }
+            newWords.push(wordSegment); // Push last remaining segment
 
-            newWords.push(word);
+            // Replace the current word with the new segments
             words.splice(i, 1, ...newWords);
-            i--;
-            continue;
+
+            // If the word was split into one piece, stop splitting
+            if (newWords.length === 1) break;
         }
 
         const testLine = line + words[i] + " ";
         const testWidth = _ctx.measureText(testLine).width;
 
-        if (testWidth > maxWidth && i > 0) {
-            lines.push(line);
+        if (testWidth > maxWidth && line) {
+            lines.push(line.trim());
             line = words[i] + " ";
         } else {
             line = testLine;
         }
     }
 
-    lines.push(line);
+    // Push the final line
+    lines.push(line.trim());
 
+    // Render each line with wrapping applied
     for (let i = 0; i < lines.length; i++) {
-        _ctx.strokeText(lines[i], i > 0 ? wrapTo : x, y + size * i);
-        _ctx.fillText(lines[i], i > 0 ? wrapTo : x, y + size * i);
+        const lineY = y + size * i;
+        const lineX = i > 0 ? wrapTo : x;
+
+        _ctx.strokeText(lines[i], lineX, lineY);
+        _ctx.fillText(lines[i], lineX, lineY);
     }
 
+    // Return the height used for text rendering
     return _ctx.measureText("M").width * lines.length;
 }
 

@@ -1271,7 +1271,12 @@ export class ClientSocket extends WebSocket {
 
                 state.terrainImg = renderTerrain(state.room.width * .5, state.room.height * .5, state.terrain.width, state.terrain.blocks);
                 state.minimapImg = renderTerrainForMap(state.terrain.width, state.terrain.blocks);
-                if (util.isHalloween) state.terrain.overlay = new SpookyOverlay(state.terrain.blocks, state.terrain.width, state.terrain.height);
+                console.log(state.terrain.blocks);
+                if (util.isHalloween && state.terrain.blocks.length >= 8) {
+                    state.terrain.overlay = new SpookyOverlay(state.terrain.blocks, state.terrain.width, state.terrain.height);
+                } else {
+                    state.terrain.overlay = null;
+                }
                 break;
             case CLIENT_BOUND.CHAT_MESSAGE: {
                 const type = reader.getUint8();

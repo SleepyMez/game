@@ -295,7 +295,7 @@ switch (globalThis.environmentName) {
 
         if (Bun.env.BIOME == -1) {
             console.log("BIOME is set to -1, selecting random biome");
-            Bun.env.BIOME = Math.random() * 7 | 0;
+            Bun.env.BIOME = Math.random() * 8 | 0;
         }
 
         const keys = Bun.env.ADMIN_KEYS.split(",").filter(e => e.length > 3);
