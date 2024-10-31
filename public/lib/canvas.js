@@ -351,7 +351,7 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
 }
 
 const wallBrown = util.isHalloween ? "#353535" : "#68472E";
-const wallDark = util.isHalloween ? "#624211" : "#4F3422";
+const wallDark = util.isHalloween ? "#252525" : "#4F3422";
 const tileSize = 96;
 
 function createTile() {

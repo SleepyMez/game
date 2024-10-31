@@ -118,7 +118,7 @@ export const petalConfigs = [
         .setPoison(1.5, 6)
         .setEnemySpeedMultiplier(.6, 6)
         .setDescription("Poisonous, and it slows down your enemies. A perfect double whammy."),
-    new PetalConfig("Egg", 48, 5, 2)
+    new PetalConfig("Beetle Egg", 48, 5, 2)
         .setSize(1.5)
         .setHuddles(1)
         .setDescription("Something might pop out of this!"),
@@ -318,6 +318,19 @@ export const petalConfigs = [
         .setHuddles(1)
         .setMulti(2, false)
         .setDescription("A fragile branch from the Wilt."),
+    new PetalConfig("Leech Egg", 48, 5, 2)
+        .setSize(1.5)
+        .setHuddles(1)
+        .setDescription("Summons leeches to help protect you!"),
+    new PetalConfig("Hornet Egg", 48, 5, 2)
+        .setSize(1.5)
+        .setMulti(2, false)
+        .setHuddles(1)
+        .setDescription("Hey wait a minute... This isn't a Beetle Egg!"),
+    new PetalConfig("Candy", 22.5, 1, 2.5) 
+        .setSize(.9)
+        .setMulti(5, true)
+        .setDescription("Ooh, tasty!")
 ];
 
 export const petalIDOf = name => petalConfigs.findIndex(p => p.name === name);
@@ -361,7 +374,7 @@ export const mobConfigs = [
         .setAggressive(1)
         .addDrop(petalIDOf("Iris"))
         .addDrop(petalIDOf("Pincer"), .8)
-        .addDrop(petalIDOf("Egg"), .225),
+        .addDrop(petalIDOf("Beetle Egg"), .225),
     new MobConfig("Leafbug", 35, 2, 22, 2.5)
         .setAggressive(1)
         .setDamageReduction(.13)
@@ -615,12 +628,12 @@ export const mobConfigs = [
     new MobConfig("Evil Centipede", 22, 3, 22, 4)
         .setAggressive(1)
         .addDrop(petalIDOf("Iris"), .5)
-        .addDrop(petalIDOf("Peas"), .5),
+        .addDrop(petalIDOf("Grapes"), .5),
     new MobConfig("Evil Centipede", 22, 3, 22, 4)
         .setSystem(1)
         .setAggressive(1)
         .addDrop(petalIDOf("Iris"), .5)
-        .addDrop(petalIDOf("Peas"), .5),
+        .addDrop(petalIDOf("Grapes"), .5),
     new MobConfig("Dandelion", 22, 1, 20, 0)
         .setPushability(0.5)
         .addDrop(petalIDOf("Dandelion"))
@@ -703,7 +716,7 @@ export const mobConfigs = [
         .setPushability(0.8)
         .addDrop(petalIDOf("Dust"), .8)
         .addDrop(petalIDOf("Pincer"), .8)
-        .addDrop(petalIDOf("Egg"), .8),
+        .addDrop(petalIDOf("Beetle Egg"), .8),
     new MobConfig("Hell Spider", 15, 5, 17, 4.5)
         .setAggressive(1)
         .setPoison(1, 3)
@@ -739,7 +752,8 @@ export const mobConfigs = [
         .addDrop(petalIDOf("Ant Egg"), .4)
         .addDrop(petalIDOf("Amulet"), .4),
     new MobConfig("Spirit", 1e-10, 0, 35, 1)
-        .setSpins(4, 1),
+        .setSpins(4, 1)
+        .addDrop(petalIDOf("Candy"), .1),
     new MobConfig("Wasp", 55, 4, 24, 3)
         .setAggressive(1)
         .setProjectile({
@@ -791,16 +805,22 @@ export const mobConfigs = [
         .setSize(10, MobTier.SIZE_SCALE, .25, .75)
         .addDrop(petalIDOf("Branch"))
         .addDrop(petalIDOf("Leaf"), .6),
+    new MobConfig("Pumpkin", 25, 2, 10, 0)
+        .setSize(10, MobTier.SIZE_SCALE, .25, .75)
+        .addDrop(petalIDOf("Leaf", .5))
+        .addDrop(petalIDOf("Candy", .6))
 ];
 
 // Flu: Wing, Faster, Third Eye
 
 export const mobIDOf = name => mobConfigs.findIndex(m => m.name === name);
 
-petalConfigs[petalIDOf("Egg")].setSpawnable(mobIDOf("Beetle"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 4);
+petalConfigs[petalIDOf("Beetle Egg")].setSpawnable(mobIDOf("Beetle"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 4);
 petalConfigs[petalIDOf("Stick")].setSpawnable(mobIDOf("Sandstorm"), [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 5);
 petalConfigs[petalIDOf("Ant Egg")].setSpawnable(mobIDOf("Soldier Ant"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 6);
 petalConfigs[petalIDOf("Branch")].setSpawnable(mobIDOf("Wilt") + 1, [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5);
+petalConfigs[petalIDOf("Leech Egg")].setSpawnable(mobIDOf("Leech"), [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 6);
+petalConfigs[petalIDOf("Hornet Egg")].setSpawnable(mobIDOf("Hornet"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 6);
 
 mobConfigs[mobIDOf("Angelic Ladybug")].setPoopable({
     index: mobIDOf("Evil Ladybug"),

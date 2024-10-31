@@ -597,7 +597,7 @@ export class Entity {
             this.destroy();
             return;
         }
-        
+
         if (this.poison.timer > 0) {
             this.health.damage(this.poison.damage);
             this.poison.timer--;
@@ -730,17 +730,31 @@ export class Entity {
                     }
 
                     if (this.type === ENTITY_TYPES.PLAYER || this.type === ENTITY_TYPES.MOB) {
-                        let existing = this.damagedBy[other.parent.id] || [0, other.parent.type, other.parent.type === ENTITY_TYPES.PLAYER ? other.parent.name : other.parent.index, other.parent.type === ENTITY_TYPES.PLAYER && other.parent.client ? other.parent.client.id : null];
-                        existing[0] += other.damage;
+                        if (this.parent && this.config?.name === "Leech") {
+                            let existing = this.parent.damagedBy[other.parent.id] || [0, other.parent.type, other.parent.type === ENTITY_TYPES.PLAYER ? other.parent.name : other.parent.index, other.parent.type === ENTITY_TYPES.PLAYER && other.parent.client ? other.parent.client.id : null];
+                            existing[0] += other.damage;
 
-                        this.damagedBy[other.parent.id] = existing;
+                            this.parent.damagedBy[other.parent.id] = existing;
+                        } else {
+                            let existing = this.damagedBy[other.parent.id] || [0, other.parent.type, other.parent.type === ENTITY_TYPES.PLAYER ? other.parent.name : other.parent.index, other.parent.type === ENTITY_TYPES.PLAYER && other.parent.client ? other.parent.client.id : null];
+                            existing[0] += other.damage;
+
+                            this.damagedBy[other.parent.id] = existing;
+                        }
                     }
 
                     if (other.type === ENTITY_TYPES.PLAYER || other.type === ENTITY_TYPES.MOB) {
-                        let existing = other.damagedBy[this.parent.id] || [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
-                        existing[0] += this.damage;
+                        if (other.parent && other.config?.name === "Leech") {
+                            let existing = other.parent.damagedBy[this.parent.id] || [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
+                            existing[0] += this.damage;
 
-                        other.damagedBy[this.parent.id] = existing;
+                            other.parent.damagedBy[this.parent.id] = existing;
+                        } else {
+                            let existing = other.damagedBy[this.parent.id] || [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
+                            existing[0] += this.damage;
+
+                            other.damagedBy[this.parent.id] = existing;
+                        }
                     }
 
                     if (this.type === ENTITY_TYPES.PETAL && this.lightning !== null && this.lightning.chargesLeft > 0) {
@@ -1782,6 +1796,7 @@ export class Mob extends Entity {
         if (config.name === "Leech" && !this.head) {
             const count = 4 + Math.random() * 5 | 0;
             let last = this;
+            let parent = this;
 
             const segmentID = Mob.segmentedLength++;
             this.segmentID = segmentID;
@@ -1798,6 +1813,8 @@ export class Mob extends Entity {
                 segment.canBeViewed = false;
                 segment.countsTowardsMobCount = false;
                 segment.segmentID = segmentID;
+                segment.team = this.team;
+                segment.parent = this;
 
                 segment.x = last.x - Math.cos(this.facing) * (this.size + segment.size + 1);
                 segment.y = last.y - Math.sin(this.facing) * (this.size + segment.size + 1);
@@ -2313,8 +2330,13 @@ export class Pentagram {
             if (distSqr < this.size * this.size) {
                 entity.health.damage(this.damage);
 
-                entity.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
-                entity.damagedBy[this.parent.id][0] += this.damage;
+                if (entity.parent && entity.config.name === "Leech") {
+                    entity.parent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
+                    entity.parent.damagedBy[this.parent.id][0] += this.damage;
+                } else {
+                    entity.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
+                    entity.damagedBy[this.parent.id][0] += this.damage;
+                }
 
                 entity.poison.timer = this.poisonTime;
                 entity.poison.damage = this.poisonDamage;
@@ -2424,8 +2446,13 @@ export class Lightning {
 
                 ent.health.damage(this.damage);
 
-                ent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
-                ent.damagedBy[this.parent.id][0] += this.damage;
+                if (ent.parent && ent.config?.name === "Leech") {
+                ent.parent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
+                ent.parent.damagedBy[this.parent.id][0] += this.damage;
+                } else {
+                    ent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
+                    ent.damagedBy[this.parent.id][0] += this.damage;
+                }
 
                 if (ent.type === ENTITY_TYPES.MOB && ent.neutral) {
                     ent.target = this.parent;

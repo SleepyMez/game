@@ -166,7 +166,7 @@ export function applyArticle(word, capitalize = false) {
     }
 }
 
-// Between Oct 25th and Nov 3rd
+// Between Oct 31st and Nov 3rd
 export const isHalloween = (() => {
     const now = new Date();
     const month = now.getMonth() + 1;
