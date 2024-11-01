@@ -559,10 +559,10 @@ function drawPincer(ctx = _ctx, hit = false) {
     ctx.stroke();
 }
 
-function drawEgg(rarity, ctx = _ctx, hit = false) {
+function drawEgg(rarity, color, ctx = _ctx, hit = false) {
     const size = .9 + (rarity * .025);
 
-    setStyle(ctx, mixColors(colors.peach, "#FF0000", hit * .5), .2);
+    setStyle(ctx, mixColors(color, "#FF0000", hit * .5), .2);
     ctx.beginPath();
     ctx.ellipse(0, 0, size * .775, size, 0, 0, TAU);
     ctx.closePath();
@@ -1380,6 +1380,74 @@ function drawLantern(color, altColor, ctx = _ctx, hit = false) {
     ctx.closePath();
 }
 
+function drawHornetEgg(ctx = _ctx) {
+    setStyle(ctx, colors.peach, .2);
+
+    for (let i = 0; i < 2; i++) {
+        const angle = i * TAU / 2;
+
+        ctx.beginPath();
+        ctx.ellipse(Math.cos(angle) * .6, Math.sin(angle) * .6, .775, 1, 0, 0, TAU);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
+}
+
+const CandyColors = [
+    colors.rosePink,
+    colors.legendary,
+    colors.rare,
+    colors.common,
+    colors.ancient,
+    colors.orange
+]
+function drawCandy(id, ctx, hit) {
+    setStyle(ctx, mixColors(CandyColors[id % CandyColors.length], "#ff0000", hit * .5), .25)
+
+    ctx.beginPath()
+    ctx.save()
+    switch (id % 3) {
+        case 0:
+            ctx.arc(0, 0, 1, 0, TAU)
+            break;
+        case 1:
+            polygon(ctx, 3, 1.3, 0)
+            break;
+        case 2:
+            ctx.rect(-1, -1, 2, 2)
+            break;
+    }
+    ctx.clip()
+    ctx.fill()
+    ctx.closePath()
+
+    ctx.fillStyle = mixColors(ctx.fillStyle, "#ffffff", .25)
+
+    ctx.beginPath()
+    ctx.rotate(Math.PI/4)
+    ctx.rect(-1, -.25, 2, .5)
+    ctx.fill()
+
+    ctx.restore()
+    ctx.closePath()
+
+    ctx.beginPath()
+    switch (id % 3) {
+        case 0:
+            ctx.arc(0, 0, 1, 0, TAU)
+            break;
+        case 1:
+            polygon(ctx, 3, 1.3, 0)
+            break;
+        case 2:
+            ctx.rect(-1, -1, 2, 2)
+            break;
+    }
+    ctx.stroke()
+    ctx.closePath()
+}
+
 export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
     if (state.petalConfigs[index].drawing) {
         const actions = state.petalConfigs[index].drawing.actions;
@@ -1524,7 +1592,7 @@ export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
             drawPincer(ctx, hit);
             break;
         case 27:
-            drawEgg(0, ctx, hit);
+            drawEgg(0, colors.peach, ctx, hit);
             break;
         case 28:
             drawAntennae(ctx);
@@ -1642,6 +1710,15 @@ export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
         case 65:
             drawStick(colors.rockGray, ctx, hit);
             break;
+        case 66:
+            drawEgg(0, colors.lighterBlack, ctx, hit);
+            break;
+        case 67:
+            drawEgg(0, colors.peach, ctx, hit);
+            break;
+        case 68:
+            drawCandy(id, ctx, hit)
+            break;
         default:
             console.log("Unknown petal index: " + index);
             basicPetal(ctx, hit, "#FF0000");
@@ -1697,6 +1774,9 @@ export function drawUIPetal(index, rarity, ctx = _ctx) {
             break;
         case 57:
             drawDust(ctx);
+            break;
+        case 67:
+            drawHornetEgg(ctx);
             break;
         default:
             drawPetal(index, false, ctx);
@@ -3620,6 +3700,24 @@ function drawShrub(id, color, ctx = _ctx, hit = false) {
 
 }
 
+const PumpkinPath = new Path2D("M.7247-.3319C.6942-.3316.6609-.3288.6245-.3232.1584-.2507 0 0 0 0S.1584.2507.6245.3232C1.0907.3956 1.0457 0 1.0457 0S1.0839-.3362.7247-.3319Z");
+function drawPumpkin(color, altColor, ctx, hit) {
+    setStyle(ctx, mixColors(color, "#ff0000", hit * .5), .125);
+
+    for (let i = 0; i < 10; i++) {
+        ctx.fill(PumpkinPath);
+        ctx.stroke(PumpkinPath);
+        ctx.rotate(TAU / 10);
+    }
+
+    setStyle(ctx, mixColors(altColor, "#ff0000", hit * .5), .1);
+    ctx.beginPath();
+    polygon(ctx, 7, .25, 0);
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+}
+
 export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = false, friend = false, rot = 0, extra = undefined) {
     switch (index) {
         case 0:
@@ -3644,7 +3742,7 @@ export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = fal
             drawRoach(hit, ctx);
             break;
         case 7:
-            drawHornet(id, colors.hornet, colors.stingerBlack, hit, ctx);
+            drawHornet(id, friend ? colors.playerYellow : colors.hornet, colors.stingerBlack, hit, ctx);
             break;
         case 8:
             drawMantis(id, attack, hit, ctx);
@@ -3825,6 +3923,9 @@ export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = fal
         case 68: // Wilt Head
         case 69: // Wilt Segment
             drawShrub(id, mixColors(colors.rockGray, "#000000", .25 + Math.sin(id * 1000) * .125), ctx, hit);
+            break;
+        case 70:
+            drawPumpkin(colors.ancient, colors.cactusGreen, ctx, hit);
             break;
     }
 }

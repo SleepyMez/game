@@ -1,3 +1,16 @@
+# Update (10/31/2024):
+- Added 2 new petals: Leech Egg (dev-only) and Hornet Egg (dev-only)
+- Added a new mob for Halloween: Pumpkin
+- Added a new petal for Halloween: Candy
+- Leeches will now give you loot if you attack the segments instead of the head
+- Hornets now render playerYellow when they are a player summon
+- Wilt summons now render playerYellow when they are a player summon
+- Evil Centipedes now drop Grapes
+- Spirits can now drop Candy
+- Egg has been renamed to Beetle Egg
+- Halloween Terrain is now purely dark gray instead of a mix of brown and gray
+- Pumpkins and Spirits can now spawn in the Halloween biome
+
 # Update (10/28/2024):
 - Added a scary familiar biome: Dark Forest!
 - Added some new mobs: Wasp, Shrub, Stickbug, and Hell Centipede!
