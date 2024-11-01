@@ -681,8 +681,8 @@ function draw() {
         drawBackgroundOverlay(cameraX, cameraY, scale, BIOME_BACKGROUNDS[net.state.room.biome]);
     }
 
-    if (net.state.terrain !== null && net.state.terrain.overlay !== null) {
-        net.state.terrain.overlay.render(ctx, cameraX, cameraY, net.state.room.width * scale, net.state.room.width * scale, scale, halfWidth, halfHeight);
+    if (net.state.terrain !== null && net.state.terrain.overlay !== null && net.state.room.biome === BIOME_TYPES.HALLOWEEN) {
+        net.state.terrain.overlay.render(ctx, cameraX, cameraY, net.state.camera.lightingBoost, net.state.room.width * scale, net.state.room.width * scale, scale, halfWidth, halfHeight);
     }
 
     const uScale = uiScale();

@@ -124,6 +124,7 @@ function applyBiome(int) {
             [mobIDOf("Termite Mound")]: 1,
             [mobIDOf("Wilt")]: 25,
             [mobIDOf("Pumpkin")] : 25,
+            [mobIDOf("Jack O' Lantern")] : 25,
             [mobIDOf("Spirit")] : 2,
         }),
         [BIOME_TYPES.DARK_FOREST]: createTable({

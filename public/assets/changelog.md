@@ -1,4 +1,8 @@
 # Update (10/31/2024):
+- Halloween ig
+- Sorry for delay i kinda decided i wanted to learn cloud computing lol
+
+# Update (10/31/2024):
 - Added 2 new petals: Leech Egg (dev-only) and Hornet Egg (dev-only)
 - Added a new mob for Halloween: Pumpkin
 - Added a new petal for Halloween: Candy

@@ -3718,6 +3718,30 @@ function drawPumpkin(color, altColor, ctx, hit) {
     ctx.closePath();
 }
 
+function drawJackOLantern(color, altColor, ctx, hit) {
+    // Fire animation
+    ctx.save();
+    ctx.globalAlpha = .5;
+    ctx.fillStyle = mixColors(mixColors(color, "#000000", Math.sin(performance.now()) * .5 + .5), "#ff0000", hit * .5);
+    ctx.beginPath();
+    for (let i = 0; i < 14; i ++) {
+        let a = i * TAU / 14,
+            d = .75 + Math.sin(performance.now() + i * Math.cos(performance.now() / 1000) * .5);
+
+        if (i === 0) {
+            ctx.moveTo(Math.cos(a) * d, Math.sin(a) * d);
+        } else {
+            ctx.lineTo(Math.cos(a) * d, Math.sin(a) * d);
+        }
+    }
+
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    drawPumpkin(color, altColor, ctx, hit);
+}
+
 export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = false, friend = false, rot = 0, extra = undefined) {
     switch (index) {
         case 0:
@@ -3927,6 +3951,9 @@ export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = fal
         case 70:
             drawPumpkin(colors.ancient, colors.cactusGreen, ctx, hit);
             break;
+        case 71:
+            drawJackOLantern(colors.ancient, colors.cactusGreen, ctx, hit);
+            break;
     }
 }
 
@@ -3979,7 +4006,8 @@ function createPetalTooltip(index, rarityIndex) {
         (tier.shield > 0) +
         (tier.boost !== undefined) +
         (tier.healBack > 0) +
-        (tier.lightning?.charges > 1)
+        (tier.lightning?.charges > 1) +
+        (petal.extraLighting > 0)
     );
 
     const canvas = new OffscreenCanvas(width * 2, height * 2);
@@ -4177,6 +4205,11 @@ function createPetalTooltip(index, rarityIndex) {
 
     if (tier.healBack > 0) {
         text("Heal Back: " + formatLargeNumber(+(tier.healBack * 100).toFixed(2)) + "%", 10, newY, 15, colors.inventory, ctx);
+        newY += 17.5;
+    }
+
+    if (petal.extraLighting > 0) {
+        text("Lighting: +" + +petal.extraLighting.toFixed(2), 10, newY, 15, colors.beeYellow, ctx);
         newY += 17.5;
     }
 

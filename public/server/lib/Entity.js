@@ -138,6 +138,10 @@ export class PetalSlot {
         if (this.config.attractsAggro) {
             this.player.aggroLevel += this.rarity;
         }
+
+        if (this.player.client) {
+            this.player.client.camera.lightingBoost += this.config.extraLighting;
+        }
     }
 
     destroy() {
@@ -168,6 +172,10 @@ export class PetalSlot {
 
         if (this.config.attractsAggro) {
             this.player.aggroLevel -= this.rarity;
+        }
+
+        if (this.player.client) {
+            this.player.client.camera.lightingBoost -= this.config.extraLighting;
         }
     }
 
@@ -2201,6 +2209,10 @@ export class Mob extends Entity {
             if (topDamagers.length > 0) {
                 killText = applyArticle(tiers[this.rarity].name, true) + " " + this.config.name + " was killed by ";
                 for (let index = 0, max = topDamagers.length; index < max; index++) {
+                    if (!state.clients.has(topDamagers[index].clientID)) {
+                        continue;
+                    }
+
                     const name = state.clients.get(topDamagers[index].clientID).username;
                     if (index === max - 1) {
                         if (max === 1) {
@@ -2330,7 +2342,7 @@ export class Pentagram {
             if (distSqr < this.size * this.size) {
                 entity.health.damage(this.damage);
 
-                if (entity.parent && entity.config.name === "Leech") {
+                if (entity.parent && entity.config?.name === "Leech") {
                     entity.parent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
                     entity.parent.damagedBy[this.parent.id][0] += this.damage;
                 } else {

@@ -505,6 +505,7 @@ export class Camera {
     x = 0;
     y = 0;
     fov = 500;
+    lightingBoost = 0;
 
     /** @type {Map<number, PlayerClientCache>} */
     playerCache = new Map();
@@ -1296,6 +1297,7 @@ export default class Client {
         writer.setFloat32(this.camera.x);
         writer.setFloat32(this.camera.y);
         writer.setFloat32(this.camera.fov);
+        writer.setUint8(this.camera.lightingBoost);
         writer.setUint32(this.body ? this.body.id : 0);
 
         this.camera.see(writer);

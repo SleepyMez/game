@@ -161,6 +161,7 @@ export class PetalConfig {
         this.healWhenUnder = 1;
         this.huddles = false;
         this.ignoreWalls = false;
+        this.extraLighting = 0;
 
         this.description = "Not much is known about this mysterious petal.";
     }
@@ -503,6 +504,11 @@ export class PetalConfig {
 
     setIgnoreWalls(ignoreWalls) {
         this.ignoreWalls = Boolean(ignoreWalls);
+        return this;
+    }
+
+    setLighting(extraLighting) {
+        this.extraLighting = extraLighting;
         return this;
     }
 }
@@ -1217,6 +1223,10 @@ export function encodePetalConfig(config) {
         output[flagsIndex] |= 0x4000000;
     }
 
+    if (config.extraLighting > 0) {
+        output[flagsIndex] |= 0x8000000;
+    }
+
     output.push(...config.tiers.flatMap((tier, tierID) => {
         const tierOutput = [tier.health, tier.damage];
 
@@ -1341,6 +1351,10 @@ export function encodePetalConfig(config) {
     if (config.healWhenUnder < 1) {
         output[flagsIndex] |= 0x2000000;
         output.push(config.healWhenUnder);
+    }
+
+    if (output[flagsIndex] & 0x8000000) {
+        output.push(config.extraLighting);
     }
 
     return output.map(value => {
@@ -1523,6 +1537,10 @@ export function decodePetalConfig(data, nTiers) {
 
     if (flags & 0x2000000) {
         output.healWhenUnder = data.shift();
+    }
+
+    if (flags & 0x8000000) {
+        output.extraLighting = data.shift();
     }
 
     return output;

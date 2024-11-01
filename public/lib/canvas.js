@@ -528,10 +528,8 @@ export class SpookyOverlay {
         }
     }
 
-    figureOutnextOnes() {
+    figureOutnextOnes(maxDepth) {
         const newCells = new Set();
-
-        const maxDepth = 2;
 
         const neighbors = (x, y, d = 0) => {
             if (d > maxDepth) {
@@ -586,7 +584,7 @@ export class SpookyOverlay {
     /**
      * @param {CanvasRenderingContext2D} ctx
      */
-    render(ctx, cameraX, cameraY, mapWidth, mapHeight, scale, hw, hh) {
+    render(ctx, cameraX, cameraY, lightBoost = 0, mapWidth, mapHeight, scale, hw, hh) {
         const blockX = (cameraX + mapWidth / 2) / mapWidth * this.grid.length | 0;
         const blockY = (cameraY + mapHeight / 2) / mapHeight * this.grid.length | 0;
 
@@ -594,7 +592,7 @@ export class SpookyOverlay {
             this.lastX = blockX;
             this.lastY = blockY;
 
-            this.figureOutnextOnes();
+            this.figureOutnextOnes(2 + lightBoost);
         }
 
         this.update();

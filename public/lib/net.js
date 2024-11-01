@@ -878,6 +878,7 @@ export class ClientSocket extends WebSocket {
                 state.camera.realX = reader.getFloat32();
                 state.camera.realY = reader.getFloat32();
                 state.camera.realFov = reader.getFloat32();
+                state.camera.lightingBoost = reader.getUint8();
                 state.playerID = reader.getUint32();
 
                 let id;
@@ -1432,6 +1433,7 @@ export const state = {
         x: 0,
         y: 0,
         fov: 512,
+        lightingBoost: 0,
 
         realX: 0,
         realY: 0,

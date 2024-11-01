@@ -274,6 +274,7 @@ export const petalConfigs = [
         .setSize(1.4)
         .setAttractsAggro(1)
         .setHuddles(1)
+        .setLighting(1)
         .setDescription("Mobs will be prioritize yourshiny bulbs when they aggro when in use. The priority increases with each rarity, and stacks with itself."),
     new PetalConfig("Battery", 55, 1E-10, 0)
         .setPhases(1)
@@ -307,7 +308,8 @@ export const petalConfigs = [
         .setDescription("With an added bonus: Poison!"),
     new PetalConfig("Lantern", 112.5, 1, 5)
         .setHuddles(1)
-        .setDescription("This fragine lantern shines so bright..."),
+        .setDescription("This fragine lantern shines so bright...")
+        .setLighting(3),
     new PetalConfig("web.player.launched", 1024, 1E5, 0)
         .setSize(30)
         .setEnemySpeedMultiplier(.334, .05)
@@ -327,7 +329,7 @@ export const petalConfigs = [
         .setMulti(2, false)
         .setHuddles(1)
         .setDescription("Hey wait a minute... This isn't a Beetle Egg!"),
-    new PetalConfig("Candy", 22.5, 1, 2.5) 
+    new PetalConfig("Candy", 22.5, 1, 2.5)
         .setSize(.9)
         .setMulti(5, true)
         .setDescription("Ooh, tasty!")
@@ -809,6 +811,21 @@ export const mobConfigs = [
         .setSize(10, MobTier.SIZE_SCALE, .25, .75)
         .addDrop(petalIDOf("Leaf", .5))
         .addDrop(petalIDOf("Candy", .6))
+        .addDrop(petalIDOf("Lantern", .1)),
+    new MobConfig("Jack O' Lantern", 34, 4, 13, 0)
+        .setAggressive(1)
+        .setProjectile({
+            petalIndex: petalIDOf("Candy"),
+            cooldown: 3,
+            health: 1,
+            damage: 1,
+            speed: 5,
+            range: 20,
+            size: .4
+        })
+        .addDrop(petalIDOf("Rock", .5))
+        .addDrop(petalIDOf("Candy", .6))
+        .addDrop(petalIDOf("Lantern", .1))
 ];
 
 // Flu: Wing, Faster, Third Eye

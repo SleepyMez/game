@@ -4,7 +4,7 @@ import { DEFAULT_PETAL_COUNT, mobConfigs, PetalConfig, petalConfigs, tiers } fro
 import { AIPlayer, Mob, Player } from "./lib/Entity.js";
 import Router from "./lib/Router.js";
 import { stringToU8, u8ToString, u8ToU16 } from "../lib/lobbyProtocol.js";
-import { applyArticle } from "../lib/util.js";
+import { applyArticle, isHalloween } from "../lib/util.js";
 
 function createWave(n) {
     const output = [];
@@ -296,6 +296,10 @@ switch (globalThis.environmentName) {
         if (Bun.env.BIOME == -1) {
             console.log("BIOME is set to -1, selecting random biome");
             Bun.env.BIOME = Math.random() * 8 | 0;
+
+            if (isHalloween && Math.random() > .3) {
+                Bun.env.BIOME = BIOME_TYPES.HALLOWEEN;
+            }
         }
 
         const keys = Bun.env.ADMIN_KEYS.split(",").filter(e => e.length > 3);
