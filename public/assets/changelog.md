@@ -1,9 +1,13 @@
-# Update (11/01/2024):
+# Update (11/02/2024):
 - More Halloween stuff, the event will go until November 7th
 - The Halloween event will reoccur each year
 - The maze option no longer shows up when you're not on a development client
 - Made some mobs spawn
 - Lightbulb now illuminates the darkness
+- Fixed an angry flower bug
+- Angry flowers can now spawn in other modes, rarely
+- You can now create line map in your local lobbies, however I am not responsible for the performance of this mode, as it sometimes may require more resources than a browser is willing to give
+- All maze modes now have a chance to have a randomly generated map, just like how the Halloween map works
 
 # Update (10/31/2024):
 - Halloween ig

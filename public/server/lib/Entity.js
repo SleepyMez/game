@@ -1343,6 +1343,10 @@ class FakeClient {
         /** @type {AIPlayer|Player|null} */
         this.body = null;
 
+        this.camera = {
+            lightingBoost: 1
+        };
+
         this.level = 1;
         this.xp = 1;
 

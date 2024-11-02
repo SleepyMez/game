@@ -23,7 +23,7 @@ function createWave(n) {
 
     for (let i = 0; i < n; i++) {
         while (true) {
-            if (Math.random() > .975 && aiPlayers < 3) {
+            if (Math.random() > .925 && aiPlayers < 3) {
                 aiPlayers++;
                 output.push(-1);
                 break;
@@ -177,7 +177,10 @@ setInterval(() => {
     }
 
     if (!state.isWaves && state.livingMobCount < state.maxMobs && Math.random() > .9) {
-        if (state.gamemode === GAMEMODES.MAZE) {
+        if (Math.random() > .999) {
+            const info = state.spawnNearPlayer(cfg);
+            new AIPlayer(info.position, info.rarity, Math.max(1, info.rarity * 10 + (Math.random() * 6 | 0 - 3)));
+        } else if (state.gamemode === GAMEMODES.MAZE) {
             const cfg = mobConfigs[getMobIndex()];
             const info = state.spawnNearPlayer(cfg);
             const mob = new Mob(info.position);

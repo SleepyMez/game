@@ -894,7 +894,7 @@ function draw() {
             text("Level " + net.state.level, 225, 210, 12);
         } 
         
-        if (!isHalloween) { // Minimap
+        if (!isHalloween || net.state.room.biome !== BIOME_TYPES.HALLOWEEN) { // Minimap
             const doTerrain = net.state.terrain?.blocks?.length > 0;
             const biggestSize = doTerrain ? 275 : Math.abs(1 - net.state.room.width / net.state.room.height) < .1 ? 150 : 200;
             const bigger = Math.max(net.state.room.width, net.state.room.height);

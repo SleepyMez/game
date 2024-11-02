@@ -20,7 +20,7 @@ let mapSrc = MAP_TYPES.standard,
     map = [];
 
 export default async function initTerrain(type) {
-    if (isHalloween) {
+    if ((isHalloween && type === BIOME_TYPES.HALLOWEEN) || Math.random() > .999) {
         map = generateRandomMap(56, 56, false);
     } else {
         switch (type) {
