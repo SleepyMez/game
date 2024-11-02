@@ -178,7 +178,7 @@ setInterval(() => {
 
     if (!state.isWaves && state.livingMobCount < state.maxMobs && Math.random() > .9) {
         if (Math.random() > .999) {
-            const info = state.spawnNearPlayer(cfg);
+            const info = state.spawnNearPlayer(mobConfigs[0]);
             new AIPlayer(info.position, info.rarity, Math.max(1, info.rarity * 10 + (Math.random() * 6 | 0 - 3)));
         } else if (state.gamemode === GAMEMODES.MAZE) {
             const cfg = mobConfigs[getMobIndex()];
