@@ -128,7 +128,7 @@ function applyBiome(int) {
             [mobIDOf("Spirit")]: 4,
             [mobIDOf("Wilt")]: 3,
             [mobIDOf("Demon")]: 2,
-            [mobIDOf("Termite Mount")]: 1
+            [mobIDOf("Termite Mound")]: 1
         }),
         [BIOME_TYPES.DARK_FOREST]: createTable({
             [mobIDOf("Evil Centipede")]: 2,
