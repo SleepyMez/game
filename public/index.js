@@ -1062,6 +1062,14 @@ function draw() {
 
 draw();
 
+if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    document.getElementById("gamemodeSelect").appendChild(new Option("loc maze", "maze"));
+}
+
+if (isHalloween) {
+    document.getElementById("biomeSelect").appendChild(new Option("Halloween", "halloween"));
+}
+
 document.getElementById("usernameInputInput").value = localStorage.getItem("username") || "guest";
 document.getElementById("gamemodeSelect").value = localStorage.getItem("gamemode") || "ffa";
 document.getElementById("biomeSelect").value = localStorage.getItem("biome") || "default";

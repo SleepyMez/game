@@ -1097,6 +1097,20 @@ export default class Client {
                             });
                         }
 
+                        if (index < 0 || index >= petalConfigs.length) {
+                            return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                ok: false,
+                                message: "Index out of range"
+                            });
+                        }
+
+                        if (rarity < 0 || rarity >= tiers.length) {
+                            return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                ok: false,
+                                message: "Rarity out of range"
+                            });
+                        }
+
                         client.slots[slotID] = { id: index, rarity };
 
                         if (client.body) {

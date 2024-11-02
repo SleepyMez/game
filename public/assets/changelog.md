@@ -1,3 +1,10 @@
+# Update (11/01/2024):
+- More Halloween stuff, the event will go until November 7th
+- The Halloween event will reoccur each year
+- The maze option no longer shows up when you're not on a development client
+- Made some mobs spawn
+- Lightbulb now illuminates the darkness
+
 # Update (10/31/2024):
 - Halloween ig
 - Sorry for delay i kinda decided i wanted to learn cloud computing lol
