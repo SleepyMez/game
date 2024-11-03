@@ -59,6 +59,12 @@
         .warning pre {
             width: calc(var(--element-width) - 2vmin);
         }
+
+        .mini-heading {
+            font-size: 2vmin;
+            font-weight: bold;
+            margin: .5vmin;
+        }
     </style>
 
     <link rel="stylesheet"
@@ -88,7 +94,22 @@
         </div>
         <h2>Table of Contents</h2>
         <ul>
-            <li><a href="#intro">Introduction</a></li>
+            <li>
+                <a href="#intro">Introduction</a>
+                <ul>
+                    <li><a href="#structure">Basic Game Structure</a></li>
+                    <li>
+                        <a href="#concepts">Important JavaScript Concepts</a>
+                        <ul>
+                            <li><a href="#concept-promise">Promises</a></li>
+                            <li><a href="#concept-async-await">Async/Await</a></li>
+                            <li><a href="#concept-web-worker">Web Workers</a></li>
+                            <li><a href="#concept-broadcast-channel">Broadcast Channel</a></li>
+                            <li><a href="#concept-websocket">Websocket</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
             <li><a href="#syncInfo">Synchronous Information</a></li>
             <li><a href="#getPlayers">Get Players</a></li>
             <li><a href="#getMobs">Get Mobs</a></li>
@@ -110,8 +131,66 @@
             If you don't know how to do this, google search "How do I open the developer tools on my browser?",
             replacing
             "my browser" with your browser.
-            Once you have the developer console open, you can start running the code below!
+            Once you have the developer console open, you can start running the code below.
         </p>
+
+
+        <h3 id="structure">Basic Game Structure</h3>
+        <p>
+            The game is made using JavaScript, and you will be interacting with the game's JavaScript in order to mod
+            it.
+            This guide expects you to have a basic overview of JavaScript, and if you don't, you can check out the <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide">MDN Web Docs</a> for more in-depth
+            information. The lobby runs in a <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">Web
+                Worker</a>, which is a separate thread from the main thread. This means that you can't directly access
+            the
+            game's JavaScript from the console. Instead, you will be using a custom made socket API which sends commands
+            to
+            and from the main thread, which runs the client. This API is what you will be using to mod the game.
+        </p>
+
+        <h3 id="concepts">Important JavaScript Concepts</h3>
+        <p>
+            <span class="mini-heading" id="concept-promise">Promises</span> are a way to handle asynchronous code in
+            JavaScript. They are
+            objects that represent the eventual completion or failure of an asynchronous operation and its resulting
+            value.
+            You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-async-await">Async/Await</span> is a way to write asynchronous code
+            that looks synchronous.
+            It's a way to write promises in a more readable way. You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-web-worker">Web Workers</span> are a way to run JavaScript code in a
+            separate thread from the
+            main thread. This is useful for running code that may take a long time to run, as it won't block the main
+            thread.
+            You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-broadcast-channel">Broadcast Channel</span> is a way to communicate
+            between different windows
+            or tabs, or in our case, the lobby Web Worker. You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-websocket">Websocket</span> is a way to communicate between the
+            client and the server. In our case,
+            you will establish connection between a lobby server which routes packets between clients and lobbies. You
+            can read
+            more about them <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">here</a>.
+        </p>
+
+        <div class="warning">
+            <h2>Warning:</h2>
+            <p>
+                The rest of this guide will assume you have a basic understanding of JavaScript syntax, and the concepts above.
+                If you don't, you may have a hard time understanding what the code and responses below do or mean. It is up to
+                you to learn these concepts before continuing. <b>We are not responsible for teaching basic JavaScript.</b>
+            </p>
+        </div>
 
         <h2 id="syncInfo">Synchronous Information</h2>
         <p>

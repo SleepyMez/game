@@ -425,6 +425,10 @@ apply("addCustomPetalStructure", "javascript", `class PetalConfig {
 
     // (attractsAggro: bool)
     setAttractsAggro(attractsAggro) {}
+
+    // (lighting: int)
+    // Used for adding lighting radius in the halloween mode darkness
+    setLighting(lighting) {}
 }
     
 class Drawing {
