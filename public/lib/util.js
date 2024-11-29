@@ -90,6 +90,8 @@ export const colors = {
     book: "#c28043",
     bookSpine: "#c28043",
     shrubGreen: "#0b7240",
+    crabBodyOrange: "#dc704b",
+    crabLimbBrown: "#4d2621",
 };
 
 export function formatLargeNumber(number) {

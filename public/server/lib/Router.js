@@ -79,7 +79,8 @@ function applyBiome(int) {
             [mobIDOf("Bubble")]: 4,
             [mobIDOf("Shell")]: 4,
             [mobIDOf("Starfish")]: 3,
-            [mobIDOf("Leech")]: 3
+            [mobIDOf("Leech")]: 3,
+            [mobIDOf("Crab")]: 2.5
         }),
         [BIOME_TYPES.SEWERS]: createTable({
             [mobIDOf("Fly")]: 5,
@@ -225,7 +226,7 @@ export default class Router {
                 state.width = state.height = 32 * (256 + 64 + 64);
                 state.gamemode = GAMEMODES.MAZE;
                 state.mobsExpire = true;
-                state.teamCount = 1;
+                state.teamCount = 0;
                 state.announceRarity = 8;
 
                 setTimeout(() => {
@@ -255,14 +256,14 @@ export default class Router {
                 break;
             case "waves":
                 state.isTDM = true;
-                state.teamCount = 1;
+                state.teamCount = 0;
                 state.isWaves = true;
                 state.isRadial = true;
                 state.gamemode = GAMEMODES.WAVES;
                 break;
             case "line":
                 state.isTDM = true;
-                state.teamCount = 1;
+                state.teamCount = 0;
                 state.isLineMap = true;
                 state.gamemode = GAMEMODES.LINE;
                 state.mobsExpire = true;

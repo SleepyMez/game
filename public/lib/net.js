@@ -337,8 +337,8 @@ class ModdingAPI {
         return await this.#askModdingAPI("spawnMob", index, rarity);
     }
 
-    async setRoomInfo(dynamic, width, height, mobCount) {
-        return await this.#askModdingAPI("setRoomInfo", dynamic, width, height, mobCount);
+    async setRoomInfo(dynamic, width, height, mobCount, currentWave) {
+        return await this.#askModdingAPI("setRoomInfo", dynamic, width, height, mobCount, currentWave);
     }
 
     async getRoomInfo() {
@@ -469,6 +469,23 @@ class ModdingAPI {
 
     async setSlotAmount(clientID, amount) {
         return await this.#askModdingAPI("setSlotAmount", clientID, amount);
+    }
+
+    async spawnAIPlayer(rarity, level) {
+
+        if (typeof rarity === "string") {
+            rarity = this.syncRarityIndex(rarity);
+
+            if (rarity === -1) {
+                return {
+                    ok: false,
+                    message: "Invalid rarity name",
+                    data: null
+                };
+            }
+        }
+
+        return await this.#askModdingAPI("spawnAIPlayer", rarity, level);
     }
 }
 
@@ -1270,7 +1287,7 @@ export class ClientSocket extends WebSocket {
                     overlay: null
                 };
 
-                state.terrainImg = renderTerrain(state.room.width * .5, state.room.height * .5, state.terrain.width, state.terrain.blocks);
+                state.terrainImg = renderTerrain(state.room.width * .5, state.room.height * .5, state.terrain.width, state.terrain.blocks, state.room.biome);
                 state.minimapImg = renderTerrainForMap(state.terrain.width, state.terrain.blocks);
                 console.log(state.terrain.blocks);
                 if (util.isHalloween && state.terrain.blocks.length >= 8) {

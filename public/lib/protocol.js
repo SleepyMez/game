@@ -135,8 +135,6 @@ export class PetalConfig {
         this.damage = damage;
         this.sizeRatio = 1;
 
-        this.extraRadians = 0;
-
         this.launchable = false;
         this.launchedSpeed = 0;
         this.launchedRange = 0;
@@ -224,7 +222,9 @@ export class PetalConfig {
     }
 
     setExtraRadians(extraRadians) {
-        this.extraRadians = extraRadians;
+        for (let i = 0; i < this.tiers.length; i++) {
+            this.tiers[i].extraRadians = extraRadians * Math.pow(1.15, i);
+        }
         return this;
     }
 
@@ -511,6 +511,15 @@ export class PetalConfig {
         this.extraLighting = extraLighting;
         return this;
     }
+
+    setExtraDamage(minimum, maximum, multiplier) {
+        this.extraDamage = {
+            minHp: minimum,
+            maxHp: maximum,
+            multiplier
+        }
+        return this;
+    }
 }
 
 export class MobDrop {
@@ -568,7 +577,7 @@ export class MobConfig {
         this.pushability = 1;
 
         this.sizeRand = {
-            min: 0,
+            min: 1,
             max: 0,
         };
     }
@@ -670,7 +679,7 @@ export class MobConfig {
         return this;
     }
 
-    setSize(baseSize, scalar = MobTier.SIZE_SCALE, minRand = 0, maxRand = 0) {
+    setSize(baseSize, scalar = MobTier.SIZE_SCALE, minRand = 1, maxRand = 0) {
         this.size = baseSize;
         for (let i = 0; i < this.tiers.length; i++) {
             this.tiers[i].size = baseSize * Math.pow(scalar, i);
@@ -767,6 +776,15 @@ export class MobConfig {
             branches,
             branchLength,
         };
+        return this;
+    }
+
+    setStrafes(length, cooldown, speedMult) {
+        this.strafes = {
+            length,
+            cooldown,
+            speedMult
+        }
         return this;
     }
 }
@@ -1163,6 +1181,10 @@ export function encodePetalConfig(config) {
         output[flagsIndex] |= 0x40;
     }
 
+    if (config.tiers[0].extraRadians > 0) {
+        output[flagsIndex] |= 0x80;
+    }
+
     if (config.tiers[0].poison) {
         output[flagsIndex] |= 0x400;
     }
@@ -1258,6 +1280,10 @@ export function encodePetalConfig(config) {
             tierOutput.push(tier.healing);
         }
 
+        if (output[flagsIndex] & 0x80) {
+            tierOutput.push(tier.extraRadians);
+        }
+
         if (output[flagsIndex] & 0x400) {
             tierOutput.push(tier.poison.damage, tier.poison.duration);
         }
@@ -1329,11 +1355,6 @@ export function encodePetalConfig(config) {
         return tierOutput;
     }));
 
-    if (config.extraRadians > 0) {
-        output[flagsIndex] |= 0x80;
-        output.push(config.extraRadians);
-    }
-
     if (config.drawing?.toString().length > 0) {
         output[flagsIndex] |= 0x100;
         output.push(config.drawing.toString());
@@ -1357,6 +1378,15 @@ export function encodePetalConfig(config) {
         output.push(config.extraLighting);
     }
 
+    if (config.extraDamage) {
+        output[flagsIndex] |= 0x10000000;
+        output.push(
+            config.extraDamage.minHp,
+            config.extraDamage.maxHp,
+            config.extraDamage.multiplier
+        );
+    }
+
     return output.map(value => {
         if (Number.isFinite(value)) {
             return +value.toFixed(2);
@@ -1373,7 +1403,6 @@ export function decodePetalConfig(data, nTiers) {
         description: data.shift(),
         cooldown: data.shift(),
         tiers: [],
-        extraRadians: 0,
         drawing: undefined,
         healWhenUnder: 1
     };
@@ -1392,7 +1421,8 @@ export function decodePetalConfig(data, nTiers) {
             speedMultiplier: 1,
             extraSize: 0,
             density: 1,
-            deathDefying: 0
+            deathDefying: 0,
+            extraRadians: 0
         };
 
         if (flags & 0x01) {
@@ -1421,6 +1451,10 @@ export function decodePetalConfig(data, nTiers) {
 
         if (flags & 0x40) {
             tier.healing = data.shift();
+        }
+
+        if (flags & 0x80) {
+            tier.extraRadians = data.shift();
         }
 
         if (flags & 0x400) {
@@ -1516,10 +1550,6 @@ export function decodePetalConfig(data, nTiers) {
         output.tiers.push(tier);
     }
 
-    if (flags & 0x80) {
-        output.extraRadians = data.shift();
-    }
-
     if (flags & 0x100) {
         output.drawing = Drawing.fromString(data.shift());
     }
@@ -1541,6 +1571,14 @@ export function decodePetalConfig(data, nTiers) {
 
     if (flags & 0x8000000) {
         output.extraLighting = data.shift();
+    }
+
+    if (flags & 0x10000000) {
+        output.extraDamage = {
+            minHp: data.shift(),
+            maxHp: data.shift(),
+            multiplier: data.shift()
+        }
     }
 
     return output;

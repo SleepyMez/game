@@ -488,17 +488,36 @@ function draw() {
         ctx.rotate(entity.facing);
         drawPetal(entity.index, entity.hit, ctx, entity.id);
         ctx.restore();
+
+        if (options.showHitboxes) {
+            ctx.beginPath();
+            ctx.arc(drawX, drawY, entity.size * scale, 0, Math.PI * 2);
+            ctx.lineWidth = 1.5 * scale;
+            ctx.strokeStyle = colors["???"];
+            ctx.stroke();
+        }
     });
 
     net.state.drops.forEach(entity => {
         let drawX = entity.x * scale - cameraX + halfWidth,
-            drawY = entity.y * scale - cameraY + halfHeight;
-
+            drawY = entity.y * scale - cameraY + halfHeight,
+            outlineTimer = (Math.sin(performance.now()/250 + entity.id) + 1.5);
         ctx.save();
         ctx.translate(drawX, drawY);
         ctx.scale(entity.size * scale, entity.size * scale);
         ctx.rotate(Math.sin(performance.now() / 1500 + entity.id * Math.PI / 6) * .5);
+
+        ctx.fillStyle = colors.black;
+        ctx.beginPath();
+        ctx.roundRect(-.55 - .025 * outlineTimer, -.55 - .025 * outlineTimer, 1.1 + .05 * outlineTimer, 1.1 + .05 * outlineTimer, .1);
+        ctx.globalAlpha *= .125;
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.globalAlpha /= .125;
+
         ctx.drawImage(getPetalIcon(entity.index, entity.rarity), -.5, -.5, 1, 1);
+
         ctx.restore();
     });
 
@@ -509,14 +528,6 @@ function draw() {
             drawY = entity.y * scale - cameraY + halfHeight;
 
         const size = entity.size * scale;
-
-        if (options.showHitboxes) {
-            ctx.beginPath();
-            ctx.arc(drawX, drawY, size, 0, Math.PI * 2);
-            ctx.lineWidth = 1.5 * scale;
-            ctx.strokeStyle = colors["???"];
-            ctx.stroke();
-        }
 
         ctx.save();
         ctx.translate(drawX, drawY);
@@ -530,6 +541,14 @@ function draw() {
 
         drawMob(entity.id, entity.index, entity.rarity, entity.hit, ctx, entity.attack, entity.friendly, entity.facing, entity.extraData);
         ctx.restore();
+
+        if (options.showHitboxes) {
+            ctx.beginPath();
+            ctx.arc(drawX, drawY, size, 0, Math.PI * 2);
+            ctx.lineWidth = 1.5 * scale;
+            ctx.strokeStyle = colors["???"];
+            ctx.stroke();
+        }
 
         if (!options.hideEntityUI && !net.state.mobConfigs[entity.index].hideUI) {
             const barSize = Math.max(size, 30 * scale);
@@ -634,6 +653,14 @@ function draw() {
             ctx.scale(size * .9, size * .9);
             drawAntennae(ctx);
             ctx.restore();
+        }
+
+        if (options.showHitboxes) {
+            ctx.beginPath();
+            ctx.arc(drawX, drawY, size, 0, Math.PI * 2);
+            ctx.lineWidth = 1.5 * scale;
+            ctx.strokeStyle = colors["???"];
+            ctx.stroke();
         }
 
         drawBar(drawX - size, drawX + size, drawY + size + 16 * scale, 6 * scale, colors["???"]);
