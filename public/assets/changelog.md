@@ -1,4 +1,4 @@
-# Update ():
+# Update (11/29/2024):
 - Added a new petal: Claw
 - Added a new mob: Crab!
 - Added support for biome-specific wall colors
@@ -18,6 +18,7 @@
 - AI Flowers now properly display their highest rarity
 - AI Flowers can no longer use petals that are not normally obtainable
 - AI Flowers can only drop petals that are player's highest rarity + 1
+- AI Flowers are now spawnable
 - Flowers in TDM games with 0 teams will no longer hurt eachother
 - Flowers in Waves, Maze, and Line are now yellow
 - Flowers now start with 5 common basics (instead of 5 rare basics)
@@ -27,6 +28,7 @@
 - Adjusted some petal icon renders
 - Egg petals now display "Egg" / "Eggs" as their name
 - Goo and Lantern now use static renders for petal icons
+- You can now set waves via setRoomInfo
 
 # Update (11/02/2024):
 - More Halloween stuff, the event will go until November 7th

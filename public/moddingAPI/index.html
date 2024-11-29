@@ -305,6 +305,17 @@
         </p>
         <pre id="spawnMobResponse"></pre>
 
+        <h2 id="spawnAIFlower">Spawn AI Flower</h2>
+        <p>
+            This function, much like the spawnMob function, spawns an AI Flower in the room. The response will contain the AI Flower that was spawned. 
+            There are two arguments that are required: the rarity of the AI Flower's petals, and the AI Flower's level.
+        </p>
+        <pre id="spawnAIFlowerRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="spawnAIFlowerResponse"></pre>
+
         <h2 id="getRoomInfo">Get Room Info</h2>
         <p>
             This function will return the room info. The response will contain the room info.
@@ -325,7 +336,7 @@
             not resize, and the mob cap will not be adjusted.<br /><br />
             If the supplied first argument is "false" (static), then the second and third arguments are the room width
             and
-            height respectively. The fourth argument is the mob cap.
+            height respectively. The fourth argument is the mob cap, and the fifth argument is the wave to set (required, but doesn't work in gamemodes other than waves).
         </p>
         <pre id="setRoomInfoRequest"></pre>
         <p>
