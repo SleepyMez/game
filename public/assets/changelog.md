@@ -11,6 +11,8 @@
 - Added a new parameter for petals: extraDamage(minHp, maxHp, multiplier)
 - Extra radians now scale based off of rarity
 - Buffed Stick and Leech Egg to have summons of rarity -1 (instead of -2)
+- Petals such as Pollen now drop when defending
+- Petals that require defending to heal will no longer work if the player is attacking at the same time
 - Hitboxes show petal hitboxes now
 - Hitboxes show player hitboxes now
 - Drops now have a transparent outline
@@ -18,7 +20,7 @@
 - AI Flowers now properly display their highest rarity
 - AI Flowers can no longer use petals that are not normally obtainable
 - AI Flowers can only drop petals that are player's highest rarity + 1
-- AI Flowers are now spawnable
+- AI Flowers are now spawnable via moddingAPI
 - Flowers in TDM games with 0 teams will no longer hurt eachother
 - Flowers in Waves, Maze, and Line are now yellow
 - Flowers now start with 5 common basics (instead of 5 rare basics)

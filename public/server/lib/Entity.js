@@ -193,7 +193,7 @@ export class PetalSlot {
         for (let j = 0; j < this.amount; j++) {
             const petal = this.petals[j];
             if (petal) {
-                if (this.config.tiers[this.rarity].constantHeal > 0 && this.player.health.ratio < this.config.healWhenUnder && this.player.health.ratio > .001 && (!this.config.healsInDefense || this.player.defend)) {
+                if (this.config.tiers[this.rarity].constantHeal > 0 && this.player.health.ratio < this.config.healWhenUnder && this.player.health.ratio > .001 && (!this.config.healsInDefense || (!this.player.attack && this.player.defend))) {
                     this.player.health.health = Math.min(this.player.health.maxHealth, this.player.health.health + this.config.tiers[this.rarity].constantHeal);
                 }
 
@@ -349,7 +349,7 @@ export class PetalSlot {
 
                     petal.range -= 3;
 
-                    if (this.player.attack && petal.range <= 0) {
+                    if ((this.player.defend && this.config.launchedSpeed == 0 || this.player.attack) && petal.range <= 0) {
                         petal.launched = true;
                         petal.speed *= this.config.launchedSpeed;
                         petal.range = this.config.launchedRange;
