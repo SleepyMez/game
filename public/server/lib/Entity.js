@@ -193,7 +193,7 @@ export class PetalSlot {
         for (let j = 0; j < this.amount; j++) {
             const petal = this.petals[j];
             if (petal) {
-                if (this.config.tiers[this.rarity].constantHeal > 0 && this.player.health.ratio < this.config.healWhenUnder && this.player.health.ratio > .001 && (!this.config.healsInDefense || this.player.defend)) {
+                if (this.config.tiers[this.rarity].constantHeal > 0 && this.player.health.ratio < this.config.healWhenUnder && this.player.health.ratio > .001 && (!this.config.healsInDefense || (!this.player.attack && this.player.defend))) {
                     this.player.health.health = Math.min(this.player.health.maxHealth, this.player.health.health + this.config.tiers[this.rarity].constantHeal);
                 }
 
@@ -349,7 +349,7 @@ export class PetalSlot {
 
                     petal.range -= 3;
 
-                    if (this.player.attack && petal.range <= 0) {
+                    if ((this.player.defend && this.config.launchedSpeed == 0 || this.player.attack) && petal.range <= 0) {
                         petal.launched = true;
                         petal.speed *= this.config.launchedSpeed;
                         petal.range = this.config.launchedRange;
@@ -678,36 +678,47 @@ export class Entity {
                     let otherDamageDone = 0,
                         thisDamageDone = 0;
 
+                    thisDamageDone += this.damage;
+                    otherDamageDone += other.damage;
+
+                    if (this.extraDamage) if (other.health.ratio > this.extraDamage.minHp && other.health.ratio < this.extraDamage.maxHp) {
+                        thisDamageDone += this.damage * this.extraDamage.multiplier;
+                    }
+
+                    if (other.extraDamage) if (this.health.ratio > other.extraDamage.minHp && this.health.ratio < other.extraDamage.maxHp) {
+                        otherDamageDone += other.damage * other.extraDamage.multiplier;
+                    }
+
                     if (this.absorbStacks.size > 0) {
                         let done = false;
 
                         this.absorbStacks.forEach(stack => {
-                            if (!done && stack.addStack(other.damage)) {
+                            if (!done && stack.addStack(otherDamageDone)) {
                                 done = true;
                             }
                         });
 
                         if (!done) {
-                            otherDamageDone = this.health.damage(other.damage);
+                            this.health.damage(otherDamageDone);
                         }
                     } else {
-                        otherDamageDone = this.health.damage(other.damage);
+                        this.health.damage(otherDamageDone);
                     }
 
                     if (other.absorbStacks.size > 0) {
                         let done = false;
 
                         other.absorbStacks.forEach(stack => {
-                            if (!done && stack.addStack(this.damage)) {
+                            if (!done && stack.addStack(thisDamageDone)) {
                                 done = true;
                             }
                         });
 
                         if (!done) {
-                            thisDamageDone = other.health.damage(this.damage);
+                            other.health.damage(thisDamageDone);
                         }
                     } else {
-                        thisDamageDone = other.health.damage(this.damage);
+                        other.health.damage(thisDamageDone);
                     }
 
                     if (this.damageReflection > 0) {
@@ -1036,6 +1047,10 @@ export class Petal extends Entity {
             this.healBack = tier.healBack;
         }
 
+        if (config.extraDamage) {
+            this.extraDamage = config.extraDamage
+        }
+
         this.ignoreWalls = config.ignoreWalls;
     }
 
@@ -1282,8 +1297,8 @@ export class Player extends Entity {
         this.petalSlots.forEach(slot => {
             i = slot.update(nSpots, i, ratio);
 
-            if (slot.config.extraRadians) {
-                this.petalRotation += slot.config.extraRadians * spin;
+            if (slot.config.tiers[slot.rarity].extraRadians) {
+                this.petalRotation += slot.config.tiers[slot.rarity].extraRadians * spin;
             }
 
             this.extraPickupRange = Math.max(this.extraPickupRange, slot.config.tiers[slot.rarity].extraPickupRange);
@@ -1470,7 +1485,10 @@ export class AIPlayer extends Player {
         this.client.addXP(xpForLevel(level) + 1);
 
         for (let i = 0; i < this.petalSlots.length; i++) {
-            this.petalSlots[i].define(petalConfigs[randomPossiblePetal()], Math.max(0, rarity - Math.random() * 2 | 0));
+            const pRarity = Math.max(0, rarity - Math.random() * 2 | 0);
+            const petalID = randomPossiblePetal(rarity);
+            this.client.slots[i] = {id: petalID, rarity: pRarity};
+            this.petalSlots[i].define(petalConfigs[petalID], pRarity);
         }
 
         state.livingMobCount++;
@@ -1528,7 +1546,7 @@ export class AIPlayer extends Player {
                     new Drop({
                         x: this.x + Math.random() * 75 - 37.5,
                         y: this.y + Math.random() * 75 - 37.5
-                    }, client, this.petalSlots[i].config.id, this.petalSlots[i].rarity);
+                    }, client, this.petalSlots[i].config.id, Math.min(client.highestRarity+1, this.petalSlots[i].rarity));
                 }
             }
         });
@@ -1614,11 +1632,6 @@ export class Mob extends Entity {
 
         this.ropeBodies = null;
 
-        this.sizeRand = {
-            min: 0,
-            max: 0,
-        }
-
         this._countsTowardsMobCount = true;
     }
 
@@ -1652,7 +1665,7 @@ export class Mob extends Entity {
 
         this.health.set(tier.health);
         this.damage = tier.damage;
-        this.size = tier.size * (.98 + Math.random() * .04) * ((1 - config.sizeRand.min) + Math.random() * config.sizeRand.max);
+        this.size = tier.size * (.98 + Math.random() * .04) * (config.sizeRand.min + Math.random() * config.sizeRand.max);
         this.speed = config.speed;
         this.index = config.id;
         this.rarity = rarity;
@@ -1898,6 +1911,13 @@ export class Mob extends Entity {
             }
         }
 
+        if (config.strafes) this.strafes = {
+            ...config.strafes,
+            cTick: 0, // cooldown
+            mTick: 0, // movement
+            direction: 0
+        }
+
         this.pushability = config.pushability
     }
 
@@ -2011,6 +2031,8 @@ export class Mob extends Entity {
                     }
 
                     this.movementStrength *= .7;
+                } else if (this.strafes?.cTick < this.strafes?.cooldown) {
+                    this.strafes.cTick++;
                 } else {
                     this.movementAngle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
 
@@ -2022,7 +2044,7 @@ export class Mob extends Entity {
                         } else {
                             this.movementStrength = this.speed;
                         }
-                    } else if (this.projectile) {
+                    } else if (this.projectile && !this.strafes || this.strafes?.mTick > this.strafes?.length) {
                         if (this.projectile.runs === false) {
                             const diff = quickDiff(this, this.target);
 
@@ -2042,7 +2064,22 @@ export class Mob extends Entity {
                         this.movementAngle += Math.PI;
                         this.moveStrength *= .85;
                     }
+
+                    if (this.strafes) {
+                        if (this.strafes.mTick < this.strafes.length) {
+                            this.movementAngle += (this.strafes.direction == 0 ? Math.PI : -Math.PI) / 2;
+                            this.movementStrength *= this.strafes.speedMult;
+                            this.strafes.cTick = this.strafes.cooldown;
+
+                            if (Math.random() < .025) this.strafes.direction = !this.strafes.direction;
+                        } else {
+                            this.strafes.mTick = 0;
+                            this.strafes.cTick = 0;
+                        }
+                        this.strafes.mTick++;
+                    }
                 }
+
             } else if (this.movesInBursts) {
                 this.movementStrength *= .7;
             } else {
@@ -2071,6 +2108,10 @@ export class Mob extends Entity {
                 this.facing += (this.spins.constant == false ? this.velocity.magnitude : 1) / this.speed * .1 * this.spins.rate;
             } else {
                 this.facing = this.movementAngle;
+            }
+
+            if (this.strafes && this.target) if (this.strafes.cTick == this.strafes.cooldown) {
+                this.facing -= (this.strafes.direction == 0 ? Math.PI : -Math.PI) / 2;
             }
         }
 
@@ -2242,7 +2283,6 @@ export class Mob extends Entity {
 
 export class Drop {
     static idAccumulator = 1;
-    static lifetime = 2.5E4;
 
     constructor(position = { x: 0, y: 0 }, client, i, r) {
         this.id = Drop.idAccumulator++;
@@ -2256,6 +2296,7 @@ export class Drop {
 
         this.index = i;
         this.rarity = r;
+        this.lifetime = 2.5E4 * Math.pow(1.1, r);
 
         this.creation = performance.now();
 
@@ -2264,7 +2305,7 @@ export class Drop {
     }
 
     update() {
-        if (this.creation + Drop.lifetime < performance.now()) {
+        if (this.creation + this.lifetime < performance.now()) {
             this.destroy();
         }
 
@@ -2463,8 +2504,8 @@ export class Lightning {
                 ent.health.damage(this.damage);
 
                 if (ent.parent && ent.config?.name === "Leech") {
-                ent.parent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
-                ent.parent.damagedBy[this.parent.id][0] += this.damage;
+                    ent.parent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
+                    ent.parent.damagedBy[this.parent.id][0] += this.damage;
                 } else {
                     ent.damagedBy[this.parent.id] ??= [0, this.parent.type, this.parent.type === ENTITY_TYPES.PLAYER ? this.parent.name : this.parent.index, this.parent.type === ENTITY_TYPES.PLAYER && this.parent.client ? this.parent.client.id : null];
                     ent.damagedBy[this.parent.id][0] += this.damage;

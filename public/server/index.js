@@ -573,8 +573,8 @@ class ModdingAPI {
                 });
             } break;
             case "setRoomInfo":
-                if (args.length < 1 || args.length > 4) {
-                    this.floofModdingResponse(jobID, false, "setRoomInfo(dynamic, width*, height*, mobCount*) requires 1 argument, has 3 extra optional arguments!");
+                if (args.length < 1 || args.length > 5) {
+                    this.floofModdingResponse(jobID, false, "setRoomInfo(dynamic, width*, height*, mobCount*, currentWave*) requires 1 argument, has 4 extra optional arguments!");
                     return;
                 }
 
@@ -591,7 +591,8 @@ class ModdingAPI {
                     if (
                         !this.validateArg(jobID, "width", args[1], "number", [32 * 8, 32 * 4096]) ||
                         !this.validateArg(jobID, "height", args[2], "number", [32 * 8, 32 * 4096]) ||
-                        !this.validateArg(jobID, "mobCount", args[3], "number", [0, 4096])
+                        !this.validateArg(jobID, "mobCount", args[3], "number", [0, 4096]) || 
+                        !this.validateArg(jobID, "currentWave", args[4], "number", [0, 4096])
                     ) {
                         return;
                     }
@@ -603,6 +604,8 @@ class ModdingAPI {
                     state.width = args[1];
                     state.height = args[2];
                     state.maxMobs = args[3];
+                    state.currentWave = args[4]-1
+                    state.livingMobCount = 0
                 }
 
                 state.clients.forEach(client => client.sendRoom());
@@ -611,7 +614,8 @@ class ModdingAPI {
                     dynamic: state.dynamicRoom,
                     width: state.width,
                     height: state.height,
-                    mobCount: state.maxMobs
+                    mobCount: state.maxMobs,
+                    wave: state.currentWave 
                 });
                 break;
             case "getRoomInfo":
@@ -624,7 +628,8 @@ class ModdingAPI {
                     dynamic: state.dynamicRoom,
                     width: state.width,
                     height: state.height,
-                    mobCount: state.maxMobs
+                    mobCount: state.maxMobs,
+                    wave: state.wave 
                 });
                 break;
             case "getPlayers":
@@ -899,6 +904,30 @@ class ModdingAPI {
                     }
                 });
             } break;
+            case "spawnAIPlayer": {
+                if (args.length !== 2) {
+                    this.floofModdingResponse(jobID, false, "spawnAIPlayer(rarity, level) requires 2 arguments!");
+                    return;
+                }
+
+                if (
+                    !this.validateArg(jobID, "rarity", args[0], "number", [0, tiers.length - 1]) ||
+                    !this.validateArg(jobID, "amount", args[1] - 1, "number", [1, 999])
+                ) {
+                    return;
+                }
+
+                const mob = new AIPlayer(state.random(), args[0], args[1] - 1);
+                this.floofModdingResponse(jobID, true, "AI Flower spawned successfully", {
+                    id: mob.id,
+                    level: mob.client.level,
+                    highestRarity: mob.client.highestRarity,
+                    position: {
+                        x: mob.x,
+                        y: mob.y
+                    }
+                });
+            }
             default:
                 this.floofModdingResponse(jobID, false, `Function ${functionName} does not exist!`);
         }

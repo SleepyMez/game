@@ -350,11 +350,31 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
     return _ctx.measureText("M").width * lines.length;
 }
 
-const wallBrown = util.isHalloween ? "#353535" : "#68472E";
-const wallDark = util.isHalloween ? "#252525" : "#4F3422";
+const wallBrown = [
+    "#68472E", // default
+    "#68472E", // garden
+    "#ab9476", // desert
+    "#68472E", // ocean
+    "#68472E", // ant hell
+    "#682A24", // hell
+    "#68472E", // sewers
+    "#68472E", // dark forest
+    "#353535" // halloween
+];
+const wallDark = [
+    "#4F3422", // default
+    "#4F3422", // garden
+    "#806e58", // desert
+    "#4F3422", // ocean
+    "#4F3422", // ant hell
+    "#4E1F1B", // hell
+    "#4F3422", // sewers
+    "#4F3422", // dark forest
+    "#252525" // halloween
+];
 const tileSize = 96;
 
-function createTile() {
+function createTile(biomeInfo) {
     const tile = document.createElement("canvas");
     tile.width = tileSize;
     tile.height = tileSize;
@@ -363,10 +383,10 @@ function createTile() {
     tileCtx.imageSmoothingEnabled = true;
     tileCtx.imageSmoothingQuality = "high";
 
-    tileCtx.fillStyle = wallBrown;
+    tileCtx.fillStyle = wallBrown[biomeInfo];
     tileCtx.fillRect(0, 0, tileSize, tileSize);
 
-    tileCtx.fillStyle = wallDark;
+    tileCtx.fillStyle = wallDark[biomeInfo];
 
     const poses = [];
 
@@ -392,7 +412,7 @@ function createTile() {
     return tile;
 }
 
-function createTiles(nX, nY) {
+function createTiles(nX, nY, biomeInfo) {
     const tile = document.createElement("canvas");
     tile.width = tileSize * nX;
     tile.height = tileSize * nY;
@@ -403,14 +423,14 @@ function createTiles(nX, nY) {
 
     for (let y = 0; y < nY; y++) {
         for (let x = 0; x < nX; x++) {
-            tileCtx.drawImage(createTile(), x * tileSize, y * tileSize);
+            tileCtx.drawImage(createTile(biomeInfo), x * tileSize, y * tileSize);
         }
     }
 
     return tile;
 }
 
-export function renderTerrain(mapWidth, mapHeight, gridWidth, blocks) {
+export function renderTerrain(mapWidth, mapHeight, gridWidth, blocks, biomeInfo) {
     const img = document.createElement("canvas");
     const imgCtx = img.getContext("2d");
 
@@ -443,7 +463,7 @@ export function renderTerrain(mapWidth, mapHeight, gridWidth, blocks) {
     imgCtx.stroke();
 
     // imgCtx.fillStyle = mixColors(util.colors.scorpionBrown, util.colors.spider, .25);
-    const pattern = imgCtx.createPattern(createTiles(4, 4), "repeat");
+    const pattern = imgCtx.createPattern(createTiles(4, 4, biomeInfo), "repeat");
     imgCtx.fillStyle = pattern;
     imgCtx.strokeStyle = wallDark;
     imgCtx.lineWidth = size * .1;

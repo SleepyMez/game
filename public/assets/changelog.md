@@ -1,3 +1,37 @@
+# Update (11/29/2024):
+- Added a new petal: Claw
+- Added a new mob: Crab!
+- Added support for biome-specific wall colors
+- Added new strafing option for mob configs
+- Scorpions now strafe around the player
+- Changed random sizing to make more sense (minimum size, maximum extra size)
+- Adjusted all random size values to account for the new system (Sandstorm, Hell Centipede, Wilt Branch, Pumpkin)
+- Adjusted sizes of ants and removed their smaller scaling. If this causes them to be chaotic, the nerfed scaling will be added back
+- Wilt summons ACTUALLY render playeryellow now
+- Added a new parameter for petals: extraDamage(minHp, maxHp, multiplier)
+- Extra radians now scale based off of rarity
+- Buffed Stick and Leech Egg to have summons of rarity -1 (instead of -2)
+- Petals such as Pollen now drop when defending
+- Petals that require defending to heal will no longer work if the player is attacking at the same time
+- Hitboxes show petal hitboxes now
+- Hitboxes show player hitboxes now
+- Drops now have a transparent outline
+- Drops now take longer to despawn based on rarity (1.1^rarity)
+- AI Flowers now properly display their highest rarity
+- AI Flowers can no longer use petals that are not normally obtainable
+- AI Flowers can only drop petals that are player's highest rarity + 1
+- AI Flowers are now spawnable via moddingAPI
+- Flowers in TDM games with 0 teams will no longer hurt eachother
+- Flowers in Waves, Maze, and Line are now yellow
+- Flowers now start with 5 common basics (instead of 5 rare basics)
+- Hitboxes now render over everything
+- Slightly raised the text in petal icons
+- Petal icons now have a darker background when hp ratio is under 1
+- Adjusted some petal icon renders
+- Egg petals now display "Egg" / "Eggs" as their name
+- Goo and Lantern now use static renders for petal icons
+- You can now set waves via setRoomInfo
+
 # Update (11/02/2024):
 - More Halloween stuff, the event will go until November 7th
 - The Halloween event will reoccur each year

@@ -735,10 +735,13 @@ export default class Client {
 
         this.team = false;
         if (state.isTDM) {
-            this.team = ((this.id - 1) % state.teamCount) + 1;
+            this.team = 0;
+            if (state.teamCount > 0) {
+                this.team = ((this.id - 1) % state.teamCount) + 1;
+            }
         }
 
-        this.slots = new Array(5).fill(null).map(() => ({ id: 0, rarity: 2 }));
+        this.slots = new Array(5).fill(null).map(() => ({ id: 0, rarity: 0 }));
         this.slotRatios = new Array(5).fill(0).map(() => 0);
         this.secondarySlots = new Array(5).fill(null).map(() => null);
         this.level = 1;
@@ -1163,7 +1166,7 @@ export default class Client {
                 const message = reader.getStringUTF8();
                 if (!/^[\w\s,.!?'"@#%^&*()_\-+=:;<>\/\\|[\]{}~`\u00A0-\uFFFF]{1,128}$/.test(message)) {
                     this.systemMessage("That message is too long or contains invalid characters.", "#CACA22");
-                    this.frownyMessages ++;
+                    this.frownyMessages++;
 
                     if (this.frownyMessages >= 5) {
                         this.kick("Abusing chat");
@@ -1177,7 +1180,7 @@ export default class Client {
                     for (const char of setOfChars) {
                         if (split.filter(c => c === char).length > message.length / 3) {
                             this.systemMessage("Please refrain from spamming.", "#22CACA");
-                            this.frownyMessages ++;
+                            this.frownyMessages++;
 
                             if (this.frownyMessages >= 5) {
                                 this.kick("Abusing chat");
@@ -1189,7 +1192,7 @@ export default class Client {
 
                 if (tripsFilter(message)) {
                     this.systemMessage("Please refrain from saying slurs.", "#CA2222");
-                    this.frownyMessages ++;
+                    this.frownyMessages++;
 
                     if (this.frownyMessages >= 5) {
                         this.kick("Abusing chat");
@@ -1247,7 +1250,7 @@ export default class Client {
                 break;
             case CLIENT_BOUND.CHAT_MESSAGE: // Chat message packet
                 writer.setUint8(data.type);
-                
+
                 if (data.type === 0) {
                     writer.setStringUTF8(data.username);
                 }

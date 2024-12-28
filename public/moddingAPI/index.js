@@ -216,30 +216,47 @@ apply("spawnMobResponse", "json", `{
     }
 }`);
 
+apply("spawnAIFlowerRequest", "javascript", `const flower = await floof.spawnAIPlayer(3, 25)`);
+
+apply("spawnAIFlowerResponse", "json", `{
+    "ok": true,
+    "message": "AI Flower spawned successfully",
+    "data": {
+        "id": 280,
+        "level": 25,
+        "highestRarity": 2,
+        "position": {
+            "x": -5653.70581523381,
+            "y": -846.0383555133021
+        }
+    }
+}`);
+
 apply("getRoomInfoRequest", "javascript", `const roomInfo = await floof.getRoomInfo();`);
 
 apply("getRoomInfoResponse", "json", `{
     "ok": true,
     "message": "Room info fetched successfully",
     "data": {
-        "dynamic": true,
-        "width": 1024,
-        "height": 1024,
+        "dynamic": false,
+        "width": 16384,
+        "height": 4096,
         "mobCount": 10
     }
 }`);
 
 apply("setRoomInfoRequest", "javascript", `const roomInfo = await floof.setRoomInfo(true); // Make the map dynamically resize
-const roomInfo = await floof.setRoomInfo(false, 32 * 32, 32 * 128, 64); // Set the map size to a larger rectangle with 64 mobs`);
+const roomInfo = await floof.setRoomInfo(false, 32 * 32, 32 * 128, 64, 0); // Set the map size to a larger rectangle with 64 mobs`);
 
 apply("setRoomInfoResponse", "json", `{
     "ok": true,
     "message": "Room info set successfully",
     "data": {
-        "dynamic": true,
+        "dynamic": false,
         "width": 1024,
-        "height": 1024,
-        "mobCount": 10
+        "height": 4096,
+        "mobCount": 64,
+        "wave": -1
     }
 }`);
 
