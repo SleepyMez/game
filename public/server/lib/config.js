@@ -335,7 +335,21 @@ export const petalConfigs = [
         .setDescription("Ooh, tasty!"),
     new PetalConfig("Claw", 56.25, 0.25, 8)
         .setExtraDamage(.75, 1, 7.5)
-        .setDescription("Sharp against the strong, weak against the weak.")
+        .setDescription("Sharp against the strong, weak against the weak."),
+    new PetalConfig("projectile.diep_bullet", 1000, 12, 2)
+        .setDescription("[object null object]"),
+    new PetalConfig("Square Egg", 120, 50, 1)
+        .setSize(1.2)
+        .setHuddles(1)
+        .setDescription("This isn't from this world..."),
+    new PetalConfig("Triangle Egg", 240, 100, 2)
+        .setSize(1.5)
+        .setHuddles(1)
+        .setDescription("This isn't from this world..."),
+    new PetalConfig("Pentagon Egg", 360, 200, 4)
+        .setSize(1.8)
+        .setHuddles(1)
+        .setDescription("This isn't from this world...")
 ];
 
 export const petalIDOf = name => petalConfigs.findIndex(p => p.name === name);
@@ -823,7 +837,21 @@ export const mobConfigs = [
         .setAggressive(1)
         .setStrafes(125, 25, .5)
         .addDrop(petalIDOf("Sand", .4))
-        .addDrop(petalIDOf("Claw", .825))
+        .addDrop(petalIDOf("Claw", .825)),
+    new MobConfig("Tank", 100, 1, 20, 2)
+        .setAggressive(1)
+        .setProjectile({
+            petalIndex: petalIDOf("projectile.diep_bullet"),
+            cooldown: 16,
+            health: 12,
+            damage: 2,
+            speed: 4,
+            range: 50,
+            size: .4
+        })
+        .addDrop(petalIDOf("Square Egg", .1))
+        .addDrop(petalIDOf("Triangle Egg", .05))
+        .addDrop(petalIDOf("Pentagon Egg", .01))
 ];
 
 // Flu: Wing, Faster, Third Eye
@@ -836,6 +864,9 @@ petalConfigs[petalIDOf("Ant Egg")].setSpawnable(mobIDOf("Soldier Ant"), [0, 0, 1
 petalConfigs[petalIDOf("Branch")].setSpawnable(mobIDOf("Wilt") + 1, [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5);
 petalConfigs[petalIDOf("Leech Egg")].setSpawnable(mobIDOf("Leech"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 6);
 petalConfigs[petalIDOf("Hornet Egg")].setSpawnable(mobIDOf("Hornet"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 6);
+petalConfigs[petalIDOf("Square Egg")].setSpawnable(mobIDOf("Square"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 4);
+petalConfigs[petalIDOf("Triangle Egg")].setSpawnable(mobIDOf("Triangle"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 4);
+petalConfigs[petalIDOf("Pentagon Egg")].setSpawnable(mobIDOf("Pentagon"), [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 4);
 
 mobConfigs[mobIDOf("Angelic Ladybug")].setPoopable({
     index: mobIDOf("Evil Ladybug"),

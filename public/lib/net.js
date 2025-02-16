@@ -1491,6 +1491,8 @@ export const state = {
                     }
                 case "dark_forest":
                     return BIOME_TYPES.DARK_FOREST
+                default:
+                    return BIOME_TYPES.DEFAULT;
             }
         })()
     },

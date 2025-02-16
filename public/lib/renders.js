@@ -1065,7 +1065,7 @@ function drawDandyIcon(ctx = _ctx) {
 
         ctx.save();
         ctx.translate(Math.cos(angle) * .75, Math.sin(angle) * .75);
-        ctx.rotate(angle + TAU/5)
+        ctx.rotate(angle + TAU / 5)
         drawDandy(ctx)
         ctx.restore();
     }
@@ -1853,6 +1853,22 @@ export function drawPetal(index, hit = false, ctx = _ctx, id = 0) {
             break;
         case 69: // Claw
             drawClaw(ctx, hit);
+            break;
+        case 70: // Diep Bullet
+            setStyle(ctx, mixColors(colors.diepBlue, "#FF0000", hit * .5), .45);
+            ctx.beginPath();
+            ctx.arc(0, 0, 1, 0, TAU);
+            ctx.fill();
+            ctx.stroke();
+            break;
+        case 71: // Diep Square
+            drawSquareMob(ctx, hit);
+            break;
+        case 72: // Diep Triangle
+            drawTriangleMob(ctx, hit);
+            break;
+        case 73: // Diep Pentagon
+            drawPentagonMob(ctx, hit);
             break;
         default:
             console.log("Unknown petal index: " + index);
@@ -4053,6 +4069,19 @@ function drawCrab(id, attack, ctx = _ctx, hit = false) {
     ctx.closePath();
 }
 
+function drawDiepTank(ctx = _ctx, hit = false) {
+    setStyle(ctx, mixColors(colors.rockGray, "#ff0000", hit * .5), .2);
+    ctx.fillRect(0, -.4, 1.8, .8);
+    ctx.strokeRect(0, -.4, 1.8, .8);
+
+    setStyle(ctx, mixColors(colors.diepBlue, "#ff0000", hit * .5), .2);
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 1, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+}
+
 export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = false, friend = false, rot = 0, extra = undefined) {
     switch (index) {
         case 0:
@@ -4267,6 +4296,10 @@ export function drawMob(id, index, rarity, hit = false, ctx = _ctx, attack = fal
             break;
         case 72:
             drawCrab(id, attack, ctx, hit)
+            break;
+        case 73:
+            drawDiepTank(ctx, hit);
+            break;
     }
 }
 

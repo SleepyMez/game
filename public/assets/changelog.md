@@ -1,3 +1,8 @@
+# Update (02/16/2025):
+- Fixed a bug with first-time-visiting
+- Hitboxes are disabled by default
+- Added three new petals, and one new mob as an easter egg
+
 # Update (11/29/2024):
 - Added a new petal: Claw
 - Added a new mob: Crab!

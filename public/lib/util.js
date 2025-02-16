@@ -61,6 +61,7 @@ export const colors = {
     bubbleGrey: "#B8B8B8",
     playerYellow: "#FFE763",
     scorpionBrown: "#C69A2D",
+    diepBlue: "#00BEFF",
     diepSquare: "#ffe46b",
     diepTriangle: "#fc7676",
     diepPentagon: "#768cfc",
@@ -157,7 +158,7 @@ export const options = {
     hideEntityUI: false,
     useTileBackground: false,
     fancyGraphics: false,
-    showHitboxes: true
+    showHitboxes: false
 };
 
 export function applyArticle(word, capitalize = false) {
