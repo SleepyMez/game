@@ -351,7 +351,7 @@ export function drawWrappedText(text, x, y, size, maxWidth, fill = "#FFFFFF", _c
 }
 
 const wallBrown = [
-    "#68472E", // default
+    "#4f5b5e", // default
     "#68472E", // garden
     "#ab9476", // desert
     "#68472E", // ocean
@@ -362,7 +362,7 @@ const wallBrown = [
     "#353535" // halloween
 ];
 const wallDark = [
-    "#4F3422", // default
+    "#414d4f", // default
     "#4F3422", // garden
     "#806e58", // desert
     "#4F3422", // ocean

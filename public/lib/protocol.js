@@ -884,8 +884,8 @@ export const BIOME_TYPES = {
 export const BIOME_BACKGROUNDS = {
     [BIOME_TYPES.DEFAULT]: {
         name: "Default",
-        color: "#1EA660",
-        tile: "tiles/garden.svg"
+        color: "#718083",
+        tile: "tiles/allMobs.svg"
     },
     [BIOME_TYPES.GARDEN]: {
         name: "Garden",
