@@ -901,7 +901,7 @@ export default class Client {
                     return;
                 }
 
-                this.body = new Player(state.getPlayerSpawn(this.level));
+                this.body = new Player(state.getPlayerSpawn(this));
                 this.body.name = this.username;
                 this.body.nameColor = this.nameColor;
                 this.body.client = this;

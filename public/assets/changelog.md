@@ -1,9 +1,16 @@
+# Update (02/17/2025): 
+- Added checkpoint support!
+- All maps have been updated to support checkpoints
+- Rarity distribution in maps has been changed
+- Sewer and All Mob mazes have gotten new maps
+- All Mob maze now has its own color and tile texture!
+
 # Update (02/16/2025):
 - Fixed a bug with first-time-visiting
 - Hitboxes are disabled by default
 - Added three new petals, and one new mob as an easter egg
 
-# Update (11/29/2024):
+# Update (12/8/2024):
 - Added a new petal: Claw
 - Added a new mob: Crab!
 - Added support for biome-specific wall colors

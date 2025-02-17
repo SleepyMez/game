@@ -60,12 +60,30 @@ const state = {
     maxMapDistFromSpawn: 0,
     mapData: [],
 
-    mapBasedSpawn(type) {
+    mapBasedSpawn(type, client) {
         if (state.mapSpawns == null || state.mapSpawns[type] == null) {
             return state.random();
         }
 
-        const spawns = state.mapSpawns[type];
+        let spawns = state.mapSpawns[type];
+
+        if (type == ENTITY_TYPES.PLAYER) {
+            let highestSpawnRarity = 0
+            spawns = spawns.filter((spawn) => {
+              if (spawn.rarity <= client.highestRarity) {
+                return true
+              }
+            })
+
+            spawns.forEach((data) => {
+              highestSpawnRarity = Math.max(data.rarity, highestSpawnRarity)
+            })
+
+            spawns = spawns.filter((data) => {
+              if (data.rarity >= highestSpawnRarity) return true
+            })
+        }
+
         const spawn = spawns[Math.floor(Math.random() * spawns.length)];
 
         return {
@@ -87,7 +105,7 @@ const state = {
             return false;
         }
 
-        return state.mapData[gridX][gridY] === 0 || state.mapData[gridX][gridY] > 2;
+        return state.mapData[gridX][gridY].type !== -1;
     },
 
     mapDataAt: (x, y) => {
@@ -128,15 +146,15 @@ const state = {
         return closest;
     },
 
-    getPlayerSpawn: level => {
+    getPlayerSpawn: client => {
         if (!state.isLineMap) {
-            let pos = state.mapBasedSpawn(ENTITY_TYPES.PLAYER);
+            let pos = state.mapBasedSpawn(ENTITY_TYPES.PLAYER, client);
 
             return pos;
         }
 
         return {
-            x: Math.max(-state.width / 2 + 25, Math.min(state.width / 2 - 25, -state.width / 2 + Math.min(level / 50, 1) * state.width / 1.5 + (Math.random() - .5) * 64)),
+            x: Math.max(-state.width / 2 + 25, Math.min(state.width / 2 - 25, -state.width / 2 + Math.min(client.level / 50, 1) * state.width / 1.5 + (Math.random() - .5) * 64)),
             y: -state.height / 2 + Math.random() * state.height
         };
     },

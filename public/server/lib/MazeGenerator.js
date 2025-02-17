@@ -233,24 +233,24 @@ export default class MazeGenerator {
                 let bestSize = 0,
                     bestWidth = 0,
                     bestHeight = 0;
-            
+
                 for (let width = 1; x + width <= remaining.length; width++) {
                     let height = 0;
                     while (y + height < remaining[x].length && isSolidBlock(x, y, width, height + 1)) {
                         height++;
                     }
-            
+
                     if (width * height > bestSize) {
                         bestSize = width * height;
                         bestWidth = width;
                         bestHeight = height;
                     }
-            
+
                     if (height === 0) {
                         break;
                     }
                 }
-            
+
                 return {
                     width: bestWidth,
                     height: bestHeight
@@ -261,30 +261,30 @@ export default class MazeGenerator {
                 let bestSize = 0,
                     bestWidth = 0,
                     bestHeight = 0;
-            
+
                 for (let height = 1; y + height <= remaining[x].length; height++) {
                     let width = 0;
                     while (x + width < remaining.length && isSolidBlock(x, y, width + 1, height)) {
                         width++;
                     }
-            
+
                     if (width * height > bestSize) {
                         bestSize = width * height;
                         bestWidth = width;
                         bestHeight = height;
                     }
-            
+
                     if (width === 0) {
                         break;
                     }
                 }
-            
+
                 return {
                     width: bestWidth,
                     height: bestHeight
                 };
             }
-            
+
             function isSolidBlock(x, y, width, height) {
                 for (let i = x; i < x + width; i++) {
                     for (let j = y; j < y + height; j++) {
@@ -352,7 +352,7 @@ export default class MazeGenerator {
                 }
             }
         }
-    
+
         return blocks;
     }
 
@@ -363,7 +363,25 @@ export default class MazeGenerator {
             array.push([]);
 
             for (let j = 0; j < this.height; j++) {
-                array[i].push(this.get(i, j));
+                let data = this.get(i, j)
+                if (data == 1) {
+                    data = {
+                        type: -1
+                    }
+                }
+                if (data == 2) {
+                    data = {
+                        type: 1,
+                        rarity: 0
+                    }
+                }
+                if (data >= 3) {
+                    data = {
+                        type: 2,
+                        rarity: data - 3
+                    }
+                }
+                array[i].push(data);
             }
         }
 
