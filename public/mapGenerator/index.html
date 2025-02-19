@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        * {
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        html,
+        body,
+        canvas {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #controlsOverlay {
+            position: absolute;
+            top: 2vmin;
+            right: 2vmin;
+
+            background-color: rgba(0, 0, 0, .667);
+            color: white;
+            padding: 1vmin;
+        }
+
+        .mobSpawner {
+            padding-top: 1vmin;
+            margin: 2vmin;
+            background-color: rgba(0, 0, 0, .667);
+            padding: 1vmin;
+            border-radius: 1vmin;
+        }
+
+        .mobSpawner * {
+            margin: .25vmin;
+        }
+
+        .availableMobs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1vmin;
+
+            background-color: rgba(255, 255, 255, .334);
+            padding: 1vmin;
+            border-radius: 1vmin;
+            margin-top: 1vmin;
+        }
+
+        .availableMobs .mob {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1vmin;
+            background-color: rgba(0, 0, 0, .667);
+            padding: 1vmin;
+            border-radius: 1vmin;
+        }
+
+        .mobSpawner input#autoGenerateRarities:checked~.availableMobs+.addNewMob #mobRarity {
+            display: none;
+        }
+
+        .mobSpawner input#autoGenerateRarities:checked~.availableMobs+.addNewMob label[for="mobRarity"] {
+            display: none;
+        }
+    </style>
+
+    <script src="./newIndex.js" type="module" defer></script>
+</head>
+
+<body oncontextmenu="return false;">
+    <canvas></canvas>
+
+    <div id="controlsOverlay">
+        <h2>Controls:</h2>
+
+        <label for="mapWidth">Map Width:</label>
+        <input type="number" id="mapWidth" value="64" min="16" max="255"> <br />
+
+        <label for="mapHeight">Map Height:</label>
+        <input type="number" id="mapHeight" value="64" min="16" max="255"> <br />
+
+        <label for="brushType">Brush Type:</label>
+        <select id="brushType">
+            <option value="Wall">Wall</option>
+            <option value="Player Spawn">Player Spawn</option>
+            <option value="Checkpoint">Checkpoint</option>
+            <option value="Mob Spawn">Mob Spawn</option>
+        </select> <br />
+
+        <label for="brushSize">Brush Size:</label>
+        <input type="number" id="brushSize" value="1" min="1" max="10">
+
+        <div id="mobSpawners">
+            <h3>Mob Spawners:</h3>
+            <button id="createMobSpawner">+</button>
+            <template id="mobSpawner">
+                <div class="mobSpawner">
+                    <button id="removeSpawner">-</button> <br />
+
+                    <label for="helperColor">Helper Color:</label>
+                    <input type="color" id="helperColor" value="#ff0000"> <br />
+
+                    <label for="autoGenerateRarities">Auto-Generate Rariries:</label>
+                    <input type="checkbox" id="autoGenerateRarities" checked> <br />
+
+                    <div class="availableMobs"></div>
+
+                    <div class="addNewMob">
+                        <label for="mobSelection">Mob:</label>
+                        <select id="mobSelection"></select> <br />
+
+                        <label for="mobRarity">Rarity:</label>
+                        <select id="mobRarity"></select>
+
+                        <button id="addMob">+</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+
+</html>
