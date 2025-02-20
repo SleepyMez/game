@@ -1,24 +1,9 @@
-import { MobSpawner } from "./types.js";
+import { mainCellTypes, MobSpawner } from "./types.js";
+
+/** @type {Map<number, MobSpawner>} */
+export const spawners = new Map();
 
 export class MapCell {
-    static types = [{
-        id: 0,
-        name: "Wall",
-        color: 0x000000
-    }, {
-        id: 1,
-        name: "Player Spawn",
-        color: 0xFFBE00
-    }, {
-        id: 2,
-        name: "Checkpoint",
-        color: 0xBEFF00
-    }, {
-        id: 3,
-        name: "Mob Spawn",
-        color: 0xFFFFFF
-    }];
-
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -36,10 +21,126 @@ export default class FloofMap {
         this.height = height;
 
         /** @type {MapCell[][]} */
-        this.cells = Array.from({ length: height }, (_, y) => Array.from({ length: width }, (_, x) => new MapCell(x, y)));
+        this.cells = new Array(height).fill(null).map((_, y) => new Array(width).fill(null).map((_, x) => new MapCell(x, y)));
     }
 
     at(x, y) {
         return this.cells[y][x];
+    }
+
+    set(x, y, type = 0) {
+        this.cells[y][x].type = type;
+
+        if (mainCellTypes[type].name === "Mob Spawn") {
+            console.log("Setting mob spawner", spawners);
+            if (spawners.size > 0) {
+                this.cells[y][x].mobSpawner = spawners.values().next().value;
+            }
+        } else {
+            this.cells[y][x].mobSpawner = null;
+        }
+    }
+
+    /**
+     * @param {HTMLCanvasElement} canvas
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    draw(canvas, ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const size = Math.min(canvas.width, canvas.height);
+        const cellSize = size / Math.max(this.width, this.height);
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = this.cells[y][x];
+
+                ctx.fillStyle = mainCellTypes[cell.type].color;
+                ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+
+                if (cell.mobSpawner !== null) {
+                    ctx.strokeStyle = cell.mobSpawner.color;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+
+                    ctx.moveTo(x * cellSize, y * cellSize);
+                    ctx.lineTo(x * cellSize + cellSize, y * cellSize + cellSize);
+
+                    ctx.moveTo(x * cellSize + cellSize / 2, y * cellSize);
+                    ctx.lineTo(x * cellSize + cellSize, y * cellSize + cellSize / 2);
+
+                    ctx.moveTo(x * cellSize, y * cellSize + cellSize / 2);
+                    ctx.lineTo(x * cellSize + cellSize / 2, y * cellSize + cellSize);
+
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    resize(width, height) {
+        const newCells = new Array(height).fill(null).map((_, y) => new Array(width).fill(null).map((_, x) => new MapCell(x, y)));
+
+        for (let y = 0; y < Math.min(this.height, height); y++) {
+            for (let x = 0; x < Math.min(this.width, width); x++) {
+                newCells[y][x] = this.cells[y][x];
+            }
+        }
+
+        this.width = width;
+        this.height = height;
+        this.cells = newCells;
+    }
+
+    serialize() {
+        const output = {
+            width: this.width,
+            height: this.height,
+            cells: [],
+            mobSpawners: []
+        };
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = this.cells[y][x];
+
+                const cellObject = {
+                    x: x,
+                    y: y,
+                    type: cell.type,
+                    spawn: cell.mobSpawner !== null ? cell.mobSpawner.id : null
+                };
+
+                if (cellObject.spawn === null) {
+                    delete cellObject.spawn;
+                }
+
+                output.cells.push(cellObject);
+
+                if (cell.mobSpawner !== null && output.mobSpawners.findIndex(s => s.id === cell.mobSpawner.id) === -1) {
+                    output.mobSpawners.push(cell.mobSpawner.serialize());
+                }
+            }
+        }
+
+        return JSON.stringify(output);
+    }
+
+    static deserialize(inputJSON) {
+        const input = JSON.parse(inputJSON);
+        const map = new FloofMap(input.width, input.height);
+
+        input.mobSpawners.forEach(s => {
+            spawners.set(s.id, MobSpawner.deserialize(s));
+        });
+
+        input.cells.forEach(c => {
+            map.set(c.x, c.y, c.type);
+
+            if (c.spawn !== null) {
+                map.cells[c.y][c.x].mobSpawner = spawners.get(c.spawn);
+            }
+        });
+
+        return map;
     }
 }

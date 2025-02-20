@@ -58,6 +58,7 @@
             background-color: rgba(0, 0, 0, .667);
             padding: 1vmin;
             border-radius: 1vmin;
+            cursor: not-allowed;
         }
 
         .mobSpawner input#autoGenerateRarities:checked~.availableMobs+.addNewMob #mobRarity {
@@ -69,7 +70,7 @@
         }
     </style>
 
-    <script src="./newIndex.js" type="module" defer></script>
+    <script src="./index.js" type="module" defer></script>
 </head>
 
 <body oncontextmenu="return false;">
@@ -86,10 +87,10 @@
 
         <label for="brushType">Brush Type:</label>
         <select id="brushType">
+            <option value="Mob Spawn">Mob Spawn</option>
             <option value="Wall">Wall</option>
             <option value="Player Spawn">Player Spawn</option>
             <option value="Checkpoint">Checkpoint</option>
-            <option value="Mob Spawn">Mob Spawn</option>
         </select> <br />
 
         <label for="brushSize">Brush Size:</label>

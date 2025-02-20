@@ -1,6 +1,41 @@
 import * as gameConfigs from "../../server/lib/config.js";
-import { spawners } from "./state.js";
-import { MobSpawner } from "./types.js";
+import { spawners } from "./FloofMap.js";
+import { map, setBrush, setBrushWidth } from "./state.js";
+import { mainCellTypes, MobSpawner } from "./types.js";
+
+const mapWidth = document.querySelector("input#mapWidth");
+const mapHeight = document.querySelector("input#mapHeight");
+
+mapWidth.addEventListener("input", () => {
+    const rawValue = parseInt(mapWidth.value);
+    const newValue = Math.max(16, Math.min(255, parseInt(mapWidth.value)));
+
+    if (rawValue === newValue) {
+        map.resize(newValue, map.height);
+    }
+});
+
+mapHeight.addEventListener("input", () => {
+    const rawValue = parseInt(mapHeight.value);
+    const newValue = Math.max(16, Math.min(255, parseInt(mapHeight.value)));
+
+    if (rawValue === newValue) {
+        map.resize(map.width, newValue);
+    }
+});
+
+const brushType = document.querySelector("select#brushType");
+brushType.addEventListener("change", () => {
+    let brush = mainCellTypes.find(m => m.name === brushType.value);
+    if (brush) {
+        setBrush(brush);
+    }
+});
+
+const brushSize = document.querySelector("input#brushSize");
+brushSize.addEventListener("input", () => {
+    setBrushWidth(parseInt(brushSize.value));
+});
 
 const mobSpawnersContainer = document.querySelector("div#mobSpawners");
 const mobSpawnerTemplate = document.querySelector("template#mobSpawner");
@@ -31,7 +66,7 @@ function createNewMobSpawner() {
 
     const colorInput = mobSpawner.querySelector("input[type=color]");
     const updateColor = () => {
-        spawner.color = parseInt(colorInput.value.slice(1), 16);
+        spawner.color = colorInput.value;
     }
     colorInput.addEventListener("input", updateColor);
     updateColor();

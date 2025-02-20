@@ -58,5 +58,52 @@ export class MobSpawner {
             this.availableMobs.delete(id);
         }
     }
+
+    serialize() {
+        return {
+            id: this.id,
+            color: this.color,
+            autoGenerateRarities: this.autoGenerateRarities,
+            availableMobs: Array.from(this.availableMobs.entries())
+        };
+    }
+
+    static deserialize(input) {
+        const spawner = new MobSpawner();
+
+        spawner.id = input.id;
+        spawner.color = input.color;
+        spawner.autoGenerateRarities = input.autoGenerateRarities;
+        spawner.availableMobs = new Map(input.availableMobs);
+
+        if (!spawner.autoGenerateRarities) {
+            for (const [id, raritySet] of spawner.availableMobs) {
+                if (raritySet === true) {
+                    continue;
+                }
+
+                spawner.availableMobs.set(id, new Set(raritySet));
+            }
+        }
+
+        return spawner;
+    }
 }
 
+export const mainCellTypes = [{
+    id: 0,
+    name: "Wall",
+    color: "#000000"
+}, {
+    id: 1,
+    name: "Player Spawn",
+    color: "#FFBE00"
+}, {
+    id: 2,
+    name: "Checkpoint",
+    color: "#BEFF00"
+}, {
+    id: 3,
+    name: "Mob Spawn",
+    color: "#FFFFFF"
+}];
