@@ -24,6 +24,24 @@ mapHeight.addEventListener("input", () => {
     }
 });
 
+const maxRarity = document.querySelector("select#maxRarity");
+
+for (let i = 0; i < gameConfigs.tiers.length; i++) {
+    const option = document.createElement("option");
+    option.value = i;
+    option.innerText = gameConfigs.tiers[i].name;
+
+    maxRarity.appendChild(option);
+}
+
+maxRarity.addEventListener("change", () => {
+    map.maxRarity = parseInt(maxRarity.value);
+});
+
+// Auto-select a rarity to sync
+maxRarity.value = 4;
+map.maxRarity = 4;
+
 const brushType = document.querySelector("select#brushType");
 brushType.addEventListener("change", () => {
     let brush = mainCellTypes.find(m => m.name === brushType.value);
@@ -36,6 +54,8 @@ const brushSize = document.querySelector("input#brushSize");
 brushSize.addEventListener("input", () => {
     setBrushWidth(parseInt(brushSize.value));
 });
+
+document.querySelector("button#calculateCellScores").addEventListener("click", map.scoreCells);
 
 const mobSpawnersContainer = document.querySelector("div#mobSpawners");
 const mobSpawnerTemplate = document.querySelector("template#mobSpawner");

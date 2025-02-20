@@ -1,3 +1,5 @@
+import * as gameConfigs from "../../server/lib/config.js";
+import Pathfinder from "./Pathfinder.js";
 import { mainCellTypes, MobSpawner } from "./types.js";
 
 /** @type {Map<number, MobSpawner>} */
@@ -9,6 +11,7 @@ export class MapCell {
         this.y = y;
 
         this.type = 0;
+        this.score = 0;
 
         /** @type {MobSpawner} */
         this.mobSpawner = null;
@@ -22,6 +25,8 @@ export default class FloofMap {
 
         /** @type {MapCell[][]} */
         this.cells = new Array(height).fill(null).map((_, y) => new Array(width).fill(null).map((_, x) => new MapCell(x, y)));
+
+        this.maxRarity = gameConfigs.tiers.length - 3;
     }
 
     at(x, y) {
@@ -32,7 +37,6 @@ export default class FloofMap {
         this.cells[y][x].type = type;
 
         if (mainCellTypes[type].name === "Mob Spawn") {
-            console.log("Setting mob spawner", spawners);
             if (spawners.size > 0) {
                 this.cells[y][x].mobSpawner = spawners.values().next().value;
             }
@@ -72,6 +76,11 @@ export default class FloofMap {
                     ctx.lineTo(x * cellSize + cellSize / 2, y * cellSize + cellSize);
 
                     ctx.stroke();
+                }
+
+                if (cell.score > 0) {
+                    ctx.fillStyle = gameConfigs.tiers[Math.round(cell.score * this.maxRarity)].color;
+                    ctx.fillRect(x * cellSize + cellSize / 4, y * cellSize + cellSize / 4, cellSize / 2, cellSize / 2);
                 }
             }
         }
@@ -123,6 +132,75 @@ export default class FloofMap {
         }
 
         return JSON.stringify(output);
+    }
+
+    scoreCells() {
+        let maxScore = 0;
+
+        const neighbors = (x, y) => {
+            const n = [];
+
+            if (x > 0) n.push(this.cells[y][x - 1]);
+            if (x < this.width - 1) n.push(this.cells[y][x + 1]);
+            if (y > 0) n.push(this.cells[y - 1][x]);
+            if (y < this.height - 1) n.push(this.cells[y + 1][x]);
+
+            return n;
+        }
+
+        let spawnX = -1,
+            spawnY = -1;
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = this.cells[y][x];
+
+                if (cell.type === 1) {
+                    spawnX = x;
+                    spawnY = y;
+                    break;
+                }
+            }
+        }
+
+        if (spawnX === -1 || spawnY === -1) {
+            throw new Error("Map does not contain a spawn point.");
+        }
+
+        const knownPositions = new Set();
+        const pathfinder = new Pathfinder(this);
+
+        const scoreCell = (x, y) => {
+            const cell = this.cells[y][x];
+            const position = `${x},${y}`;
+
+            if (knownPositions.has(position)) {
+                return;
+            }
+
+            knownPositions.add(position);
+
+            if (cell.type === 0) {
+                return;
+            }
+
+            if (cell.type === 3) {
+                cell.score = pathfinder.findPath(spawnX, spawnY, x, y).length;
+                maxScore = Math.max(maxScore, cell.score);
+            }
+
+            for (const neighbor of neighbors(x, y)) {
+                scoreCell(neighbor.x, neighbor.y);
+            }
+        }
+
+        scoreCell(spawnX, spawnY);
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                this.cells[y][x].score /= maxScore;
+            }
+        }
     }
 
     static deserialize(inputJSON) {

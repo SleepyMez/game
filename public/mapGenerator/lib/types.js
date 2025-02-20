@@ -1,5 +1,3 @@
-import * as gameConfigs from "../../server/lib/config.js";
-
 export class MobSpawner {
     static idAccumulator = 0;
 

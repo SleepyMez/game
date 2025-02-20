@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <title>Map Editor</title>
     <style>
         * {
             font-family: sans-serif;
@@ -85,6 +86,9 @@
         <label for="mapHeight">Map Height:</label>
         <input type="number" id="mapHeight" value="64" min="16" max="255"> <br />
 
+        <label for="maxRarity">Maximum Rarity:</label>
+        <select id="maxRarity"></select> <br />
+
         <label for="brushType">Brush Type:</label>
         <select id="brushType">
             <option value="Mob Spawn">Mob Spawn</option>
@@ -94,7 +98,9 @@
         </select> <br />
 
         <label for="brushSize">Brush Size:</label>
-        <input type="number" id="brushSize" value="1" min="1" max="10">
+        <input type="number" id="brushSize" value="1" min="1" max="10"> <br />
+
+        <button id="calculateCellScores">Calculate Cell Scores</button> <br />
 
         <div id="mobSpawners">
             <h3>Mob Spawners:</h3>
