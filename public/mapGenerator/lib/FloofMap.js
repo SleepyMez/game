@@ -111,43 +111,6 @@ export default class FloofMap {
         this.cells = newCells;
     }
 
-    serialize() {
-        const output = {
-            width: this.width,
-            height: this.height,
-            cells: [],
-            mobSpawners: []
-        };
-
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                const cell = this.cells[y][x];
-
-                const cellObject = {
-                    x: x,
-                    y: y,
-                    type: cell.type
-                };
-
-                if (cell.mobSpawner !== null) {
-                    cellObject.spawn = cell.mobSpawner.id;
-                }
-
-                if (cell.type === 3) {
-                    cellObject.score = cell.score;
-                }
-
-                output.cells.push(cellObject);
-
-                if (cell.mobSpawner !== null && output.mobSpawners.findIndex(s => s.id === cell.mobSpawner.id) === -1) {
-                    output.mobSpawners.push(cell.mobSpawner.serialize());
-                }
-            }
-        }
-
-        return JSON.stringify(output);
-    }
-
     scoreCells() {
         let maxScore = 0;
 
@@ -250,5 +213,70 @@ export default class FloofMap {
         });
 
         return map;
+    }
+
+    serialize() {
+        const output = {
+            width: this.width,
+            height: this.height,
+            cells: [],
+            mobSpawners: [],
+            maxRarity: this.maxRarity
+        };
+
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = this.cells[y][x];
+
+                const cellObject = {
+                    x: x,
+                    y: y,
+                    type: cell.type
+                };
+
+                if (cell.mobSpawner !== null) {
+                    cellObject.spawn = cell.mobSpawner.id;
+                }
+
+                if (cell.type === 3) {
+                    cellObject.score = cell.score;
+                }
+
+                output.cells.push(cellObject);
+
+                if (cell.mobSpawner !== null && output.mobSpawners.findIndex(s => s.id === cell.mobSpawner.id) === -1) {
+                    output.mobSpawners.push(cell.mobSpawner.serialize());
+                }
+            }
+        }
+
+        return JSON.stringify(output);
+    }
+
+    deserialize(inputJSON) {
+        const input = JSON.parse(inputJSON);
+
+        this.resize(input.width, input.height);
+        this.maxRarity = input.maxRarity;
+
+        input.mobSpawners.forEach(s => {
+            spawners.set(s.id, MobSpawner.deserialize(s));
+        });
+
+        input.cells.forEach(c => {
+            this.set(c.x, c.y, c.type);
+
+            if (c.spawn != null) {
+                this.cells[c.y][c.x].mobSpawner = spawners.get(c.spawn);
+            } else {
+                this.cells[c.y][c.x].mobSpawner = null;
+            }
+
+            if (c.score != null) {
+                this.cells[c.y][c.x].score = c.score;
+            } else {
+                this.cells[c.y][c.x].score = 0;
+            }
+        });
     }
 }

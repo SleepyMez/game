@@ -1,5 +1,5 @@
 import * as gameConfigs from "../../server/lib/config.js";
-import { spawners } from "./FloofMap.js";
+import FloofMap, { spawners } from "./FloofMap.js";
 import { map, selectedMobSpawner, selectMobSpawner, setBrush, setBrushWidth } from "./state.js";
 import { mainCellTypes, MobSpawner } from "./types.js";
 
@@ -76,11 +76,47 @@ importButton.addEventListener("click", async () => {
     importElement.accept = ".json";
 
     importElement.addEventListener("change", async () => {
-        const file = importElement.files[0];
-        if (!file) return;
+        if (importElement.files[0] == null) {
+            return;
+        }
 
-        const text = await file.text();
-        map.deserialize(text);
+        map.deserialize(await importElement.files[0].text());
+
+        mapWidth.value = map.width;
+        mapHeight.value = map.height;
+        maxRarity.value = map.maxRarity;
+
+        mobSpawnersContainer.querySelectorAll("div.mobSpawner").forEach(spawner => spawner.remove());
+
+        spawners.forEach(spawner => {
+            console.log("Creating spawner", spawner);
+            const color = spawner.color;
+            createNewMobSpawner(spawner, false);
+            const mobSpawner = mobSpawnersContainer.lastElementChild;
+            mobSpawner.querySelector("input#autoGenerateRarities").checked = spawner.autoGenerateRarities;
+            mobSpawner.querySelector("input[type=color]").value = color;
+            spawner.color = color;
+
+            spawner.availableMobs.forEach((enablement, index) => {
+                console.log("Adding mob", index, enablement);
+                if (spawner.autoGenerateRarities) {
+                    const mobElement = document.createElement("div");
+                    mobElement.classList.add("mob");
+                    mobElement.innerHTML = `<span>${gameConfigs.mobConfigs[index].name}</span> <span style="color:#C8C8C8">(Auto)</span>`;
+                    mobElement.addEventListener("click", () => mobElement.remove());
+                    mobSpawner.querySelector("div.availableMobs").appendChild(mobElement);
+                } else {
+                    enablement.forEach(rarity => {
+                        console.log("Adding mob", index, rarity);
+                        const mobElement = document.createElement("div");
+                        mobElement.classList.add("mob");
+                        mobElement.innerHTML = `<span>${gameConfigs.mobConfigs[index].name}</span> <span style="color:${gameConfigs.tiers[rarity].color}">${gameConfigs.tiers[rarity].name}</span>`;
+                        mobElement.addEventListener("click", () => mobElement.remove());
+                        mobSpawner.querySelector("div.availableMobs").appendChild(mobElement);
+                    });
+                }
+            });
+        });
     });
 
     importElement.click();
@@ -89,8 +125,7 @@ importButton.addEventListener("click", async () => {
 const mobSpawnersContainer = document.querySelector("div#mobSpawners");
 const mobSpawnerTemplate = document.querySelector("template#mobSpawner");
 
-function createNewMobSpawner() {
-    const spawner = new MobSpawner();
+function createNewMobSpawner(spawner = new MobSpawner(), autoAdd = true) {
     const mobSpawner = mobSpawnerTemplate.content.cloneNode(true).querySelector("div.mobSpawner");
 
     const mobSelection = mobSpawner.querySelector("select#mobSelection");
@@ -119,7 +154,6 @@ function createNewMobSpawner() {
     }
     colorInput.addEventListener("input", updateColor);
     updateColor();
-
 
     const autoGenerateRarities = mobSpawner.querySelector("input#autoGenerateRarities");
     autoGenerateRarities.addEventListener("change", () => {
@@ -173,7 +207,9 @@ function createNewMobSpawner() {
     });
 
     mobSpawnersContainer.appendChild(mobSpawner);
-    spawners.set(spawner.id, spawner);
+    if (autoAdd) {
+        spawners.set(spawner.id, spawner);
+    }
 }
 
-document.querySelector("button#createMobSpawner").addEventListener("click", createNewMobSpawner);
+document.querySelector("button#createMobSpawner").addEventListener("click", () => createNewMobSpawner());

@@ -25,15 +25,15 @@ export class MobSpawner {
             return true;
         }
 
-        if (!this.availableMobs.has(rarity)) {
-            this.availableMobs.set(rarity, new Set());
+        if (!this.availableMobs.has(id)) {
+            this.availableMobs.set(id, new Set());
         }
 
-        if (this.availableMobs.get(rarity).has(id)) {
+        if (this.availableMobs.get(id).has(rarity)) {
             return false;
         }
 
-        this.availableMobs.get(rarity).add(id);
+        this.availableMobs.get(id).add(rarity);
         return true;
     }
 
@@ -62,7 +62,19 @@ export class MobSpawner {
             id: this.id,
             color: this.color,
             autoGenerateRarities: this.autoGenerateRarities,
-            availableMobs: Array.from(this.availableMobs.entries())
+            availableMobs: (() => {
+                const output = [];
+
+                this.availableMobs.forEach((value, key) => {
+                    if (value === true) {
+                        output.push([key, true]);
+                    } else {
+                        output.push([key, [...value]]);
+                    }
+                });
+
+                return output;
+            })()
         };
     }
 
@@ -72,17 +84,15 @@ export class MobSpawner {
         spawner.id = input.id;
         spawner.color = input.color;
         spawner.autoGenerateRarities = input.autoGenerateRarities;
-        spawner.availableMobs = new Map(input.availableMobs);
+        spawner.availableMobs = new Map();
 
-        if (!spawner.autoGenerateRarities) {
-            for (const [id, raritySet] of spawner.availableMobs) {
-                if (raritySet === true) {
-                    continue;
-                }
-
+        input.availableMobs.forEach(([id, raritySet]) => {
+            if (raritySet === true) {
+                spawner.availableMobs.set(id, true);
+            } else {
                 spawner.availableMobs.set(id, new Set(raritySet));
             }
-        }
+        });
 
         return spawner;
     }
@@ -105,3 +115,5 @@ export const mainCellTypes = [{
     name: "Mob Spawn",
     color: "#FFFFFF"
 }];
+
+window.MobSpawner = MobSpawner;
