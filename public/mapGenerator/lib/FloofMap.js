@@ -1,5 +1,6 @@
 import * as gameConfigs from "../../server/lib/config.js";
 import Pathfinder from "./Pathfinder.js";
+import { selectedMobSpawner } from "./state.js";
 import { mainCellTypes, MobSpawner } from "./types.js";
 
 /** @type {Map<number, MobSpawner>} */
@@ -36,12 +37,22 @@ export default class FloofMap {
     set(x, y, type = 0) {
         this.cells[y][x].type = type;
 
-        if (mainCellTypes[type].name === "Mob Spawn") {
-            if (spawners.size > 0) {
-                this.cells[y][x].mobSpawner = spawners.values().next().value;
-            }
+        if (mainCellTypes[type].name === "Mob Spawn" && selectedMobSpawner !== null) {
+            this.cells[y][x].mobSpawner = spawners.get(selectedMobSpawner);
         } else {
             this.cells[y][x].mobSpawner = null;
+        }
+    }
+
+    checkSpawners() {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = this.cells[y][x];
+
+                if (cell.mobSpawner !== null && !spawners.has(cell.mobSpawner.id)) {
+                    cell.mobSpawner = null;
+                }
+            }
         }
     }
 
@@ -115,12 +126,15 @@ export default class FloofMap {
                 const cellObject = {
                     x: x,
                     y: y,
-                    type: cell.type,
-                    spawn: cell.mobSpawner !== null ? cell.mobSpawner.id : null
+                    type: cell.type
                 };
 
-                if (cellObject.spawn === null) {
-                    delete cellObject.spawn;
+                if (cell.mobSpawner !== null) {
+                    cellObject.spawn = cell.mobSpawner.id;
+                }
+
+                if (cell.type === 3) {
+                    cellObject.score = cell.score;
                 }
 
                 output.cells.push(cellObject);
@@ -140,10 +154,21 @@ export default class FloofMap {
         const neighbors = (x, y) => {
             const n = [];
 
-            if (x > 0) n.push(this.cells[y][x - 1]);
-            if (x < this.width - 1) n.push(this.cells[y][x + 1]);
-            if (y > 0) n.push(this.cells[y - 1][x]);
-            if (y < this.height - 1) n.push(this.cells[y + 1][x]);
+            if (x > 0) {
+                n.push(this.cells[y][x - 1]);
+            }
+
+            if (x < this.width - 1) {
+                n.push(this.cells[y][x + 1]);
+            }
+
+            if (y > 0) {
+                n.push(this.cells[y - 1][x]);
+            }
+
+            if (y < this.height - 1) {
+                n.push(this.cells[y + 1][x]);
+            }
 
             return n;
         }
@@ -151,19 +176,20 @@ export default class FloofMap {
         let spawnX = -1,
             spawnY = -1;
 
-        for (let y = 0; y < this.height; y++) {
+        outer: for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const cell = this.cells[y][x];
 
                 if (cell.type === 1) {
                     spawnX = x;
                     spawnY = y;
-                    break;
+                    break outer;
                 }
             }
         }
 
         if (spawnX === -1 || spawnY === -1) {
+            alert("Map does not contain a spawn point.");
             throw new Error("Map does not contain a spawn point.");
         }
 
@@ -216,6 +242,10 @@ export default class FloofMap {
 
             if (c.spawn !== null) {
                 map.cells[c.y][c.x].mobSpawner = spawners.get(c.spawn);
+            }
+
+            if (c.score !== null) {
+                map.cells[c.y][c.x].score = c.score;
             }
         });
 

@@ -1,6 +1,6 @@
 import * as gameConfigs from "../../server/lib/config.js";
 import { spawners } from "./FloofMap.js";
-import { map, setBrush, setBrushWidth } from "./state.js";
+import { map, selectedMobSpawner, selectMobSpawner, setBrush, setBrushWidth } from "./state.js";
 import { mainCellTypes, MobSpawner } from "./types.js";
 
 const mapWidth = document.querySelector("input#mapWidth");
@@ -55,7 +55,7 @@ brushSize.addEventListener("input", () => {
     setBrushWidth(parseInt(brushSize.value));
 });
 
-document.querySelector("button#calculateCellScores").addEventListener("click", map.scoreCells);
+document.querySelector("button#calculateCellScores").addEventListener("click", map.scoreCells.bind(map));
 
 const mobSpawnersContainer = document.querySelector("div#mobSpawners");
 const mobSpawnerTemplate = document.querySelector("template#mobSpawner");
@@ -124,7 +124,15 @@ function createNewMobSpawner() {
     mobSpawner.querySelector("button#removeSpawner").addEventListener("click", () => {
         mobSpawner.remove();
         spawners.delete(spawner.id);
+
+        if (selectedMobSpawner === spawner.id) {
+            selectMobSpawner(null);
+        }
+
+        map.checkSpawners();
     });
+
+    mobSpawner.addEventListener("click", () => selectMobSpawner(spawner));
 
     mobSpawnersContainer.appendChild(mobSpawner);
     spawners.set(spawner.id, spawner);
