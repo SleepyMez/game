@@ -26,7 +26,8 @@ const config = {
     },
     entry: {
         bundle: "./public/index.js",  // Main bundle entry point
-        worker: "./public/server/index.js"  // Worker entry point
+        worker: "./public/server/index.js",  // Worker entry point
+        mapEditor: "./public/mapGenerator/index.js"  // Map editor entry point
     },
     output: {
         path: path.resolve(path.dirname(URL.fileURLToPath(import.meta.url)), "./build"),
@@ -135,6 +136,10 @@ const config = {
                 const workerPath = path.join(compiler.outputPath, "worker.js");
                 fs.mkdirSync(path.join(compiler.outputPath, "server"), { recursive: true });
                 fs.renameSync(workerPath, path.join(compiler.outputPath, "server", "index.js"));
+
+                // Find mapEditor.js and move it to /mapEditor/bundle.js
+                const mapEditorPath = path.join(compiler.outputPath, "mapEditor.js");
+                fs.renameSync(mapEditorPath, path.join(compiler.outputPath, "mapGenerator", "bundle.js"));
 
                 // Make a copy and append a comment to the start of it
                 let serverCode = fs.readFileSync(path.join(compiler.outputPath, "server", "index.js"), "utf8");

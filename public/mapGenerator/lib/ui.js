@@ -57,6 +57,35 @@ brushSize.addEventListener("input", () => {
 
 document.querySelector("button#calculateCellScores").addEventListener("click", map.scoreCells.bind(map));
 
+const exportButton = document.querySelector("button#export");
+exportButton.addEventListener("click", () => {
+    const blob = new Blob([map.serialize()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "map.json";
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+const importButton = document.querySelector("button#import");
+importButton.addEventListener("click", async () => {
+    const importElement = document.createElement("input");
+    importElement.type = "file";
+    importElement.accept = ".json";
+
+    importElement.addEventListener("change", async () => {
+        const file = importElement.files[0];
+        if (!file) return;
+
+        const text = await file.text();
+        map.deserialize(text);
+    });
+
+    importElement.click();
+});
+
 const mobSpawnersContainer = document.querySelector("div#mobSpawners");
 const mobSpawnerTemplate = document.querySelector("template#mobSpawner");
 
@@ -132,7 +161,16 @@ function createNewMobSpawner() {
         map.checkSpawners();
     });
 
-    mobSpawner.addEventListener("click", () => selectMobSpawner(spawner));
+    mobSpawner.addEventListener("click", () => {
+        if (selectedMobSpawner === spawner.id) {
+            selectMobSpawner(null);
+            mobSpawner.classList.remove("selected");
+        } else {
+            selectMobSpawner(spawner);
+            document.querySelectorAll("div.mobSpawner").forEach(spawner => spawner.classList.remove("selected"));
+            mobSpawner.classList.add("selected");
+        }
+    });
 
     mobSpawnersContainer.appendChild(mobSpawner);
     spawners.set(spawner.id, spawner);

@@ -71,7 +71,12 @@
         }
 
         .mobSpawner.selected {
-            background-color: rgba(0, 0, 0, .9);
+            background-color: rgba(64, 64, 72, .9);
+        }
+
+        #mobSpawners {
+            overflow-y: auto;
+            max-height: 48vh;
         }
     </style>
 
@@ -105,9 +110,11 @@
         <input type="number" id="brushSize" value="1" min="1" max="10"> <br />
 
         <button id="calculateCellScores">Calculate Cell Scores</button> <br />
+        <button id="export">Export Mapfile</button>
+        <button id="import">Import Mapfile</button> <br />
 
         <div id="mobSpawners">
-            <h3>Mob Spawners:</h3>
+            <h3>Mob Spawners (Click to select):</h3>
             <button id="createMobSpawner">+</button>
             <template id="mobSpawner">
                 <div class="mobSpawner">
