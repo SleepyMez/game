@@ -88,9 +88,9 @@ export class PetalTier {
 }
 
 export class MobTier {
-    static HEALTH_SCALE = 3.1;
+    static HEALTH_SCALE = 3.15;
     static DAMAGE_SCALE = 3;
-    static SIZE_SCALE = 1.3;
+    static SIZE_SCALE = 1.275;
 
     constructor(tier, health, damage, size) {
         this.health = health * Math.pow(MobTier.HEALTH_SCALE, tier);
@@ -99,7 +99,7 @@ export class MobTier {
 
         this.damageReduction = 0;
 
-        /** @type {{petalIndex: number, cooldown: number, health: number, damage: number, speed: number, range: number, size: number, multiShot: {count:number,delay:number}|null}|null} */
+        /** @type {{aimbot: boolean, petalIndex: number, cooldown: number, health: number, damage: number, speed: number, range: number, size: number, multiShot: {count:number,delay:number}|null}|null} */
         this.projectile = null;
 
         /** @type {{speedMultiplier: number, duration: number}|null} */
@@ -634,7 +634,7 @@ export class MobConfig {
         return this;
     }
 
-    /** @param {{petalIndex: number, cooldown: number, health: number, damage: number, speed: number, range: number, size: number, multiShot: {count:number,delay:number,spread:number}|null, runs: boolean, nullCollision: boolean}} projectile */
+    /** @param {{aimbot: boolean, petalIndex: number, cooldown: number, health: number, damage: number, speed: number, range: number, size: number, multiShot: {count:number,delay:number,spread:number}|null, runs: boolean, nullCollision: boolean}} projectile */
     setProjectile(projectile = {}) {
         for (let i = 0; i < this.tiers.length; i++) {
             this.tiers[i].projectile = {
@@ -647,7 +647,8 @@ export class MobConfig {
                 size: projectile.size ?? .35,
                 multiShot: projectile.multiShot ?? null,
                 runs: projectile.runs ?? false,
-                nullCollision: projectile.nullCollision ?? false
+                nullCollision: projectile.nullCollision ?? false,
+                aimbot: projectile.aimbot ?? false
             };
         }
 

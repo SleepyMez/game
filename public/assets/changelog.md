@@ -1,5 +1,11 @@
-# Update (02/22/2025):
-- Imposed a router-side
+# Update (02/23/2025):
+- Imposed a router-side restriction on the number of rarities you can add (24)
+- Fixed a bug where sometimes your name wouldn't save
+- Improved the usability of the floof_dev API
+- Nerfed Deity's extra vision since I don't like it
+- Nerfed Dandelion Missile Speed
+- Rebalanced Hornet, Wasp, Hell Yellowjacket
+- Hell Yellowjacket and Tank now have aimbot
 
 # Update (02/17/2025): 
 - Added checkpoint support!

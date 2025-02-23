@@ -169,7 +169,7 @@ export const petalConfigs = [
         .setDamageReduction(.2)
         .setExtraRadians(.01)
         .setExtraRange(1.05)
-        .setExtraVision(50)
+        .setExtraVision(5)
         .setPoison(5, 10)
         .setSpeedMultiplier(1.05)
         .setWingMovement(1)
@@ -217,7 +217,7 @@ export const petalConfigs = [
     new PetalConfig("Dandelion", 22, 8, 11)
         .setMulti(2, false)
         .setSize(1.4)
-        .setLaunchable(.7, 35)
+        .setLaunchable(.575, 35)
         .setEnemySpeedMultiplier(.65, 6)
         .setDescription("A paralyzing force."),
     new PetalConfig("Sponge", 22.5, 24, 0)
@@ -410,10 +410,10 @@ export const mobConfigs = [
         .setProjectile({
             petalIndex: petalIDOf("Missile"),
             cooldown: 45,
-            health: 3,
-            damage: 3,
-            speed: 4.5,
-            range: 45
+            health: 4,
+            damage: 5,
+            speed: 3.75,
+            range: 55
         })
         .addDrop(petalIDOf("Missile"))
         .addDrop(petalIDOf("Antennae"), .5)
@@ -751,8 +751,9 @@ export const mobConfigs = [
             cooldown: 85,
             health: 4,
             damage: 4,
-            speed: 5,
-            range: 65
+            speed: 4.5,
+            range: 65,
+            aimbot: true
         })
         .setPushability(0.8)
         .addDrop(petalIDOf("Missile"))
@@ -770,7 +771,7 @@ export const mobConfigs = [
             cooldown: 95,
             health: 13,
             damage: 1.25,
-            speed: 1.5,
+            speed: 2.25,
             range: 185,
             multiShot: {
                 count: 3,
@@ -842,16 +843,17 @@ export const mobConfigs = [
         .setAggressive(1)
         .setProjectile({
             petalIndex: petalIDOf("projectile.diep_bullet"),
-            cooldown: 16,
+            cooldown: 12,
             health: 12,
             damage: 2,
             speed: 4,
             range: 50,
-            size: .4
+            size: .4,
+            aimbot: true
         })
-        .addDrop(petalIDOf("Square Egg", .1))
-        .addDrop(petalIDOf("Triangle Egg", .05))
-        .addDrop(petalIDOf("Pentagon Egg", .01))
+        .addDrop(petalIDOf("Square Egg"), .1)
+        .addDrop(petalIDOf("Triangle Egg"), .05)
+        .addDrop(petalIDOf("Pentagon Egg"), .01)
 ];
 
 // Flu: Wing, Faster, Third Eye

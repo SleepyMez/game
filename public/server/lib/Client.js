@@ -1059,11 +1059,13 @@ export default class Client {
                         }
                     } break;
                     case DEV_CHEAT_IDS.SPAWN_MOB: {
+                        const promiseID = reader.getUint32();
                         const index = reader.getUint8();
                         const rarity = reader.getUint8();
 
                         if (index < 0 || index >= petalConfigs.length) {
                             return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                promiseID: promiseID,
                                 ok: false,
                                 message: "Index out of range"
                             });
@@ -1071,6 +1073,7 @@ export default class Client {
 
                         if (rarity < 0 || rarity >= tiers.length) {
                             return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                promiseID: promiseID,
                                 ok: false,
                                 message: "Rarity out of range"
                             });
@@ -1078,8 +1081,22 @@ export default class Client {
 
                         const mob = new Mob(state.random());
                         mob.define(mobConfigs[index], rarity);
+                        this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                            promiseID: promiseID,
+                            ok: true,
+                            mob: {
+                                id: mob.id,
+                                index: index,
+                                rarity: rarity,
+                                position: {
+                                    x: mob.x,
+                                    y: mob.y
+                                }
+                            }
+                        });
                     } break;
                     case DEV_CHEAT_IDS.SET_PETAL: {
+                        const promiseID = reader.getUint32();
                         const clientID = reader.getUint32();
                         const slotID = reader.getUint8();
                         const index = reader.getUint8();
@@ -1088,6 +1105,7 @@ export default class Client {
                         const client = state.clients.get(clientID);
                         if (!client) {
                             return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                promiseID: promiseID,
                                 ok: false,
                                 message: "Client not found"
                             });
@@ -1095,6 +1113,7 @@ export default class Client {
 
                         if (slotID < 0 || slotID >= client.slots.length) {
                             return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                promiseID: promiseID,
                                 ok: false,
                                 message: "Slot not found"
                             });
@@ -1102,6 +1121,7 @@ export default class Client {
 
                         if (index < 0 || index >= petalConfigs.length) {
                             return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                promiseID: promiseID,
                                 ok: false,
                                 message: "Index out of range"
                             });
@@ -1109,6 +1129,7 @@ export default class Client {
 
                         if (rarity < 0 || rarity >= tiers.length) {
                             return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                promiseID: promiseID,
                                 ok: false,
                                 message: "Rarity out of range"
                             });
@@ -1121,26 +1142,35 @@ export default class Client {
                         }
 
                         this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                            promiseID: promiseID,
                             ok: true,
                             message: "Petal set"
                         });
                     } break;
                     case DEV_CHEAT_IDS.SET_XP: {
+                        const promiseID = reader.getUint32();
                         const clientID = reader.getUint32();
                         const xp = reader.getUint32();
 
                         const client = state.clients.get(clientID);
                         if (!client) {
                             return this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                                promiseID: promiseID,
                                 ok: false,
                                 message: "Client not found"
                             });
                         }
 
                         client.addXP(xp - client.xp);
+                        this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                            promiseID: promiseID,
+                            ok: true,
+                            message: "XP set"
+                        });
                     } break;
                     case DEV_CHEAT_IDS.INFO_DUMP: {
                         this.talk(CLIENT_BOUND.JSON_MESSAGE, {
+                            promiseID: reader.getUint32(),
                             ok: true,
                             entitiesSize: state.entities.size,
                             clients: Array.from(state.clients.values()).map(client => ({

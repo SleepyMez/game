@@ -840,12 +840,13 @@ export class ClientSocket extends WebSocket {
         }
 
         handle(id, data) {
-            const job = this.jobs.get(id);
-
-            if (job) {
-                job(data);
-                this.jobs.delete(id);
+            if (!this.jobs.has(id)) {
+                return false;
             }
+
+            this.jobs.get(id)(data);
+            this.jobs.delete(id);
+            return true;
         }
     }
 
@@ -865,12 +866,60 @@ export class ClientSocket extends WebSocket {
             this.devCheatListener = new ClientSocket.Listener(this);
 
             window.floof_dev = {
-                spawnMob:  (index, rarity) => this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SPAWN_MOB, index, rarity }),
-                setPetal: (clientID, slotID, index, rarity) => this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SET_PETAL, clientID, slotID, index, rarity }),
+                spawnMob:  (index, rarity) => {
+                    if (typeof index === "string") {
+                        index = state.mobConfigs.findIndex(m => m.name === index);
+
+                        if (index === -1) {
+                            return new Promise(resolve => resolve({
+                                ok: false,
+                                message: "Invalid mob name"
+                            }));
+                        }
+                    }
+
+                    if (typeof rarity === "string") {
+                        rarity = state.tiers.findIndex(t => t.name === rarity);
+
+                        if (rarity === -1) {
+                            return new Promise(resolve => resolve({
+                                ok: false,
+                                message: "Invalid rarity name"
+                            }));
+                        }
+                    }
+
+                    return this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SPAWN_MOB, index, rarity });
+                },
+                setPetal: (clientID, slotID, index, rarity) => {
+                    if (typeof index === "string") {
+                        index = state.petalConfigs.findIndex(p => p.name === index);
+
+                        if (index === -1) {
+                            return new Promise(resolve => resolve({
+                                ok: false,
+                                message: "Invalid petal name"
+                            }));
+                        }
+                    }
+
+                    if (typeof rarity === "string") {
+                        rarity = state.tiers.findIndex(t => t.name === rarity);
+
+                        if (rarity === -1) {
+                            return new Promise(resolve => resolve({
+                                ok: false,
+                                message: "Invalid rarity name"
+                            }));
+                        }
+                    }
+
+                    console.log(clientID, slotID, index, rarity);
+
+                    return this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SET_PETAL, clientID, slotID, index, rarity });
+                },
                 setXP: (clientID, xp) => this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SET_XP, clientID, xp }),
-                infoDump: () => {
-                    this.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.INFO_DUMP);
-                }
+                infoDump: () => this.devCheatListener.wait({ id: DEV_CHEAT_IDS.INFO_DUMP }),
             };
         }
 
@@ -1283,7 +1332,17 @@ export class ClientSocket extends WebSocket {
                 loadAssets(this.lobbyID);
                 break;
             case CLIENT_BOUND.JSON_MESSAGE:
-                console.log(JSON.parse(reader.getStringUTF8()));
+                if (this.devCheatListener) {
+                    const data = JSON.parse(reader.getStringUTF8());
+                    if (!this.devCheatListener.handle(data.promiseID, (() => {
+                        delete data.promiseID;
+                        return data;
+                    })())) {
+                        console.warn("Unhandled JSON message", data);
+                    }
+                } else {
+                    console.warn("Received JSON message without a listener:", reader.getStringUTF8());
+                }
                 break;
             case CLIENT_BOUND.PONG:
                 state.ping = performance.now() - this.pingStart;
@@ -1422,18 +1481,24 @@ export class ClientSocket extends WebSocket {
                         writer.setUint32(id);
                         break;
                     case DEV_CHEAT_IDS.SPAWN_MOB:
+                        writer.setUint32(data.promiseID);
                         writer.setUint8(data.index);
                         writer.setUint8(data.rarity);
                         break;
                     case DEV_CHEAT_IDS.SET_PETAL:
+                        writer.setUint32(data.promiseID);
                         writer.setUint32(data.clientID);
                         writer.setUint8(data.slotID);
                         writer.setUint8(data.index);
                         writer.setUint8(data.rarity);
                         break;
                     case DEV_CHEAT_IDS.SET_XP:
+                        writer.setUint32(data.promiseID);
                         writer.setUint32(data.clientID);
                         writer.setUint32(data.xp);
+                        break;
+                    case DEV_CHEAT_IDS.INFO_DUMP:
+                        writer.setUint32(data.promiseID);
                         break;
                 }
             } break;

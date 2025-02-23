@@ -222,60 +222,59 @@ window.addEventListener("keydown", e => {
         net.state.isDead = false;
         return;
     }
-
-    switch (e.key.toLowerCase()) {
-        case ";":
-            net.state.socket.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.GODMODE);
-            break;
-        case "t":
-            net.state.socket.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.TELEPORT);
-            break;
-        case "z":
-            net.state.socket.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.CHANGE_TEAM);
-            break;
-        case "x":
-            if (net.state.socket?.readyState === WebSocket.OPEN) {
-                for (let i = 0; i < net.state.slots.length; i++) {
-                    if (net.state.slots[i].index > -1 && net.state.secondarySlots[i]?.index > -1) {
-                        net.state.socket.talk(SERVER_BOUND.CHANGE_LOADOUT, {
-                            drag: {
-                                type: net.state.isInDestroy ? DRAG_TYPE_SECONDARYDOCKER : DRAG_TYPE_MAINDOCKER,
-                                index: i
-                            },
-                            drop: {
-                                type: net.state.isInDestroy ? DRAG_TYPE_DESTROY : DRAG_TYPE_SECONDARYDOCKER,
-                                index: i
-                            }
-                        });
+    if (net.state.socket?.readyState === WebSocket.OPEN) {
+        switch (e.key.toLowerCase()) {
+            case ";":
+                net.state.socket.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.GODMODE);
+                break;
+            case "t":
+                net.state.socket.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.TELEPORT);
+                break;
+            case "z":
+                net.state.socket.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.CHANGE_TEAM);
+                break;
+            case "x":
+                if (net.state.socket?.readyState === WebSocket.OPEN) {
+                    for (let i = 0; i < net.state.slots.length; i++) {
+                        if (net.state.slots[i].index > -1 && net.state.secondarySlots[i]?.index > -1) {
+                            net.state.socket.talk(SERVER_BOUND.CHANGE_LOADOUT, {
+                                drag: {
+                                    type: net.state.isInDestroy ? DRAG_TYPE_SECONDARYDOCKER : DRAG_TYPE_MAINDOCKER,
+                                    index: i
+                                },
+                                drop: {
+                                    type: net.state.isInDestroy ? DRAG_TYPE_DESTROY : DRAG_TYPE_SECONDARYDOCKER,
+                                    index: i
+                                }
+                            });
+                        }
                     }
                 }
-            }
-            break;
-        case "k":
-            net.state.isInDestroy = true;
-            break;
-    }
-
-    if (e.key >= "0" && e.key <= "9") {
-        const index = e.key === "0" ? 9 : parseInt(e.key) - 1;
-
-        if (net.state.socket?.readyState === WebSocket.OPEN && index < net.state.slots.length && net.state.slots[index].index > -1 && net.state.secondarySlots[index]?.index > -1) {
-            net.state.socket.talk(SERVER_BOUND.CHANGE_LOADOUT, {
-                drag: {
-                    type: net.state.isInDestroy ? DRAG_TYPE_SECONDARYDOCKER : DRAG_TYPE_MAINDOCKER,
-                    index
-                },
-                drop: {
-                    type: net.state.isInDestroy ? DRAG_TYPE_DESTROY : DRAG_TYPE_SECONDARYDOCKER,
-                    index
-                }
-            });
+                break;
+            case "k":
+                net.state.isInDestroy = true;
+                break;
         }
-    }
 
-    keyMap.add(e.key.toLowerCase());
+        if (e.key >= "0" && e.key <= "9") {
+            const index = e.key === "0" ? 9 : parseInt(e.key) - 1;
 
-    if (net.state.socket?.readyState === WebSocket.OPEN) {
+            if (net.state.socket?.readyState === WebSocket.OPEN && index < net.state.slots.length && net.state.slots[index].index > -1 && net.state.secondarySlots[index]?.index > -1) {
+                net.state.socket.talk(SERVER_BOUND.CHANGE_LOADOUT, {
+                    drag: {
+                        type: net.state.isInDestroy ? DRAG_TYPE_SECONDARYDOCKER : DRAG_TYPE_MAINDOCKER,
+                        index
+                    },
+                    drop: {
+                        type: net.state.isInDestroy ? DRAG_TYPE_DESTROY : DRAG_TYPE_SECONDARYDOCKER,
+                        index
+                    }
+                });
+            }
+        }
+
+        keyMap.add(e.key.toLowerCase());
+
         processInputs();
     }
 });
@@ -501,7 +500,7 @@ function draw() {
     net.state.drops.forEach(entity => {
         let drawX = entity.x * scale - cameraX + halfWidth,
             drawY = entity.y * scale - cameraY + halfHeight,
-            outlineTimer = (Math.sin(performance.now()/250 + entity.id) + 1.5);
+            outlineTimer = (Math.sin(performance.now() / 250 + entity.id) + 1.5);
         ctx.save();
         ctx.translate(drawX, drawY);
         ctx.scale(entity.size * scale, entity.size * scale);
@@ -919,8 +918,8 @@ function draw() {
             drawBar(175, 275, 210, 22.5, colors["???"]);
             drawBar(175, 175 + 100 * net.state.levelProgress, 210, 15, colors.playerYellow);
             text("Level " + net.state.level, 225, 210, 12);
-        } 
-        
+        }
+
         if (!isHalloween || net.state.room.biome !== BIOME_TYPES.HALLOWEEN) { // Minimap
             const doTerrain = net.state.terrain?.blocks?.length > 0;
             const biggestSize = doTerrain ? 275 : Math.abs(1 - net.state.room.width / net.state.room.height) < .1 ? 150 : 200;
@@ -958,7 +957,7 @@ function draw() {
             );
             ctx.fill();
         }
-        
+
         { // Chat
             ctx.save();
             ctx.translate(10, height - 10);
@@ -967,7 +966,7 @@ function draw() {
             const messages = net.ChatMessage.messages;
             const msgSize = 18;
 
-            for (let i = 0; i < messages.length; i ++) {
+            for (let i = 0; i < messages.length; i++) {
                 heights.push(drawWrappedText(messages[i].completeMessage, -2048, -2048, msgSize, maxWidth));
             }
 
@@ -1005,11 +1004,11 @@ function draw() {
             ctx.textBaseline = "top";
             y -= heights[heights.length - 1];
 
-            for (let i =  messages.length - 1; i >= 0; i --) {
+            for (let i = messages.length - 1; i >= 0; i--) {
                 const message = messages[i];
 
                 message.y = lerp(message.y, y, .2);
-                message.ticker ++;
+                message.ticker++;
 
                 if (message.ticker > (clientDebug.fps * 7.5) - messages.length * 2) {
                     net.ChatMessage.messages.splice(i, 1);

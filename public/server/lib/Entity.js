@@ -1678,7 +1678,7 @@ export class Mob extends Entity {
         this.rarity = 0;
         this.facing = Math.random() * Math.PI * 2;
         this.movementAngle = Math.random() * Math.PI * 2;
-        this.movementStrength = 0;
+        this.moveStrength = 0;
         this.tick = 0;
         this.team = -69;
         this.aggressive = false;
@@ -2095,7 +2095,7 @@ export class Mob extends Entity {
 
                     if (dist > Math.pow(this.size * 5 + this.target.size * 4 + 50, 2)) {
                         this.movementAngle = angle;
-                        this.movementStrength = this.speed;
+                        this.moveStrength = this.speed;
                         this.extraTicker = angle + Math.PI + (Math.random() * Math.PI / 1.5) - (Math.PI / 3);
                     } else {
                         const orbitDist = (Math.sin(this.extraTicker) * .7 + .6) * (this.target.size * 10 + this.size * 5);
@@ -2109,16 +2109,16 @@ export class Mob extends Entity {
                         }
 
                         this.movementAngle = a2;
-                        this.movementStrength = this.speed;
+                        this.moveStrength = this.speed;
                     }
                 } else if (this.movesInBursts) {
                     if (this.tick <= 0) {
                         this.tick = 35 - this.rarity;
                         this.movementAngle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
-                        this.movementStrength = this.speed;
+                        this.moveStrength = this.speed;
                     }
 
-                    this.movementStrength *= .7;
+                    this.moveStrength *= .7;
                 } else if (this.strafes?.cTick < this.strafes?.cooldown) {
                     this.strafes.cTick++;
                 } else {
@@ -2128,24 +2128,24 @@ export class Mob extends Entity {
                         const diff = quickDiff(this, this.target);
 
                         if (diff < Math.pow(this.config.tiers[this.rarity].lightning.range, 2) * .85) {
-                            this.movementStrength = 0;
+                            this.moveStrength = 0;
                         } else {
-                            this.movementStrength = this.speed;
+                            this.moveStrength = this.speed;
                         }
                     } else if (this.projectile && !this.strafes || this.strafes?.mTick > this.strafes?.length) {
                         if (this.projectile.runs === false) {
                             const diff = quickDiff(this, this.target);
 
                             if (diff < Math.pow(this.projectile.range * this.projectile.speed, 2) * .85) {
-                                this.movementStrength = 0;
+                                this.moveStrength = 0;
                             } else {
-                                this.movementStrength = this.speed;
+                                this.moveStrength = this.speed;
                             }
                         } else {
-                            this.movementStrength = this.speed;
+                            this.moveStrength = this.speed;
                         }
                     } else {
-                        this.movementStrength = this.speed;
+                        this.moveStrength = this.speed;
                     }
 
                     if (this.health.ratio < this.fleeAtLowHealth) {
@@ -2156,7 +2156,7 @@ export class Mob extends Entity {
                     if (this.strafes) {
                         if (this.strafes.mTick < this.strafes.length) {
                             this.movementAngle += (this.strafes.direction == 0 ? Math.PI : -Math.PI) / 2;
-                            this.movementStrength *= this.strafes.speedMult;
+                            this.moveStrength *= this.strafes.speedMult;
                             this.strafes.cTick = this.strafes.cooldown;
 
                             if (Math.random() < .025) this.strafes.direction = !this.strafes.direction;
@@ -2169,28 +2169,28 @@ export class Mob extends Entity {
                 }
 
             } else if (this.movesInBursts) {
-                this.movementStrength *= .7;
+                this.moveStrength *= .7;
             } else {
                 if (this.parent.type === ENTITY_TYPES.PLAYER) {
                     this.movementAngle = Math.atan2(this.parent.y - this.y, this.parent.x - this.x);
-                    this.movementStrength = quickDiff(this, this.parent) < this.size + this.parent.size * 2 ? 0 : this.speed;
+                    this.moveStrength = quickDiff(this, this.parent) < this.size + this.parent.size * 2 ? 0 : this.speed;
                 } else {
                     if (this.tick <= 0) {
                         this.tick = 25 + Math.random() * 100 | 0;
                         this.movementAngle = Math.random() * Math.PI * 2;
-                        this.movementStrength = this.speed;
+                        this.moveStrength = this.speed;
                     }
                 }
 
-                this.movementStrength *= .95;
+                this.moveStrength *= .95;
             }
 
             if (this.config.moveInSines) {
                 this.movementAngle += Math.sin(performance.now() / 120 + this.id) * .1 * this.velocity.magnitude;
             }
 
-            this.velocity.x += Math.cos(this.movementAngle) * this.movementStrength;
-            this.velocity.y += Math.sin(this.movementAngle) * this.movementStrength;
+            this.velocity.x += Math.cos(this.movementAngle) * this.moveStrength;
+            this.velocity.y += Math.sin(this.movementAngle) * this.moveStrength;
 
             if (this.spins) {
                 this.facing += (this.spins.constant == false ? this.velocity.magnitude : 1) / this.speed * .1 * this.spins.rate;
@@ -2205,6 +2205,14 @@ export class Mob extends Entity {
 
         if (this.projectile !== null) {
             this.projectile.tick++;
+
+            if (this.projectile.aimbot && this.target?.velocity.magnitude > 0) {
+                const dist = Math.sqrt(quickDiff(this, this.target));
+                const time = dist / this.projectile.speed / 2;
+                const targetX = this.target.x + this.target.velocity.x * time;
+                const targetY = this.target.y + this.target.velocity.y * time;
+                this.facing = Math.atan2(targetY - this.y, targetX - this.x);
+            }
 
             if (this.target?.health.ratio > .001 && this.projectile.tick >= this.projectile.cooldown) {
                 this.projectile.tick = 0;
@@ -2228,7 +2236,7 @@ export class Mob extends Entity {
                             petal.spinSpeed = 0;
                             petal.nullCollision = this.projectile.nullCollision;
 
-                            let ang = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+                            let ang = this.facing;
 
                             if (this.projectile.multiShot.spread > 0) {
                                 ang += (Math.random() - .5) * this.projectile.multiShot.spread;
@@ -2250,7 +2258,7 @@ export class Mob extends Entity {
                     petal.range = this.projectile.range;
                     petal.spinSpeed = 0;
                     petal.nullCollision = this.projectile.nullCollision;
-                    petal.facing = petal.moveAngle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+                    petal.facing = petal.moveAngle = this.facing;
                 }
             }
         }
