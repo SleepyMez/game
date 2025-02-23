@@ -478,6 +478,89 @@ class SpongeStack {
     }
 }
 
+export class Gun {
+    /** @param {Entity} entity */
+    constructor(entity) {
+        this.entity = entity;
+
+        this.petalIndex = 0;
+        this.range = 0;
+        this.reload = 0;
+        this.tick = 0;
+        this.delay = 0;
+
+        this.animation = 0;
+        this.animationDirection = 0;
+
+        this.length = 0;
+        this.width = 0;
+        this.angle = 0;
+        this.offset = 0;
+        this.direction = 0;
+
+        this.health = 0;
+        this.damage = 0;
+        this.speed = 0;
+    }
+
+    update() {
+        this.tick++;
+        this.animation += this.animationDirection;
+
+        if (this.animation <= .8) {
+            this.animationDirection = .1;
+        }
+
+        if (this.animation >= 1) {
+            this.animation = 1;
+            this.animationDirection = 0;
+        }
+
+        let fire = false;
+
+        if (this.entity.type === ENTITY_TYPES.MOB) {
+            fire = this.entity.target && this.entity.target.health.ratio > 0;
+        } else if (this.entity.type === ENTITY_TYPES.PETAL) {
+            fire = this.entity.parent.attack;
+        }
+
+        if (!fire) {
+            this.tick = Math.min(this.tick, this.reload * this.delay);
+            return;
+        }
+
+        if (this.tick >= this.reload) {
+            this.tick = 0;
+            this.shoot();
+        }
+    }
+
+    shoot() {
+        let gx = this.offset * Math.cos(this.entity.facing + this.direction) + this.length * Math.cos(this.entity.facing + this.angle),
+            gy = this.offset * Math.sin(this.entity.facing + this.direction) + this.length * Math.sin(this.entity.facing + this.angle);
+
+        const bullet = new Petal(this.entity.parent, -1, -1);
+        bullet.define(petalConfigs[this.petalIndex], this.entity.rarity);
+        bullet.x = this.entity.x + gx * this.entity.size;
+        bullet.y = this.entity.y + gy * this.entity.size;
+        bullet.size = this.entity.size * this.width;
+        bullet.facing = this.entity.facing + this.angle;
+
+        bullet.speed = this.speed;
+        bullet.damage = this.damage;
+        bullet.range = this.range;
+        bullet.launched = true;
+
+        bullet.health.set(this.health);
+
+        bullet.velocity.x = Math.cos(bullet.facing) * bullet.speed;
+        bullet.velocity.y = Math.sin(bullet.facing) * bullet.speed;
+
+        this.animation = 1;
+        this.animationDirection = -1;
+    }
+}
+
 export class Entity {
     static idAccumulator = 1; // 0 is reserved for the protocol as a flag
 
@@ -540,6 +623,9 @@ export class Entity {
             x: this.x,
             y: this.y
         };
+
+        /** @type {Gun[]} */
+        this.guns = [];
 
         state.entities.set(this.id, this);
     }
@@ -974,6 +1060,7 @@ export class Petal extends Entity {
         this.launchedAt = null;
         this.attractsLightning = false;
         this.placeDown = false;
+        this.rarity = 0;
 
         /** @type {{damage:number,range:number,bounces:number,charges:number,chargesLeft:number}|null} */
         this.lightning = null;
@@ -986,6 +1073,7 @@ export class Petal extends Entity {
     /** @param {PetalConfig} config @param {number} rarity */
     define(config, rarity) {
         const tier = config.tiers[rarity];
+        this.rarity = rarity;
 
         this.health.set(tier.health);
         this.damage = tier.damage;
@@ -1487,7 +1575,7 @@ export class AIPlayer extends Player {
         for (let i = 0; i < this.petalSlots.length; i++) {
             const pRarity = Math.max(0, rarity - Math.random() * 2 | 0);
             const petalID = randomPossiblePetal(rarity);
-            this.client.slots[i] = {id: petalID, rarity: pRarity};
+            this.client.slots[i] = { id: petalID, rarity: pRarity };
             this.petalSlots[i].define(petalConfigs[petalID], pRarity);
         }
 
@@ -1546,7 +1634,7 @@ export class AIPlayer extends Player {
                     new Drop({
                         x: this.x + Math.random() * 75 - 37.5,
                         y: this.y + Math.random() * 75 - 37.5
-                    }, client, this.petalSlots[i].config.id, Math.min(client.highestRarity+1, this.petalSlots[i].rarity));
+                    }, client, this.petalSlots[i].config.id, Math.min(client.highestRarity + 1, this.petalSlots[i].rarity));
                 }
             }
         });

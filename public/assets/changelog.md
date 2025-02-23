@@ -1,3 +1,6 @@
+# Update (02/22/2025):
+- Imposed a router-side
+
 # Update (02/17/2025): 
 - Added checkpoint support!
 - All maps have been updated to support checkpoints

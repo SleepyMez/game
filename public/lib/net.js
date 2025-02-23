@@ -560,7 +560,7 @@ export function createServer(name, gamemode, modded, isPrivate, biome) {
                     if (!ok) {
                         resolve({
                             ok: false,
-                            error: "Request rejected by server"
+                            error: "Request rejected by server: " + new TextDecoder().decode(data.slice(2, -1))
                         });
                     }
 
@@ -822,6 +822,33 @@ export class ChatMessage {
 new ChatMessage(1, "Welcome to the game!", "#FFFFFF");
 
 export class ClientSocket extends WebSocket {
+    static Listener = class Listener {
+        /** @param {ClientSocket} socket */
+        constructor(socket) {
+            this.jobID = 0;
+            this.socket = socket;
+
+            this.jobs = new Map();
+        }
+
+        wait(data) {
+            return new Promise(resolve => {
+                const id = this.jobID++;
+                this.socket.talk(SERVER_BOUND.DEV_CHEAT, { promiseID: id, ...data });
+                this.jobs.set(id, resolve);
+            });
+        }
+
+        handle(id, data) {
+            const job = this.jobs.get(id);
+
+            if (job) {
+                job(data);
+                this.jobs.delete(id);
+            }
+        }
+    }
+
     constructor(url, username) {
         super(url);
 
@@ -835,16 +862,12 @@ export class ClientSocket extends WebSocket {
         this.lobbyID = "";
 
         if (localStorage.token?.length > 4) {
+            this.devCheatListener = new ClientSocket.Listener(this);
+
             window.floof_dev = {
-                spawnMob: (index, rarity) => {
-                    this.talk(SERVER_BOUND.DEV_CHEAT, { id: DEV_CHEAT_IDS.SPAWN_MOB, index, rarity });
-                },
-                setPetal: (clientID, slotID, index, rarity) => {
-                    this.talk(SERVER_BOUND.DEV_CHEAT, { id: DEV_CHEAT_IDS.SET_PETAL, clientID, slotID, index, rarity });
-                },
-                setXP: (clientID, xp) => {
-                    this.talk(SERVER_BOUND.DEV_CHEAT, { id: DEV_CHEAT_IDS.SET_XP, clientID, xp });
-                },
+                spawnMob:  (index, rarity) => this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SPAWN_MOB, index, rarity }),
+                setPetal: (clientID, slotID, index, rarity) => this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SET_PETAL, clientID, slotID, index, rarity }),
+                setXP: (clientID, xp) => this.devCheatListener.wait({ id: DEV_CHEAT_IDS.SET_XP, clientID, xp }),
                 infoDump: () => {
                     this.talk(SERVER_BOUND.DEV_CHEAT, DEV_CHEAT_IDS.INFO_DUMP);
                 }

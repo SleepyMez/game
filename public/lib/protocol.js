@@ -113,6 +113,19 @@ export class MobTier {
     }
 }
 
+export class GunConfig {
+    constructor(length, width, offsetX, offsetY, angle, delay) {
+        this.length = length;
+        this.width = width;
+    
+        this.offset = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+        this.direction = Math.atan2(offsetY, offsetX);
+
+        this.angle = angle;
+        this.delay = delay;
+    }
+}
+
 export class PetalConfig {
     static idAccumulator = 0;
 
