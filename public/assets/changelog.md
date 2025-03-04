@@ -1,3 +1,10 @@
+# Update (3/4/2025):
+- Updated map editor to fix a few bugs
+- Updated terrain system to use map editor maps
+- Special zones are now supported!
+- Updated the checkpoints for a few maps because of new rarity distribution
+- Sewers now has a few special zones, can you find them all?
+
 # Update (02/23/2025):
 - Imposed a router-side restriction on the number of rarities you can add (24)
 - Fixed a bug where sometimes your name wouldn't save

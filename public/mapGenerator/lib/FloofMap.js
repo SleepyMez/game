@@ -91,6 +91,13 @@ export default class FloofMap {
 
                 if (cell.score > 0) {
                     ctx.fillStyle = gameConfigs.tiers[Math.round(cell.score * this.maxRarity)].color;
+
+                    if (Math.round(cell.score * this.maxRarity) == 11) {
+                        ctx.strokeStyle = "#acacac"
+                        ctx.lineWidth = 2
+                        ctx.strokeRect(x * cellSize + cellSize / 4, y * cellSize + cellSize / 4, cellSize / 2, cellSize / 2);
+                    }
+
                     ctx.fillRect(x * cellSize + cellSize / 4, y * cellSize + cellSize / 4, cellSize / 2, cellSize / 2);
                 }
             }
@@ -173,7 +180,7 @@ export default class FloofMap {
                 return;
             }
 
-            if (cell.type === 3) {
+            if (cell.type === 2 || cell.type === 3) {
                 cell.score = pathfinder.findPath(spawnX, spawnY, x, y).length;
                 maxScore = Math.max(maxScore, cell.score);
             }
@@ -238,8 +245,12 @@ export default class FloofMap {
                     cellObject.spawn = cell.mobSpawner.id;
                 }
 
-                if (cell.type === 3) {
+                if (cell.type === 2 || cell.type === 3) {
                     cellObject.score = cell.score;
+                }
+
+                if (cell.type === 1) {
+                    cellObject.score = 0
                 }
 
                 output.cells.push(cellObject);
