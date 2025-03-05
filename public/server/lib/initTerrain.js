@@ -21,7 +21,7 @@ let mapSrc = MAP_TYPES.standard,
     map = [];
 
 export default async function initTerrain(type) {
-    if ((isHalloween && type === BIOME_TYPES.HALLOWEEN) || Math.random() > .99) {
+    if ((isHalloween && type === BIOME_TYPES.HALLOWEEN) || Math.random() > 1) { // temp disable for now
         map = generateRandomMap(56, 56, false);
     } else {
         switch (type) {
@@ -62,9 +62,14 @@ export default async function initTerrain(type) {
     }
 
     const generator = {
-        width: map.length,
-        height: map[0].length,
-        get: (x, y) => map[x][y]
+        width: map.width,
+        height: map.height,
+        mobSpawners: map.mobSpawners,
+        maxRarity: map.maxRarity,
+        cells: map.cells,
+        get: (x, y) => map.cells.filter((cell)=>{
+            if (cell.x == x && cell.y == y) return true
+        })[0]
     };
 
     state.terrainGridWidth = generator.width;
@@ -79,11 +84,11 @@ export default async function initTerrain(type) {
 
     for (let i = 0; i < generator.width; i++) {
         for (let j = 0; j < generator.height; j++) {
-            if (generator.get(i, j).type === -1) {
-                let top = j <= 0 || generator.get(i, j - 1).type === -1,
-                    right = i >= generator.width - 1 || generator.get(i + 1, j).type === -1,
-                    bottom = j >= generator.height - 1 || generator.get(i, j + 1).type === -1,
-                    left = i <= 0 || generator.get(i - 1, j).type === -1;
+            if (generator.get(i, j).type === 0) {
+                let top = j <= 0 || generator.get(i, j - 1).type === 0,
+                    right = i >= generator.width - 1 || generator.get(i + 1, j).type === 0,
+                    bottom = j >= generator.height - 1 || generator.get(i, j + 1).type === 0,
+                    left = i <= 0 || generator.get(i - 1, j).type === 0;
 
                 let flags = 0;
 
@@ -114,10 +119,10 @@ export default async function initTerrain(type) {
                 const spawn = {
                     x: (i / state.terrainGridWidth) - .5,
                     y: (j / state.terrainGridHeight) - .5,
-                    rarity: generator.get(i, j).rarity
+                    rarity: Math.round(generator.get(i, j).score * generator.maxRarity)
                 };
 
-                spawns[ENTITY_TYPES[generator.get(i, j).type === 1 || generator.get(i, j).type === 3 ? "PLAYER" : "MOB"]].push(spawn);
+                spawns[ENTITY_TYPES[generator.get(i, j).type === 1 || generator.get(i, j).type === 2 ? "PLAYER" : "MOB"]].push(spawn);
                 state.maxMapDistFromSpawn = Math.max(state.maxMapDistFromSpawn, spawn.dist);
             }
         }

@@ -70,17 +70,17 @@ const state = {
         if (type == ENTITY_TYPES.PLAYER) {
             let highestSpawnRarity = 0
             spawns = spawns.filter((spawn) => {
-              if (spawn.rarity <= client.highestRarity) {
-                return true
-              }
+                if (spawn.rarity <= client.highestRarity) {
+                    return true
+                }
             })
 
             spawns.forEach((data) => {
-              highestSpawnRarity = Math.max(data.rarity, highestSpawnRarity)
+                highestSpawnRarity = Math.max(data.rarity, highestSpawnRarity)
             })
 
             spawns = spawns.filter((data) => {
-              if (data.rarity >= highestSpawnRarity) return true
+                if (data.rarity >= highestSpawnRarity) return true
             })
         }
 
@@ -94,7 +94,7 @@ const state = {
     },
 
     isValidMapSpawn: (x, y) => {
-        if (state.mapData.length === 0) {
+        if (state.mapData.cells.length === 0) {
             return true;
         }
 
@@ -105,7 +105,7 @@ const state = {
             return false;
         }
 
-        return state.mapData[gridX][gridY].type !== -1;
+        return state.mapDataAt(x, y).type !== 0;
     },
 
     mapDataAt: (x, y) => {
@@ -116,7 +116,9 @@ const state = {
             return null;
         }
 
-        return state.mapData[gridX][gridY];
+        return state.mapData.cells.filter((cell) => {
+            if (cell.x == gridX && cell.y == gridY) return true
+        })[0];
     },
 
     mapSpawnClosestTo: (x, y) => {
@@ -228,7 +230,8 @@ const state = {
 
         return {
             position: position,
-            rarity: rarity
+            rarity: rarity,
+            tile: state.mapDataAt(position.x, position.y)
         };
     },
 

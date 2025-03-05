@@ -181,8 +181,20 @@ setInterval(() => {
             const info = state.spawnNearPlayer(mobConfigs[0]);
             new AIPlayer(info.position, info.rarity, Math.max(1, info.rarity * 10 + (Math.random() * 6 | 0 - 3)));
         } else if (state.gamemode === GAMEMODES.MAZE) {
-            const cfg = mobConfigs[getMobIndex()];
+            let cfg = mobConfigs[getMobIndex()];
             const info = state.spawnNearPlayer(cfg);
+            if (info.tile?.spawn !== undefined) {
+                const spawner = state.mapData.mobSpawners.filter((spawner) => {
+                    if (spawner.id == info.tile?.spawn) return true
+                })[0]
+                if (spawner.availableMobs.length !== 0) {
+                    const spawn = spawner.availableMobs[spawner.availableMobs.length * Math.random() | 0]
+                    cfg = mobConfigs[spawn[0]]
+                    if (spawn[1] !== true) {
+                        info.rarity = spawn[1]
+                    }
+                }
+            }
             const mob = new Mob(info.position);
             mob.define(cfg, info.rarity);
 
@@ -591,7 +603,7 @@ class ModdingAPI {
                     if (
                         !this.validateArg(jobID, "width", args[1], "number", [32 * 8, 32 * 4096]) ||
                         !this.validateArg(jobID, "height", args[2], "number", [32 * 8, 32 * 4096]) ||
-                        !this.validateArg(jobID, "mobCount", args[3], "number", [0, 4096]) || 
+                        !this.validateArg(jobID, "mobCount", args[3], "number", [0, 4096]) ||
                         !this.validateArg(jobID, "currentWave", args[4], "number", [0, 4096])
                     ) {
                         return;
@@ -604,7 +616,7 @@ class ModdingAPI {
                     state.width = args[1];
                     state.height = args[2];
                     state.maxMobs = args[3];
-                    state.currentWave = args[4]-1
+                    state.currentWave = args[4] - 1
                     state.livingMobCount = 0
                 }
 
@@ -615,7 +627,7 @@ class ModdingAPI {
                     width: state.width,
                     height: state.height,
                     mobCount: state.maxMobs,
-                    wave: state.currentWave 
+                    wave: state.currentWave
                 });
                 break;
             case "getRoomInfo":
@@ -629,7 +641,7 @@ class ModdingAPI {
                     width: state.width,
                     height: state.height,
                     mobCount: state.maxMobs,
-                    wave: state.wave 
+                    wave: state.wave
                 });
                 break;
             case "getPlayers":
