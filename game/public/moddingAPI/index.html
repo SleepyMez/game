@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Floof Modding API Reference</title>
+
+    <style>
+        :root {
+            --element-width: 108vmin;
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
+        body {
+            background-color: #333333;
+            color: #EEEEEE;
+        }
+
+        #container {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%);
+            align-items: center;
+        }
+
+        p {
+            width: var(--element-width);
+        }
+
+        a {
+            color: #C8EFAA;
+        }
+
+        a:visited {
+            color: #C8EFAA;
+        }
+
+        a:hover {
+            color: #A0D8F7;
+        }
+
+        .warning {
+            background-color: #803238;
+            border: .25vmin solid #5e1d24;
+            border-radius: .5vmin;
+            padding: 1vmin;
+            margin-top: 1vmin;
+            width: var(--element-width);
+        }
+
+        pre {
+            border-radius: .5vmin;
+            padding: 1vmin;
+            width: var(--element-width);
+        }
+
+        .warning pre {
+            width: calc(var(--element-width) - 2vmin);
+        }
+
+        .mini-heading {
+            font-size: 2vmin;
+            font-weight: bold;
+            margin: .5vmin;
+        }
+    </style>
+
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/rainbow.min.css">
+    <script src="./highlight.min.js" defer></script>
+</head>
+
+<body>
+    <div id="container">
+        <h1>Floof Modding API Reference</h1>
+        <p>Welcome, this page aims to make modding floof easier for you! Feel free to spin up a lobby and try this in a
+            split screen as you go through!</p>
+        <div class="warning">
+            <h2>Warning:</h2>
+            <p>
+                This API is subject to change at any time. Additionally, the API is not guaranteed to be stable and may
+                result in broken rooms.
+            </p>
+        </div>
+        <div class="warning">
+            <h2>Warning:</h2>
+            <p>
+                Only the room owner can run these commands. If you are not the room owner, you will not be able to run
+                these
+                in the room.
+            </p>
+        </div>
+        <h2>Table of Contents</h2>
+        <ul>
+            <li>
+                <a href="#intro">Introduction</a>
+                <ul>
+                    <li><a href="#structure">Basic Game Structure</a></li>
+                    <li>
+                        <a href="#concepts">Important JavaScript Concepts</a>
+                        <ul>
+                            <li><a href="#concept-promise">Promises</a></li>
+                            <li><a href="#concept-async-await">Async/Await</a></li>
+                            <li><a href="#concept-web-worker">Web Workers</a></li>
+                            <li><a href="#concept-broadcast-channel">Broadcast Channel</a></li>
+                            <li><a href="#concept-websocket">Websocket</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><a href="#syncInfo">Synchronous Information</a></li>
+            <li><a href="#getPlayers">Get Players</a></li>
+            <li><a href="#getMobs">Get Mobs</a></li>
+            <li><a href="#spawnMob">Spawn Mob</a></li>
+            <li><a href="#getRoomInfo">Get Room Info</a>
+            <li><a href="#setRoomInfo">Set Room Info</a></li>
+            <li><a href="#getPetalInfo">Get Petal Info</a></li>
+            <li><a href="#addCustomPetal">Add Custom Petal</a></li>
+            <li><a href="#editCustomPetal">Edit Custom Petal</a></li>
+            <li><a href="#deletePetal">Delete Petal</a></li>
+            <li><a href="#setSlot">Set Slot</a></li>
+            <li><a href="#setSlotAmount">Set Slot Amount</a></li>
+            <li><a href="#quickSlots">Quickly Setting Slots</a></li>
+        </ul>
+
+        <h2 id="intro">Introduction</h2>
+        <p>
+            In order to start modding you need to be able to access the developer console.
+            If you don't know how to do this, google search "How do I open the developer tools on my browser?",
+            replacing
+            "my browser" with your browser.
+            Once you have the developer console open, you can start running the code below.
+        </p>
+
+
+        <h3 id="structure">Basic Game Structure</h3>
+        <p>
+            The game is made using JavaScript, and you will be interacting with the game's JavaScript in order to mod
+            it.
+            This guide expects you to have a basic overview of JavaScript, and if you don't, you can check out the <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide">MDN Web Docs</a> for more in-depth
+            information. The lobby runs in a <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">Web
+                Worker</a>, which is a separate thread from the main thread. This means that you can't directly access
+            the
+            game's JavaScript from the console. Instead, you will be using a custom made socket API which sends commands
+            to
+            and from the main thread, which runs the client. This API is what you will be using to mod the game.
+        </p>
+
+        <h3 id="concepts">Important JavaScript Concepts</h3>
+        <p>
+            <span class="mini-heading" id="concept-promise">Promises</span> are a way to handle asynchronous code in
+            JavaScript. They are
+            objects that represent the eventual completion or failure of an asynchronous operation and its resulting
+            value.
+            You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-async-await">Async/Await</span> is a way to write asynchronous code
+            that looks synchronous.
+            It's a way to write promises in a more readable way. You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-web-worker">Web Workers</span> are a way to run JavaScript code in a
+            separate thread from the
+            main thread. This is useful for running code that may take a long time to run, as it won't block the main
+            thread.
+            You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-broadcast-channel">Broadcast Channel</span> is a way to communicate
+            between different windows
+            or tabs, or in our case, the lobby Web Worker. You can read more about them <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel">here</a>.<br /><br />
+
+            <span class="mini-heading" id="concept-websocket">Websocket</span> is a way to communicate between the
+            client and the server. In our case,
+            you will establish connection between a lobby server which routes packets between clients and lobbies. You
+            can read
+            more about them <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">here</a>.
+        </p>
+
+        <div class="warning">
+            <h2>Warning:</h2>
+            <p>
+                The rest of this guide will assume you have a basic understanding of JavaScript syntax, and the concepts above.
+                If you don't, you may have a hard time understanding what the code and responses below do or mean. It is up to
+                you to learn these concepts before continuing. <b>We are not responsible for teaching basic JavaScript.</b>
+            </p>
+        </div>
+
+        <h2 id="syncInfo">Synchronous Information</h2>
+        <p>
+            The synchronous information is the information that will be returned instantly. This information is stored
+            in
+            the client, and therefore has no need to return an asynchronous response.
+        </p>
+
+        <h3>Getting a Petal's Index</h3>
+        <p>
+            This function will return the index of the petal whose name you've provided. If the petal doesn't exist,
+            it will return -1.
+            You should use this index to pass to other functions that require a petal index, however recent support
+            has been added that lets you directly pass the petal's name into it.
+        </p>
+        <pre id="syncPetalIndex"></pre>
+
+        <h3>Getting a Mob's Index</h3>
+        <p>
+            This function will return the index of the mob whose name you've provided. If the mob doesn't exist,
+            it will return -1.
+            You should use this index to pass to other functions that require a mob index, however recent support
+            has been added that lets you directly pass the mob's name into it.
+        </p>
+        <pre id="syncMobIndex"></pre>
+
+        <h3>Getting a Tier's Index</h3>
+        <p>
+            This function will return the index of the tier whose name you've provided. If the tier doesn't exist,
+            it will return -1.
+            You should use this index to pass to other functions that require a tier index, however recent support
+            has been added that lets you directly pass the tier's name into it.
+        </p>
+        <pre id="syncRarityIndex"></pre>
+
+        <h3>Next Available Indices</h3>
+        <p>
+            These two functions will return the next available petal and mob indices. This is useful for adding custom
+            petals and mobs, as you can use these indices to prevent collisions between your custom petals and mobs and
+            the preexisting ones. These numbers will always be different as new petals and mobs are added to the game.
+        </p>
+        <pre id="nextAvailableIndices"></pre>
+
+        <h3>Help</h3>
+        <p>
+            While this function doesn't do anything or have any arguments, it will open a new tab in your browser to
+            this
+            page.
+        </p>
+        <pre id="help"></pre>
+
+        <div class="warning">
+            <h2>Warning:</h2>
+            <p>
+                The rest of the functions are not synchronous and will return a promise. This means that you will need
+                to
+                use the .then() function to access the data.
+                You can also use the async/await syntax to make the code look cleaner in a top-level async function.
+                If you need more information on promises, you can check out the <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">MDN
+                    Web
+                    Docs</a>.
+                More information on async/await can be found <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">here</a>.
+            </p>
+            <p>
+                The response will contain an "ok" field that will be true if the request was successful and false if it
+                was
+                rejected.
+                The "message" field will contain a message that will help you understand why the request was rejected,
+                or if
+                it was successful.
+                The "data" field will contain the data you requested if the request was successful. It may be in many
+                different forms.
+                Your responses wil allmost always look something like this:
+            </p>
+            <pre id="asyncResponseTemplate"></pre>
+        </div>
+
+        <h2 id="getPlayers">Get Players</h2>
+        <p>
+            This function's response's data section will contain an array of all the players in the room.
+        </p>
+        <pre id="getPlayersRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="getPlayersResponse"></pre>
+
+        <h2 id="getMobs">Get Mobs</h2>
+        <p>
+            This function's response's data section will contain an array of all the mobs in the room.
+        </p>
+        <pre id="getMobsRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="getMobsResponse"></pre>
+
+        <h2 id="spawnMob">Spawn Mob</h2>
+        <p>
+            This function will spawn a mob in the room. The response will contain the mob that was spawned.
+            You must provide two arguments, the index and the rarity ID. They must both be valid numbers in the index
+            and
+            rarity ranges respectively. If you don't want to remember the index and rarity ID, you can use the
+            <a href="#syncInfo">Synchronous Functions</a> to get them, or, with recent support, simply provide the mob's
+            name and rarity name.
+        </p>
+        <pre id="spawnMobRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="spawnMobResponse"></pre>
+
+        <h2 id="spawnAIFlower">Spawn AI Flower</h2>
+        <p>
+            This function, much like the spawnMob function, spawns an AI Flower in the room. The response will contain the AI Flower that was spawned. 
+            There are two arguments that are required: the rarity of the AI Flower's petals, and the AI Flower's level.
+        </p>
+        <pre id="spawnAIFlowerRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="spawnAIFlowerResponse"></pre>
+
+        <h2 id="getRoomInfo">Get Room Info</h2>
+        <p>
+            This function will return the room info. The response will contain the room info.
+        </p>
+        <pre id="getRoomInfoRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="getRoomInfoResponse"></pre>
+
+        <h2 id="setRoomInfo">Set Room Info</h2>
+        <p>
+            This function will set the room info. The response will contain the room info.
+            You must weather the room's sizing is dynamic or static. If the room is dynamic, the room will resize to fit
+            the
+            number of players, and the mob cap will be automatically adjusted as well. If the room is static, the room
+            will
+            not resize, and the mob cap will not be adjusted.<br /><br />
+            If the supplied first argument is "false" (static), then the second and third arguments are the room width
+            and
+            height respectively. The fourth argument is the mob cap, and the fifth argument is the wave to set (required, but doesn't work in gamemodes other than waves).
+        </p>
+        <pre id="setRoomInfoRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="setRoomInfoResponse"></pre>
+
+        <h2 id="getPetalInfo">Get Petal Info</h2>
+        <p>
+            This function will return the petal info. The response will contain the petal info.
+            Provide the petal's index or direct name to get the petal's info. The response will
+            contain the PetalConfig object of the petal you requested if successful.
+        </p>
+        <pre id="getPetalInfoRequest"></pre>
+
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="getPetalInfoResponse"></pre>
+
+        <h2 id="addCustomPetal">Add Custom Petal</h2>
+        <p>
+            This function will add a custom petal to the room. The response will contain the PetalConfig object of
+            the petal you just created if successful. All arguments in the constructor are required. Because it's a
+            new petal, you must provide a drawing object as described below. Additional information is provided as of
+            use cases. In order to give good drawings, please read up on the HTML
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">Canvas API</a>
+        </p>
+        Here are the default parameters for the petal options:
+        <pre id="addCustomPetalStructure"></pre>
+        </p>
+        <pre id="addCustomPetalRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="addCustomPetalResponse"></pre>
+
+        <h2 id="editCustomPetal">Edit Petal</h2>
+        <p>
+            This function will edit a custom petal in the room. The response will contain the PetalConfig object of
+            the petal you just edited if successful. You should use an existing petal config retrieved by either the
+            creation of a custom petal, or the fetching of another existing petal. Only what you change will be applied.
+        </p>
+        <pre id="editCustomPetalRequest"></pre>
+
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="editCustomPetalResponse"></pre>
+
+        <h2 id="deletePetal">Delete Petal</h2>
+        <p>
+            This function will delete a custom petal in the room. The response will tell you if you were successful or
+            not.
+        </p>
+        <pre id="deletePetalRequest"></pre>
+
+        <h2 id="setSlot">Set Slot</h2>
+        <p>
+            This function will set the slot of a player. The response will contain the player that was modified.
+            You must provide four arguments: clientID, slotID, index, rarity. The clientID is the ID of the player you
+            want
+            to modify. The slotID is the slot you want to modify. The index is the index of the petal you want to set.
+            The
+            rarity is the rarity of the petal you want to set.
+
+            If you don't want to remember the index and rarity ID, you can use the <a href="#syncInfo">Synchronous
+                Functions</a> to get them.
+        </p>
+        <pre id="setSlotRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="setSlotResponse"></pre>
+
+        <h2 id="setSlotAmount">Set Slot Amount</h2>
+        <p>
+            This function will set the amount of slots a player has. The response will contain the player that was
+            modified.
+            You must provide two arguments: clientID, amount. The clientID is the ID of the player you want to modify.
+            The
+            amount is the amount of slots you want to set.
+        </p>
+        <pre id="setSlotAmountRequest"></pre>
+        <p>
+            The response will look like this:
+        </p>
+        <pre id="setSlotAmountResponse"></pre>
+
+        <h2 id="quickSlots">Quickly Setting Slots</h2>
+        <div class="warning">
+            <h2>Warning:</h2>
+            <p>
+                Because this is asynchronouse, we must first set the amount of slots, then set the slots. This is
+                because if
+                we don't wait
+                for the first request to finish, the second requests may not be supported in their index bounds.
+            </p>
+        </div>
+        <pre id="quicklySetSlots"></pre>
+    </div>
+
+    <script src="./index.js"></script>
+</body>
+
+</html>

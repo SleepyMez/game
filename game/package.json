@@ -1,0 +1,19 @@
+{
+    "name": "floof-game",
+    "version": "v1.0.0",
+    "description": "The game source for floof.io!",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "build": "webpack --config ./webpack.config.js"
+    },
+    "dependencies": {
+        "webpack": "^5.78.0",
+        "webpack-cli": "^4.8.0",
+        "uglify-js": "latest",
+        "js-beautify": "latest"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    }
+}

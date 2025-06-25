@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Map Editor</title>
+    <style>
+        * {
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        html,
+        body,
+        canvas {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #controlsOverlay {
+            position: absolute;
+            top: 2vmin;
+            right: 2vmin;
+
+            background-color: rgba(0, 0, 0, .667);
+            color: white;
+            padding: 1vmin;
+        }
+
+        .mobSpawner {
+            padding-top: 1vmin;
+            margin: 2vmin;
+            background-color: rgba(0, 0, 0, .667);
+            padding: 1vmin;
+            border-radius: 1vmin;
+        }
+
+        .mobSpawner * {
+            margin: .25vmin;
+        }
+
+        .availableMobs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1vmin;
+
+            background-color: rgba(255, 255, 255, .334);
+            padding: 1vmin;
+            border-radius: 1vmin;
+            margin-top: 1vmin;
+        }
+
+        .availableMobs .mob {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1vmin;
+            background-color: rgba(0, 0, 0, .667);
+            padding: 1vmin;
+            border-radius: 1vmin;
+            cursor: not-allowed;
+        }
+
+        .mobSpawner input#autoGenerateRarities:checked~.availableMobs+.addNewMob #mobRarity {
+            display: none;
+        }
+
+        .mobSpawner input#autoGenerateRarities:checked~.availableMobs+.addNewMob label[for="mobRarity"] {
+            display: none;
+        }
+
+        .mobSpawner.selected {
+            background-color: rgba(64, 64, 72, .9);
+        }
+
+        #mobSpawners {
+            overflow-y: auto;
+            max-height: 48vh;
+        }
+    </style>
+
+    <script src="./index.js" type="module" defer></script>
+</head>
+
+<body oncontextmenu="return false;">
+    <canvas></canvas>
+
+    <div id="controlsOverlay">
+        <h2>Controls:</h2>
+
+        <label for="mapWidth">Map Width:</label>
+        <input type="number" id="mapWidth" value="64" min="16" max="255"> <br />
+
+        <label for="mapHeight">Map Height:</label>
+        <input type="number" id="mapHeight" value="64" min="16" max="255"> <br />
+
+        <label for="maxRarity">Maximum Rarity:</label>
+        <select id="maxRarity"></select> <br />
+
+        <label for="brushType">Brush Type:</label>
+        <select id="brushType">
+            <option value="Mob Spawn">Mob Spawn</option>
+            <option value="Wall">Wall</option>
+            <option value="Player Spawn">Player Spawn</option>
+            <option value="Checkpoint">Checkpoint</option>
+        </select> <br />
+
+        <label for="brushSize">Brush Size:</label>
+        <input type="number" id="brushSize" value="1" min="1" max="10"> <br />
+
+        <button id="calculateCellScores">Calculate Cell Scores</button> <br />
+        <button id="export">Export Mapfile</button>
+        <button id="import">Import Mapfile</button> <br />
+
+        <div id="mobSpawners">
+            <h3>Mob Spawners (Click to select):</h3>
+            <button id="createMobSpawner">+</button>
+            <template id="mobSpawner">
+                <div class="mobSpawner">
+                    <button id="removeSpawner">-</button> <br />
+
+                    <label for="helperColor">Helper Color:</label>
+                    <input type="color" id="helperColor" value="#ff0000"> <br />
+
+                    <label for="autoGenerateRarities">Auto-Generate Rarities:</label>
+                    <input type="checkbox" id="autoGenerateRarities" checked> <br />
+
+                    <div class="availableMobs"></div>
+
+                    <div class="addNewMob">
+                        <label for="mobSelection">Mob:</label>
+                        <select id="mobSelection"></select> <br />
+
+                        <label for="mobRarity">Rarity:</label>
+                        <select id="mobRarity"></select>
+
+                        <button id="addMob">+</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+
+</html>
